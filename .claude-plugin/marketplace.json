@@ -1,15 +1,15 @@
 {
-  "name": "temporal-claude-marketplace-public",
+  "name": "temporal-marketplace",
   "metadata": {
-    "description": "Stuff"
+    "description": "A marketplace of Claude Code plugins for working with Temporal (temporal.io)"
   },
   "owner": {
     "name": "Temporal"
   },
   "plugins": [
     {
-      "name": "steveandroulakis-temporal-python",
-      "source": "./plugins/steveandroulakis-temporal-python"
+      "name": "temporal-dev",
+      "source": "./plugins/temporal-dev"
     }
   ]
 }

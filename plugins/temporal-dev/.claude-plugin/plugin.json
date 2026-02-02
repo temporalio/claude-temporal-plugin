@@ -1,0 +1,8 @@
+{
+    "name": "temporal-dev",
+    "description": "Start, stop, debug, and troubleshoot Temporal workflows for Python projects. Use when: starting workers, executing workflows, workflow is stalled/failed, non-determinism errors, checking workflow status, or managing temporal server start-dev lifecycle.",
+    "version": "0.1.0",
+    "author": {
+      "name": "Temporal"
+    }
+  }
