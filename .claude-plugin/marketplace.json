@@ -1,0 +1,15 @@
+{
+  "name": "temporal-marketplace",
+  "metadata": {
+    "description": "A marketplace of Claude Code plugins for working with Temporal (temporal.io)"
+  },
+  "owner": {
+    "name": "Temporal"
+  },
+  "plugins": [
+    {
+      "name": "temporal-dev",
+      "source": "./plugins/temporal-dev"
+    }
+  ]
+}

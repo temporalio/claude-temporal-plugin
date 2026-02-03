@@ -1,0 +1,3 @@
+[submodule "plugins/temporal-dev/skills/temporal-dev"]
+	path = plugins/temporal-dev/skills/temporal-dev
+	url = https://github.com/temporalio/skill-temporal-dev
