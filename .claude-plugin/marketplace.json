@@ -8,8 +8,8 @@
   },
   "plugins": [
     {
-      "name": "temporal-dev",
-      "source": "./plugins/temporal-dev"
+      "name": "temporal-developer",
+      "source": "./plugins/temporal-developer"
     }
   ]
 }

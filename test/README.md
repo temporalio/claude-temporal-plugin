@@ -1,6 +1,6 @@
 # Temporal Skill Integration Tests
 
-These tests validate that the Temporal skill (`plugins/temporal-dev/skills/temporal-dev`) works correctly when used with Claude Code to generate applications.
+These tests validate that the Temporal skill (`plugins/temporal-developer/skills/temporal-developer`) works correctly when used with Claude Code to generate applications.
 
 ## Test Structure
 
