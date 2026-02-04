@@ -52,7 +52,7 @@ setup_paths() {
     SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)"
     TEST_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
     REPO_ROOT="$(cd "$TEST_ROOT/.." && pwd)"
-    SKILL_DIR="${REPO_ROOT}/plugins/temporal-dev/skills/temporal-dev"
+    SKILL_DIR="${REPO_ROOT}/plugins/temporal-developer/skills/temporal-developer"
     WORKSPACE_DIR="${SCRIPT_DIR}/test-workspace"
 }
 
@@ -61,9 +61,9 @@ setup_workspace() {
     print_step "Setting up test workspace..."
 
     rm -rf "${WORKSPACE_DIR}"
-    mkdir -p "${WORKSPACE_DIR}/.claude/skills/temporal-dev"
+    mkdir -p "${WORKSPACE_DIR}/.claude/skills/temporal-developer"
 
-    cp -r "${SKILL_DIR}"/* "${WORKSPACE_DIR}/.claude/skills/temporal-dev/"
+    cp -r "${SKILL_DIR}"/* "${WORKSPACE_DIR}/.claude/skills/temporal-developer/"
     print_success "Installed skill files"
 
     cp "${SCRIPT_DIR}/test-prompt.txt" "${WORKSPACE_DIR}/"
