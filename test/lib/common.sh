@@ -115,7 +115,8 @@ generate_code() {
     cd "${WORKSPACE_DIR}"
     PROMPT=$(cat test-prompt.txt)
 
-    if claude --print "$PROMPT" 2>&1; then
+    # Use -p for non-interactive mode, --dangerously-skip-permissions to allow file writes
+    if claude -p --dangerously-skip-permissions "$PROMPT" 2>&1; then
         print_success "Code generation complete"
     else
         print_error "Code generation failed"
@@ -144,9 +145,9 @@ run_validation() {
     echo ""
 }
 
-# Check if Temporal server is running
+# Check if Temporal server is running (check if gRPC port 7233 is listening)
 check_temporal() {
-    temporal operator cluster health --tls=false 2>/dev/null | grep -q "SERVING"
+    nc -z localhost 7233 2>/dev/null
     return $?
 }
 
@@ -179,6 +180,9 @@ start_temporal() {
     done
 
     echo -e "\n${RED}✗ Temporal server failed to start${NC}"
+    # Kill the failed server
+    kill $TEMPORAL_PID 2>/dev/null || true
+    rm -f .temporal-server.pid
     return 1
 }
 
@@ -223,6 +227,7 @@ start_execution_test() {
     cd "${WORKSPACE_DIR}"
 
     if ! ensure_temporal; then
+        cleanup_temporal  # Clean up any partially started server
         echo -e "${YELLOW}Skipping execution test - Temporal not available${NC}"
         print_result_box "$GREEN" "INTEGRATION TEST PASSED!                 " "(Structure & Validation Only)            "
         exit 0

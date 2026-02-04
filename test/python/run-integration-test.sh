@@ -37,13 +37,13 @@ if ! kill -0 $WORKER_PID 2>/dev/null; then
 fi
 echo -e "${GREEN}✓ Worker is running${NC}"
 
-# Run client
+# Run client (with 30 second timeout)
 echo -e "${YELLOW}Running client...${NC}"
-if python3 client.py --name TestUser 2>&1 || python3 client.py TestUser 2>&1; then
+if timeout 30 python3 client.py TestUser 2>&1; then
     echo -e "${GREEN}✓ Workflow executed successfully${NC}"
     EXECUTION_SUCCESS=true
 else
-    echo -e "${RED}✗ Workflow execution failed${NC}"
+    echo -e "${RED}✗ Workflow execution failed or timed out${NC}"
     EXECUTION_SUCCESS=false
 fi
 

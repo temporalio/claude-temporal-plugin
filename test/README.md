@@ -28,7 +28,7 @@ test/
 ## Prerequisites
 
 ### Required
-- **Claude CLI**: `npm install -g @anthropic-ai/claude-code`
+- **Claude CLI**: `curl -fsSL https://claude.ai/install.sh | bash`
 - **Anthropic API Key**: Set `ANTHROPIC_API_KEY` environment variable
 - **Python 3.10+** (for Python tests)
 - **Node.js 18+** (for TypeScript tests)

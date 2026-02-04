@@ -8,9 +8,14 @@ Requirements:
 5. Use proper async/await patterns
 6. Include TypeScript types on all function signatures
 7. Use the latest version of the @temporalio packages
-8. Structure the code with separate files: workflows.ts, activities.ts, worker.ts, client.ts
-9. Include a package.json with dependencies and a tsconfig.json
-10. Add a signal handler to the workflow that can update the greeting style
-11. Add a query handler to get the current greeting count
+8. Create these files in the current directory (not in a src/ subdirectory):
+   - workflows.ts
+   - activities.ts
+   - worker.ts
+   - client.ts
+   - package.json
+   - tsconfig.json
+9. Add a signal handler to the workflow that can update the greeting style
+10. Add a query handler to get the current greeting count
 
 The application should be production-ready with proper error handling and best practices.
