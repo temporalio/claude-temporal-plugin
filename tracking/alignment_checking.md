@@ -141,13 +141,13 @@ Shows which sections exist in each language. Organized by file.
 
 | Section | Core | Core# | Python | Py# | TypeScript | TS# | Go |
 |---------|------|-------|--------|-----|------------|-----|-----|
-| Overview | ✓ | 1 | ✓ | 1 | ✓ | 1 | |
-| Why Versioning is Needed | ✓ | 2 | ✓ | 2 | ✓ | 2 | |
-| Patching API | ✓ | 3 | ✓ | 3 | ✓ | 3 | |
-| Workflow Type Versioning | ✓ | 4 | ✓ | 4 | ✓ | 4 | |
-| Worker Versioning | ✓ | 5 | ✓ | 5 | ✓ | 5 | |
-| Choosing a Strategy | ✓ | 6 | ✓ | 6 | ✓ | 6 | |
-| Best Practices | ✓ | 7 | ✓ | 6 | ✓ | 7 | |
+| Overview | ✓ | 1 | — | — | — | — | |
+| Why Versioning is Needed | ✓ | 2 | — | — | — | — | |
+| Patching API | ✓ | 3 | ✓ | 1 | ✓ | 1 | |
+| Workflow Type Versioning | ✓ | 4 | ✓ | 2 | ✓ | 2 | |
+| Worker Versioning | ✓ | 5 | ✓ | 3 | ✓ | 3 | |
+| Choosing a Strategy | ✓ | 6 | — | — | — | — | |
+| Best Practices | ✓ | 7 | ✓ | 4 | ✓ | 4 | |
 | Finding Workflows by Version | ✓ | 8 | — | — | — | — | |
 | Common Mistakes | ✓ | 9 | — | — | — | — | |
 
@@ -716,17 +716,17 @@ Shows which sections exist in each language. Organized by file.
 
 #### Overview
 - **Core:** Brief intro listing three approaches
-- **Python:** Detailed intro covering all three approaches
-- **TypeScript:** Brief intro covering all three approaches
-- **Decision:** all good
+- **Python:** Removed (references core)
+- **TypeScript:** Removed (references core)
+- **Decision:** ✅ FIXED — Conceptual content moved to core only; languages reference core
 
 ---
 
 #### Why Versioning is Needed
 - **Core:** Conceptual explanation with pseudo-code
-- **Python:** Detailed explanation with replay context
-- **TypeScript:** "Why Versioning Matters" - similar detailed explanation
-- **Decision:** all good
+- **Python:** Removed (references core)
+- **TypeScript:** Removed (references core)
+- **Decision:** ✅ FIXED — Conceptual content moved to core only; languages reference core
 
 ---
 
@@ -756,9 +756,9 @@ Shows which sections exist in each language. Organized by file.
 
 #### Choosing a Strategy
 - **Core:** Decision table
-- **Python:** Decision table
-- **TypeScript:** Decision table
-- **Decision:** ✅ FIXED — Added decision table to Python
+- **Python:** Removed (references core)
+- **TypeScript:** Removed (references core)
+- **Decision:** ✅ FIXED — Decision table in core only; languages reference core
 
 ---
 
@@ -1184,22 +1184,26 @@ Shows which sections exist in each language. Organized by file.
 - Go column: all empty — Go files not yet created
 
 **Intentionally missing (`—`):**
-- Choosing a Strategy: Python missing (TS + Core have decision table)
+- Overview: Core-only (conceptual; languages reference core)
+- Why Versioning is Needed: Core-only (conceptual; languages reference core)
+- Choosing a Strategy: Core-only (conceptual; languages reference core)
 - Finding Workflows by Version: Core-only section (languages cover in Query Filters subsections)
 - Common Mistakes: Core-only section
 
-**Order alignment:** ✓ Aligned — all three files follow same order (Overview, Why, Patching, Type Versioning, Worker Versioning, Best Practices)
+**Order alignment:** ✓ Aligned — languages now focus on code: Patching API, Type Versioning, Worker Versioning, Best Practices
 
 **Action items:** ✅ All completed
-- ✅ Added Choosing a Strategy decision table to Python versioning.md
+- ✅ Removed duplicate Overview from Python and TypeScript (now reference core)
+- ✅ Removed duplicate Why Versioning from Python and TypeScript (now reference core)
+- ✅ Removed duplicate Choosing a Strategy table from Python and TypeScript (now reference core)
 
 **Decided to keep as-is:**
 - Common Mistakes: Core-only (conceptual coverage sufficient)
 
-**Style alignment:** ✓ Well aligned
+**Style alignment:** ✅ FIXED — Aligned to core-concepts/language-code pattern
 - Core: Conceptual explanations with decision guidance
-- Python/TypeScript: Full code examples matching Core structure
-- All three cover the same three approaches consistently
+- Python/TypeScript: Code examples only, reference core for concepts
+- Eliminates duplicate conceptual content across files
 
 ### {language}.md (top-level files)
 
