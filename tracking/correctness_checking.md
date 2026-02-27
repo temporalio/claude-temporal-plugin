@@ -338,32 +338,28 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 
 | # | Section | Status | Fix Applied | Sources |
 |---|---------|--------|-------------|---------|
-| 1 | Overview | needs fixes | | context7 sdk-typescript |
-| 2 | Test Environment Setup | needs fixes | | context7 sdk-typescript |
+| 1 | Overview | FIXED | Manually updated to encourage startLocal over time skipping | temporal-docs |
+| 2 | Test Environment Setup | FIXED | Manually updated to prefer startLocal | temporal-docs |
 | 3 | Activity Mocking | all good | | context7 sdk-typescript |
-| 4 | Testing Signals and Queries | needs fixes | | context7 sdk-typescript |
-| 5 | Testing Failure Cases | needs fixes | | context7 sdk-typescript |
-| 6 | Replay Testing | needs fixes | | context7 sdk-typescript |
-| 7 | Activity Testing | needs fixes | | context7 sdk-typescript |
-| 8 | Best Practices | needs fixes | | context7 sdk-typescript |
+| 4 | Testing Signals and Queries | FIXED | Use defined signal/query objects | context7 sdk-typescript |
+| 5 | Testing Failure Cases | FIXED | Added WorkflowFailedError import | context7 sdk-typescript |
+| 6 | Replay Testing | FIXED | Added complete history fetching patterns | context7 sdk-typescript |
+| 7 | Activity Testing | FIXED | Replaced {cancelled:true} with env.cancel() | context7 sdk-typescript |
+| 8 | Best Practices | FIXED | Manually updated to prefer startLocal | temporal-docs |
 
 ### Detailed Notes
 
 #### 1. Overview
-**Status:** needs fixes
+**Status:** FIXED
 
-**Issues:**
-- Claims time-skipping support but code example uses `createLocal()` not `createTimeSkipping()`
-- Should clarify that `createTimeSkipping()` is needed for auto time advancement
+**Fixed:** Manually updated by user to encourage `startLocal` over time skipping.
 
 ---
 
 #### 2. Test Environment Setup
-**Status:** needs fixes
+**Status:** FIXED
 
-**Issues:**
-- `TestWorkflowEnvironment.createLocal()` should be `TestWorkflowEnvironment.createTimeSkipping()` for time-skipping behavior
-- teardown(), client, nativeConnection, worker.runUntil(), workflow.execute() are all correct
+**Fixed:** Manually updated by user to prefer `startLocal`.
 
 ---
 
@@ -377,50 +373,37 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 ---
 
 #### 4. Testing Signals and Queries
-**Status:** needs fixes
+**Status:** FIXED
 
-**Issues:**
-- `handle.query('queryName')` and `handle.signal('signalName')` should use defined signal/query objects
-- Correct pattern: `handle.query(getStatusQuery)` and `handle.signal(approveSignal)` where these are defined with `defineQuery`/`defineSignal`
+**Fixed:** Updated to use defined signal/query objects (`defineQuery`/`defineSignal`) instead of string names.
 
 ---
 
 #### 5. Testing Failure Cases
-**Status:** needs fixes
+**Status:** FIXED
 
-**Issues:**
-- Missing import: `import { WorkflowFailedError } from '@temporalio/client';`
-- `assert.fail()` usage is correct
+**Fixed:** Added missing `import { WorkflowFailedError } from '@temporalio/client';`
 
 ---
 
 #### 6. Replay Testing
-**Status:** needs fixes
+**Status:** FIXED
 
-**Issues:**
-- `Worker.runReplayHistory()` is correct but example is incomplete
-- Missing `workflowId` parameter (optional but recommended)
-- `fetchWorkflowHistory()` is undefined - should show actual history fetching pattern
+**Fixed:** Added complete history fetching patterns (from JSON file and from server).
 
 ---
 
 #### 7. Activity Testing
-**Status:** needs fixes
+**Status:** FIXED
 
-**Issues:**
-- `MockActivityEnvironment` from `@temporalio/testing` is correct
-- `env.run(activity, ...args)` pattern is correct
-- `{ cancelled: true }` option is INCORRECT - should use `env.cancel()` method instead
-- Missing import: `import { CancelledFailure } from '@temporalio/activity';`
+**Fixed:** Replaced `{ cancelled: true }` with `env.cancel()` method, added `CancelledFailure` import.
 
 ---
 
 #### 8. Best Practices
-**Status:** needs fixes
+**Status:** FIXED
 
-**Issues:**
-- Time-skipping claim contradicts code example (uses createLocal, not createTimeSkipping)
-- Best practices list itself is valid
+**Fixed:** Manually updated by user to prefer `startLocal`.
 
 ---
 
@@ -432,32 +415,29 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 
 | # | Section | Status | Fix Applied | Sources |
 |---|---------|--------|-------------|---------|
-| 1 | Overview | needs fixes | | context7 sdk-typescript |
-| 2 | Understanding Replay | needs fixes | | context7 sdk-typescript |
+| 1 | Overview | FIXED | Changed to "isolated runtime with bundling" | context7 sdk-typescript |
+| 2 | Understanding Replay | FIXED | Fixed ref path to references/core/ | context7 sdk-typescript |
 | 3 | Quick Start | all good | | context7 sdk-typescript |
-| 4 | Key Concepts | needs fixes | | context7 sdk-typescript |
+| 4 | Key Concepts | FIXED | Added defineUpdate() and activities param | context7 sdk-typescript |
 | 5 | File Organization Best Practice | all good | | context7 sdk-typescript |
 | 6 | Determinism Rules | all good | | context7 sdk-typescript |
-| 7 | Common Pitfalls | needs fixes | | context7 sdk-typescript |
+| 7 | Common Pitfalls | FIXED | Corrected logging guidance | context7 sdk-typescript |
 | 8 | Writing Tests | all good | | context7 sdk-typescript |
 | 9 | Additional Resources | all good | | context7 sdk-typescript |
 
 ### Detailed Notes
 
 #### 1. Overview
-**Status:** needs fixes
+**Status:** FIXED
 
-**Issues:**
-- V8 sandbox claim is not explicitly documented in SDK - should say "isolated runtime with bundling and automatic replacements"
-- Package version matching requirement is CORRECT
+**Fixed:** Changed "V8 sandbox" to "isolated runtime with bundling and automatic replacements".
 
 ---
 
 #### 2. Understanding Replay
-**Status:** needs fixes
+**Status:** FIXED
 
-**Issues:**
-- Reference path `core/determinism.md` should be `references/core/determinism.md` for consistency with other refs in the file
+**Fixed:** Changed ref path from `core/determinism.md` to `references/core/determinism.md`.
 
 ---
 
@@ -469,11 +449,9 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 ---
 
 #### 4. Key Concepts
-**Status:** needs fixes
+**Status:** FIXED
 
-**Issues:**
-- Missing `defineUpdate()` for update handlers in Workflow Definition
-- Missing mention of `activities` parameter in Worker Setup
+**Fixed:** Added `defineUpdate()` to Workflow Definition, added `activities` parameter to Worker Setup.
 
 ---
 
@@ -492,11 +470,9 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 ---
 
 #### 7. Common Pitfalls
-**Status:** needs fixes
+**Status:** FIXED
 
-**Issues:**
-- Pitfall #7 claims `log` from `@temporalio/workflow` but `log` is from `@temporalio/activity`
-- Should clarify that console.log works in workflows (V8 sandbox handles it)
+**Fixed:** Updated logging guidance to recommend `import { log } from '@temporalio/workflow'` for replay-safe logging with automatic workflow context. Removed incorrect suggestion that console.log works.
 
 ---
 
@@ -523,17 +499,15 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 | # | Section | Status | Fix Applied | Sources |
 |---|---------|--------|-------------|---------|
 | 1 | Overview | all good | | context7 sdk-typescript |
-| 2 | Why Versioning Matters | needs fixes | | context7 sdk-typescript |
+| 2 | Why Versioning Matters | FIXED | Improved non-determinism explanation | context7 sdk-typescript |
 | 3 | Workflow Versioning with the Patching API | all good | | context7 sdk-typescript |
 | 4 | Three-Step Patching Process | all good | | context7 sdk-typescript |
-| 5 | Multiple Patches | needs fixes | | context7 sdk-typescript |
-| 6 | Query Filters for Versioned Workflows | needs fixes | | context7 sdk-typescript |
+| 5 | Multiple Patches | FIXED | Clarified same patchId for related changes | context7 sdk-typescript |
+| 6 | Query Filters for Versioned Workflows | FIXED | Added spaces around = operator | context7 sdk-typescript |
 | 7 | Workflow Type Versioning | all good | | context7 sdk-typescript |
-| 8 | Worker Versioning | all good | | context7 sdk-typescript |
-| 9 | Versioning Behaviors (PINNED/AUTO_UPGRADE) | needs fixes | | context7 sdk-typescript |
-| 10 | Deployment Strategies | needs fixes | | context7 sdk-typescript |
-| 11 | Choosing a Versioning Strategy | needs fixes | | context7 sdk-typescript |
-| 12 | Best Practices | needs fixes | | context7 sdk-typescript |
+| 8 | Worker Versioning | FIXED | Updated to 2025 Public Preview API | context7 sdk-typescript, temporal-docs |
+| 9 | Choosing a Versioning Strategy | FIXED | Corrected deprecation info - only legacy API deprecated | context7 sdk-typescript, temporal-docs |
+| 10 | Best Practices | FIXED | Removed incorrect deprecation notes | context7 sdk-typescript, temporal-docs |
 
 ### Detailed Notes
 
@@ -545,10 +519,9 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 ---
 
 #### 2. Why Versioning Matters
-**Status:** needs fixes
+**Status:** FIXED
 
-**Issues:**
-- Non-determinism explanation is incomplete - should clarify that it's about different execution paths and command sequences, not just "different Commands"
+**Fixed:** Improved non-determinism explanation to clarify it's about different execution paths and command sequences.
 
 ---
 
@@ -567,19 +540,16 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 ---
 
 #### 5. Multiple Patches
-**Status:** needs fixes
+**Status:** FIXED
 
-**Issues:**
-- "Single patchId for multiple changes" claim needs clarification - it's about multiple patched() calls with SAME patchId, not a single patchId covering different branching scenarios
+**Fixed:** Clarified that it's about using same patchId in multiple patched() calls for related changes.
 
 ---
 
 #### 6. Query Filters for Versioned Workflows
-**Status:** needs fixes
+**Status:** FIXED
 
-**Issues:**
-- Query syntax needs spaces around `=` operator
-- `IS NULL` operator validity is uncertain - may need to use `NOT IN` instead
+**Fixed:** Added spaces around `=` operator in query examples. IS NULL syntax verified as correct.
 
 ---
 
@@ -591,48 +561,28 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 ---
 
 #### 8. Worker Versioning
-**Status:** all good
+**Status:** FIXED
 
-**Verified:** workerDeploymentOptions, useWorkerVersioning, version.deploymentName, version.buildId, defaultVersioningBehavior all correct
-
----
-
-#### 9. Versioning Behaviors (PINNED/AUTO_UPGRADE)
-**Status:** needs fixes
-
-**Issues:**
-- "Cannot use other versioning APIs" is INACCURATE for PINNED - PINNED workflows CAN use the Patching API
-- Should say "Cannot use Worker versioning APIs" instead
-- AUTO_UPGRADE description is correct
+**Fixed:** Completely rewrote section with correct 2025 Public Preview API. Key changes:
+- Added note that Worker Versioning is in **Public Preview** (not deprecated)
+- Clarified that only the **legacy** Worker Versioning API (pre-2025) is being removed in March 2026
+- Updated to use `workerDeploymentOptions` configuration with `useWorkerVersioning`, `version.deploymentName`, `version.buildId`
+- Removed detailed PINNED/AUTO_UPGRADE behaviors and deployment strategies (simplified for skill token efficiency)
+- Added deployment workflow using Temporal CLI
 
 ---
 
-#### 10. Deployment Strategies
-**Status:** needs fixes
+#### 9. Choosing a Versioning Strategy
+**Status:** FIXED
 
-**Issues:**
-- Blue-Green description is correct
-- Rainbow deployment code example structure may need API verification against current SDK
+**Fixed:** Removed incorrect deprecation notice. Worker Versioning is actively supported (Public Preview). Updated table to show Worker Versioning as a valid option for short-running workflows and frequent deploys.
 
 ---
 
-#### 11. Choosing a Versioning Strategy
-**Status:** needs fixes
+#### 10. Best Practices
+**Status:** FIXED
 
-**Issues:**
-- CRITICAL: Worker Versioning is being deprecated (legacy support removed March 2026)
-- Decision table should include deprecation notice
-- Should not recommend Worker Versioning for new applications
-
----
-
-#### 12. Best Practices
-**Status:** needs fixes
-
-**Issues:**
-- Best practices #6 and #7 recommend PINNED/AUTO_UPGRADE which are being deprecated
-- Should revise to not recommend Worker Versioning for new applications
-- Other best practices are valid
+**Fixed:** Removed incorrect deprecation notes from best practices. Added Worker Versioning-specific practices (consistent deployment names, traceable Build IDs).
 
 ---
 
@@ -644,44 +594,37 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 
 | # | Section | Status | Fix Applied | Sources |
 |---|---------|--------|-------------|---------|
-| 1 | Schedules | needs fixes | | context7 sdk-typescript |
-| 2 | Async Activity Completion | needs fixes | | context7 sdk-typescript |
-| 3 | Worker Tuning | needs fixes | | context7 sdk-typescript |
+| 1 | Schedules | FIXED | Use ScheduleOverlapPolicy.SKIP (not string literal), use intervals (recommended over cronExpressions) | context7 sdk-typescript, temporal-docs |
+| 2 | Async Activity Completion | FIXED | Manually corrected to match official docs: activityInfo().taskToken, AsyncCompletionClient, CompleteAsyncError | temporal-docs |
+| 3 | Worker Tuning | FIXED | Reverted to non-default values (100, 200) to demonstrate customization | context7 sdk-typescript |
 | 4 | Sinks | all good | | context7 sdk-typescript |
 
 ### Detailed Notes
 
 #### 1. Schedules
-**Status:** needs fixes
+**Status:** FIXED
 
-**Issues:**
-- `ScheduleOverlapPolicy` should NOT be imported as enum - use string literals like `'SKIP'`
-- `overlap: ScheduleOverlapPolicy.SKIP` should be `overlap: 'SKIP'`
-- `spec.intervals` with `{ every: '1 day' }` syntax may not be standard - docs show `cronExpressions` instead
-- handle methods (pause, unpause, trigger, delete) are correct
+**Fixed:**
+- Use `ScheduleOverlapPolicy.SKIP` import (not string literal) to match official samples
+- Use `intervals` (not `cronExpressions`) - intervals is the recommended approach for new code (cronExpressions is only for legacy migration)
+- Added import for `ScheduleOverlapPolicy` from `@temporalio/client`
 
 ---
 
 #### 2. Async Activity Completion
-**Status:** needs fixes
+**Status:** FIXED
 
-**Issues:**
-- `activityInfo` should be `Context.current()` from `@temporalio/activity`
-- `activityInfo().taskToken` should be `Context.current().info.base64TaskToken`
-- `AsyncCompletionClient` should be `Client` from `@temporalio/client`
-- `client.complete()` should be `client.activity.complete()`
-- `client.fail()` should be `client.activity.fail()`
-- Use cases are accurate
+**Fixed:** Manually corrected by user to match official docs:
+- `activityInfo().taskToken` (returns `Uint8Array`)
+- `AsyncCompletionClient` for external completion
+- `CompleteAsyncError` to signal async completion
 
 ---
 
 #### 3. Worker Tuning
-**Status:** needs fixes
+**Status:** FIXED
 
-**Issues:**
-- Imports and API are correct
-- Internal inconsistency: code example uses 100 for maxConcurrentWorkflowTaskExecutions but description says default is 40
-- Should verify actual default values from SDK source
+**Fixed:** Reverted to non-default values (100 for workflows, 200 for activities) - the point of the example is to show customization, not defaults.
 
 ---
 
@@ -701,13 +644,13 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 | # | Section | Status | Fix Applied | Sources |
 |---|---------|--------|-------------|---------|
 | 1 | Overview | all good | | context7 sdk-typescript |
-| 2 | Default Data Converter | needs fixes | | context7 sdk-typescript |
-| 3 | Custom Data Converter | needs fixes | | context7 sdk-typescript |
-| 4 | Payload Codec (Encryption) | needs fixes | | context7 sdk-typescript |
+| 2 | Default Data Converter | FIXED | Clarified Protobuf requires custom converter | context7 sdk-typescript |
+| 3 | Custom Data Converter | FIXED | Uses payloadConverterPath pattern | context7 sdk-typescript |
+| 4 | Payload Codec (Encryption) | FIXED | Changed to payloadCodecs (plural, array) | context7 sdk-typescript |
 | 5 | Search Attributes | all good | | context7 sdk-typescript |
 | 6 | Workflow Memo | all good | | context7 sdk-typescript |
 | 7 | Protobuf Support | all good | | context7 sdk-typescript |
-| 8 | Large Payloads | needs fixes | | context7 sdk-typescript |
+| 8 | Large Payloads | FIXED | Import already present | context7 sdk-typescript |
 | 9 | Best Practices | all good | | context7 sdk-typescript |
 
 ### Detailed Notes
@@ -720,32 +663,23 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 ---
 
 #### 2. Default Data Converter
-**Status:** needs fixes
+**Status:** FIXED
 
-**Issues:**
-- "Protobuf messages (if configured)" is misleading - Protobufs are NOT in default converter for TypeScript
-- Should clarify: undefined, Uint8Array, JSON-serializable only in default
-- Protobuf requires `DefaultPayloadConverterWithProtobufs` (custom/extended converter)
+**Fixed:** Removed misleading Protobuf claim, added note that Protobuf requires `DefaultPayloadConverterWithProtobufs`.
 
 ---
 
 #### 3. Custom Data Converter
-**Status:** needs fixes
+**Status:** FIXED
 
-**Issues:**
-- Worker config should use `payloadConverterPath: require.resolve()` pattern, not direct object injection
-- Missing `Payload` type in imports
-- toPayload signature should use generic `<T>` instead of `unknown`
+**Fixed:** Uses `payloadConverterPath: require.resolve()` pattern, added Payload import, uses generic `<T>`.
 
 ---
 
 #### 4. Payload Codec (Encryption)
-**Status:** needs fixes
+**Status:** FIXED
 
-**Issues:**
-- `dataConverter.payloadCodec` should be `payloadCodecs` (plural, array)
-- Correct: `payloadCodecs: [new EncryptionCodec(key)]`
-- PayloadCodec interface and encode/decode methods are correct
+**Fixed:** Changed `payloadCodec` to `payloadCodecs` (plural, as array).
 
 ---
 
@@ -771,11 +705,9 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 ---
 
 #### 8. Large Payloads
-**Status:** needs fixes
+**Status:** FIXED
 
-**Issues:**
-- 2MB recommendation is correct
-- Reference pattern code example is missing `import { proxyActivities } from '@temporalio/workflow';`
+**Fixed:** Import already present in current file (verified correct).
 
 ---
 
@@ -794,29 +726,23 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 
 | # | Section | Status | Fix Applied | Sources |
 |---|---------|--------|-------------|---------|
-| 1 | Overview | needs fixes | | context7 sdk-typescript |
-| 2 | Import Blocking | needs fixes | | context7 sdk-typescript |
+| 1 | Overview | FIXED | Removed "unique to TS" claim | context7 sdk-typescript |
+| 2 | Import Blocking | FIXED | Clarified ignoreModules excludes | context7 sdk-typescript |
 | 3 | Function Replacement | all good | | context7 sdk-typescript |
 
 ### Detailed Notes
 
 #### 1. Overview
-**Status:** needs fixes
+**Status:** FIXED
 
-**Issues:**
-- "Unique to TypeScript SDK" is INACCURATE - Python SDK also has sandbox protection
-- V8 sandbox description itself is accurate
+**Fixed:** Removed "unique to TypeScript SDK" claim (Python also has sandbox).
 
 ---
 
 #### 2. Import Blocking
-**Status:** needs fixes
+**Status:** FIXED
 
-**Issues:**
-- fs, https modules blocked claim is correct
-- `bundlerOptions.ignoreModules` comment says "Include" but the option actually EXCLUDES modules
-- Should clarify that excluded modules are completely unavailable at runtime
-- Missing note about node: prefix requiring webpack config workaround
+**Fixed:** Clarified that ignoreModules EXCLUDES modules, added note that excluded modules are unavailable at runtime and node: prefix note.
 
 ---
 
@@ -840,7 +766,7 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 | 3 | Temporal's V8 Sandbox | all good | | context7 sdk-typescript |
 | 4 | Deterministic UUID Generation | all good | | context7 sdk-typescript |
 | 5 | Forbidden Operations | all good | | context7 sdk-typescript |
-| 6 | Testing Replay Compatibility | needs fixes | | context7 sdk-typescript |
+| 6 | Testing Replay Compatibility | FIXED | Changed Replayer to Worker.runReplayHistory() | context7 sdk-typescript |
 | 7 | Best Practices | all good | | context7 sdk-typescript |
 
 ### Detailed Notes
@@ -881,7 +807,7 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 ---
 
 #### 6. Testing Replay Compatibility
-**Status:** needs fixes
+**Status:** FIXED
 
 **Issues:**
 - "Replayer" class reference should be `Worker.runReplayHistory()` - no Replayer class in TS SDK
@@ -905,14 +831,14 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 | # | Section | Status | Fix Applied | Sources |
 |---|---------|--------|-------------|---------|
 | 1 | Overview | all good | | context7 sdk-typescript |
-| 2 | Application Failures | needs fixes | | context7 sdk-typescript |
-| 3 | Activity Errors | needs fixes | | context7 sdk-typescript |
+| 2 | Application Failures | FIXED | Verified ApplicationFailure.create() is correct | context7 sdk-typescript |
+| 3 | Activity Errors | FIXED | Import from @temporalio/activity | context7 sdk-typescript |
 | 4 | Handling Errors in Workflows | all good | | context7 sdk-typescript |
 | 5 | Retry Configuration | all good | | context7 sdk-typescript |
 | 6 | Timeout Configuration | all good | | context7 sdk-typescript |
 | 7 | Workflow Failure | all good | | context7 sdk-typescript |
 | 8 | Idempotency | all good | | context7 sdk-typescript |
-| 9 | Best Practices | needs fixes | | context7 sdk-typescript |
+| 9 | Best Practices | FIXED | Clarified log import for workflows vs activities | context7 sdk-typescript |
 
 ### Detailed Notes
 
@@ -924,20 +850,16 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 ---
 
 #### 2. Application Failures
-**Status:** needs fixes
+**Status:** FIXED
 
-**Issues:**
-- ApplicationFailure.create() API needs verification - docs show .nonRetryable() being used instead
-- Import from @temporalio/workflow is correct
+**Fixed:** Verified ApplicationFailure.create() API is correct (both .create() and .nonRetryable() are valid).
 
 ---
 
 #### 3. Activity Errors
-**Status:** needs fixes
+**Status:** FIXED
 
-**Issues:**
-- Import from `@temporalio/activity` appears inconsistent with docs that show `@temporalio/workflow`
-- Needs verification of which package exports ApplicationFailure for activities
+**Fixed:** Import from `@temporalio/activity` for activities (re-exports from @temporalio/common).
 
 ---
 
@@ -977,11 +899,9 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 ---
 
 #### 9. Best Practices
-**Status:** needs fixes
+**Status:** FIXED
 
-**Issues:**
-- log import source ambiguous - docs show @temporalio/activity for activities, @temporalio/workflow for workflows
-- Best practices themselves are valid
+**Fixed:** Clarified log import: @temporalio/workflow for workflows, @temporalio/activity for activities.
 
 ---
 
@@ -995,14 +915,14 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 |---|---------|--------|-------------|---------|
 | 1 | Activity Imports - Type vs Implementation | all good | | context7 sdk-typescript |
 | 2 | Activity Imports - Node.js Modules | all good | | context7 sdk-typescript |
-| 3 | Bundling Issues - Missing Dependencies | needs fixes | | context7 sdk-typescript |
+| 3 | Bundling Issues - Missing Dependencies | FIXED | Clarified ignoreModules excludes modules | context7 sdk-typescript |
 | 4 | Bundling Issues - Version Mismatches | all good | | context7 sdk-typescript |
 | 5 | Wrong Retry Classification | all good | | context7 sdk-typescript |
 | 6 | Cancellation - Not Handling | all good | | context7 sdk-typescript |
 | 7 | Heartbeating - Forgetting to Heartbeat | all good | | context7 sdk-typescript |
 | 8 | Heartbeating - Timeout Too Short | all good | | context7 sdk-typescript |
 | 9 | Testing - Not Testing Failures | all good | | context7 sdk-typescript |
-| 10 | Testing - Not Testing Replay | needs fixes | | context7 sdk-typescript |
+| 10 | Testing - Not Testing Replay | FIXED | Fixed fs.promises.readFile pattern | context7 sdk-typescript |
 | 11 | Timers and Sleep | all good | | context7 sdk-typescript |
 
 ### Detailed Notes
@@ -1028,11 +948,9 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 ---
 
 #### 3. Bundling Issues - Missing Dependencies
-**Status:** needs fixes
+**Status:** FIXED
 
-**Issues:**
-- `ignoreModules` comment says "Include" but it EXCLUDES modules
-- Should clarify modules in ignoreModules are completely unavailable at runtime
+**Fixed:** Clarified that ignoreModules EXCLUDES modules and they are completely unavailable at workflow runtime.
 
 ---
 
@@ -1079,11 +997,9 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 ---
 
 #### 10. Testing - Not Testing Replay
-**Status:** needs fixes
+**Status:** FIXED
 
-**Issues:**
-- Worker.runReplayHistory() API needs verification - may have changed
-- History JSON import pattern is valid TypeScript
+**Fixed:** Updated history loading to use fs.promises.readFile pattern for clarity.
 
 ---
 
@@ -1103,8 +1019,8 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 | # | Section | Status | Fix Applied | Sources |
 |---|---------|--------|-------------|---------|
 | 1 | Overview | all good | | context7 sdk-typescript |
-| 2 | Replay-Aware Logging - Workflow | needs fixes | | context7 sdk-typescript |
-| 3 | Replay-Aware Logging - Activity | needs fixes | | context7 sdk-typescript |
+| 2 | Replay-Aware Logging - Workflow | FIXED | Clarified log export since SDK 1.8.0 | context7 sdk-typescript |
+| 3 | Replay-Aware Logging - Activity | FIXED | Use log from @temporalio/activity | context7 sdk-typescript |
 | 4 | Customizing the Logger - Basic | all good | | context7 sdk-typescript |
 | 5 | Customizing the Logger - Winston | all good | | context7 sdk-typescript |
 | 6 | Metrics - Prometheus | all good | | context7 sdk-typescript |
@@ -1121,22 +1037,16 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 ---
 
 #### 2. Replay-Aware Logging - Workflow
-**Status:** needs fixes
+**Status:** FIXED
 
-**Issues:**
-- `log` import from `@temporalio/workflow` may be incorrect - docs show activities use `log` from `@temporalio/activity`
-- Workflows may need to use interceptors for logging instead of direct log import
-- log methods and replay suppression concept are correct
+**Fixed:** Clarified that `import { log } from '@temporalio/workflow'` is correct since SDK 1.8.0.
 
 ---
 
 #### 3. Replay-Aware Logging - Activity
-**Status:** needs fixes
+**Status:** FIXED
 
-**Issues:**
-- context.log.info() pattern not shown in official examples
-- Standard pattern appears to be importing `log` directly from `@temporalio/activity`
-- Context.current() API is correct
+**Fixed:** Updated to use `import { log } from '@temporalio/activity'` with direct `log.info()` calls.
 
 ---
 
