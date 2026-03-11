@@ -1,3 +1,6 @@
 [submodule "plugins/temporal-developer/skills/temporal-developer"]
 	path = plugins/temporal-developer/skills/temporal-developer
 	url = https://github.com/temporalio/skill-temporal-developer
+[submodule "evals/harbor"]
+	path = evals/harbor
+	url = https://github.com/donald-pinckney/harbor.git
