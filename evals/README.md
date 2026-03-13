@@ -4,74 +4,112 @@ Benchmarks for measuring the impact of the `temporal-developer` skill on code ge
 
 ## Prerequisites
 
-```bash
-# Install harbor CLI from local submodule
-uv tool install --from ./evals/harbor harbor
-```
+- [uv](https://docs.astral.sh/uv/) installed
+- `ANTHROPIC_API_KEY` set in your environment
 
 ## Quick Start
 
 ```bash
-# Run a single task WITHOUT skill (baseline)
-harbor run -p evals/datasets/temporal-python/greeting-workflow \
-  -a claude-code -m anthropic/claude-sonnet-4-6
-
-# Run a single task WITH skill
-harbor run -p evals/datasets/temporal-python/greeting-workflow \
-  -a claude-code -m anthropic/claude-sonnet-4-6 \
-  --skills-dir plugins/temporal-developer/skills/temporal-developer
-
-# Full comparison (with vs without skill)
-./evals/scripts/run-comparison.sh --dataset temporal-python
-
-# Specific model
-./evals/scripts/run-comparison.sh --dataset temporal-python --model anthropic/claude-sonnet-4-6
+# Easiest: dev mode (starts Temporal server + worker automatically)
+uv run --project evals eval-run skills --dev-mode
+uv run --project evals eval-run baseline --dev-mode
 ```
+
+Or with an external Temporal server:
+
+```bash
+# Terminal 1: Start the Temporal dev server
+temporal server start-dev
+
+# Terminal 2: Start the eval worker
+uv run --project evals eval-worker
+
+# Terminal 3: Run evals
+uv run --project evals eval-run skills    # with skill (before submitting a PR)
+uv run --project evals eval-run baseline  # without skill (when tasks or Harbor change)
+```
+
+## Extending Agent Configurations
+
+Edit the `AGENTS` list in `temporal_evals/run_evals.py`:
+
+```python
+AGENTS = [
+    AgentConfig(name="claude-code", model="anthropic/claude-sonnet-4-6"),
+    AgentConfig(name="claude-code", model="anthropic/claude-opus-4-1"),
+    AgentConfig(name="aider", model="anthropic/claude-sonnet-4-6"),
+]
+```
+
+Each agent config runs across all datasets in parallel via the Temporal workflow.
 
 ## Directory Structure
 
 ```
 evals/
 ├── harbor/                          # Harbor framework (git submodule)
-├── scripts/
-│   └── run-comparison.sh           # Wrapper for skill vs no-skill comparisons
-└── datasets/
+├── pyproject.toml                   # Python project (temporalio dependency)
+├── results.yaml                     # Eval results with skills (keyed by commit SHA)
+├── baseline.yaml                    # Baseline results without skills (flat array)
+├── temporal_evals/                  # Temporal workflow package
+│   ├── models.py                   # Shared dataclasses
+│   ├── activities/
+│   │   ├── harbor.py              # Harbor job execution activity
+│   │   └── record.py             # Result recording activity
+│   ├── workflows/
+│   │   └── eval_workflow.py       # EvalWorkflow (fans out jobs)
+│   ├── worker.py                   # Worker entry point
+│   └── run_evals.py               # CLI starter (baseline or skills)
+├── datasets/
+│   ├── temporal-python/
+│   │   └── greeting-workflow/       # Python greeting workflow task
+│   ├── temporal-typescript/
+│   │   └── greeting-workflow/       # TypeScript greeting workflow task
+│   └── temporal-questions/
+│       └── what-is-workflow-determinism/  # Q/A: workflow determinism
+└── templates/                       # Copyable templates for new tasks
     ├── temporal-python/
-    │   ├── greeting-workflow/       # Python greeting workflow task
-    │   └── _template/              # Copyable template for new Python tasks
     ├── temporal-typescript/
-    │   ├── greeting-workflow/       # TypeScript greeting workflow task
-    │   └── _template/              # Copyable template for new TS tasks
     └── temporal-questions/
-        ├── what-is-workflow-determinism/  # Q/A: workflow determinism
-        └── _template/              # Copyable template for new Q/A tasks
 ```
 
 ## Adding a New Task
 
 ### Code generation tasks (temporal-python, temporal-typescript)
 
-1. Copy the template: `cp -r evals/datasets/temporal-python/_template evals/datasets/temporal-python/my-task`
+1. Copy the template: `cp -r evals/templates/temporal-python evals/datasets/temporal-python/my-task`
 2. Edit `instruction.md` with the task prompt
-3. Edit `tests/test.sh` with validation logic (write score to `/logs/verifier/reward.txt`)
+3. Edit `tests/test.py` with validation checks (write rewards to `/logs/verifier/reward.json`)
 4. Edit `solution/solve.sh` with a reference solution
 5. Adjust `task.toml` timeouts and resources as needed
 6. Optionally customize `environment/Dockerfile`
 
 ### Q/A tasks (temporal-questions)
 
-1. Copy the template: `cp -r evals/datasets/temporal-questions/_template evals/datasets/temporal-questions/my-question`
+1. Copy the template: `cp -r evals/templates/temporal-questions evals/datasets/temporal-questions/my-question`
 2. Edit `instruction.md` with your question (must tell the agent to write to `answer.md`)
-3. Edit the rubric in `tests/test.sh` — define what key concepts a correct answer should cover
+3. Edit the rubric in `tests/rubric.md` — define what key concepts a correct answer should cover
 4. Edit `solution/solve.sh` with a reference answer
 
 Q/A tasks use LLM-as-judge (Claude Haiku) to grade the answer against the rubric. The verifier gets `ANTHROPIC_API_KEY` via the `[verifier.env]` section in `task.toml`.
 
+## Tracking Results
+
+Two result files, both version-controlled:
+
+- **`results.yaml`** — with-skill results, keyed by commit SHA. Updated on every skill change.
+- **`baseline.yaml`** — no-skill results, flat array. Updated rarely (when tasks or Harbor change).
+
+**Before submitting a PR:**
+
+```bash
+uv run --project evals eval-run skills --dev-mode
+# Commit both the skill changes and the updated results.yaml
+```
+
 ## Scoring
 
-Tests write a score between 0.0 and 1.0 to `/logs/verifier/reward.txt`.
-
-**Code generation tasks** use partial credit: `passed_checks / total_checks`.
+Tests write per-check rewards to `/logs/verifier/reward.json` as a dict of named scores (0.0 or 1.0 each).
 
 **Q/A tasks** use LLM-as-judge with a rubric:
 
