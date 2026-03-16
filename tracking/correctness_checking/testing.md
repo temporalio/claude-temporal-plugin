@@ -199,3 +199,90 @@ Correctness verification for `references/{language}/testing.md`.
 
 ---
 
+
+## Go
+
+**File:** `references/go/testing.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Overview | all good | | temporal-docs |
+| 2 | Test Environment Setup | all good | | temporal-docs |
+| 3 | Activity Mocking | all good | | temporal-docs |
+| 4 | Testing Signals and Queries | all good | | temporal-docs |
+| 5 | Testing Failure Cases | all good | | temporal-docs |
+| 6 | Replay Testing | all good | | temporal-docs |
+| 7 | Activity Testing | all good | | temporal-docs |
+| 8 | Best Practices | all good | | temporal-docs |
+
+### Detailed Notes
+
+#### 1. Overview
+**Status:** all good
+**Verified:**
+- `testsuite` package for workflow/activity testing ✓
+- testify library for assertions and mocking ✓
+- Automatic time-skipping support ✓
+
+---
+
+#### 2. Test Environment Setup
+**Status:** all good
+**Verified:**
+- `testsuite.WorkflowTestSuite` struct ✓
+- `TestWorkflowEnvironment` via `suite.NewTestWorkflowEnvironment()` ✓
+- Struct-based and function-based approaches ✓
+
+---
+
+#### 3. Activity Mocking
+**Status:** all good
+**Verified:**
+- `env.OnActivity` for mocking ✓
+- `Return(value, nil)` pattern ✓
+
+---
+
+#### 4. Testing Signals and Queries
+**Status:** all good
+**Verified:**
+- `env.RegisterDelayedCallback` for timed signals ✓
+- `env.SignalWorkflow` API ✓
+- `env.QueryWorkflow` API ✓
+
+---
+
+#### 5. Testing Failure Cases
+**Status:** all good
+**Verified:**
+- `env.ExecuteWorkflow` API ✓
+- `env.IsWorkflowCompleted()` check ✓
+- `env.GetWorkflowError()` for error assertions ✓
+
+---
+
+#### 6. Replay Testing
+**Status:** all good
+**Verified:**
+- `worker.NewWorkflowReplayer` API ✓
+- `ReplayWorkflowHistoryFromJSONFile` API ✓
+
+---
+
+#### 7. Activity Testing
+**Status:** all good
+**Verified:**
+- `TestActivityEnvironment` from `testsuite` ✓
+- `env.ExecuteActivity` API ✓
+
+---
+
+#### 8. Best Practices
+**Status:** all good
+**Verified:**
+- All best practices valid ✓
+
+---
+

@@ -232,3 +232,91 @@ Correctness verification for `references/{language}/data-handling.md`.
 
 ---
 
+
+## Go
+
+**File:** `references/go/data-handling.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Overview | all good | | temporal-docs |
+| 2 | Default Data Converter | all good | | temporal-docs |
+| 3 | Custom Data Converter | FIXED | Added missing `ToStrings` method | temporal-docs |
+| 4 | Composition of Payload Converters | all good | | temporal-docs |
+| 5 | Protobuf Support | all good | | temporal-docs |
+| 6 | Payload Encryption | all good | | temporal-docs |
+| 7 | Search Attributes | all good | | temporal-docs |
+| 8 | Workflow Memo | all good | | temporal-docs |
+| 9 | Best Practices | all good | | temporal-docs |
+
+### Detailed Notes
+
+#### 1. Overview
+**Status:** all good
+**Verified:**
+- `converter.DataConverter` interface for serialization ✓
+- Default JSON conversion ✓
+
+---
+
+#### 2. Default Data Converter
+**Status:** all good
+**Verified:**
+- `CompositeDataConverter` applies converters in order ✓
+
+---
+
+#### 3. Custom Data Converter
+**Status:** FIXED
+
+**Issue:** Listed 5 interface methods for `converter.DataConverter` but the actual interface has 6 -- was missing `ToStrings`.
+
+**Fix Applied:** Added `ToStrings` to the interface method list.
+
+---
+
+#### 4. Composition of Payload Converters
+**Status:** all good
+**Verified:**
+- Payload converter composition pattern ✓
+
+---
+
+#### 5. Protobuf Support
+**Status:** all good
+**Verified:**
+- Protobuf as first-class supported format ✓
+
+---
+
+#### 6. Payload Encryption
+**Status:** all good
+**Verified:**
+- `converter.PayloadCodec` interface ✓
+- `Encode`/`Decode` methods ✓
+
+---
+
+#### 7. Search Attributes
+**Status:** all good
+**Verified:**
+- Search attribute APIs ✓
+
+---
+
+#### 8. Workflow Memo
+**Status:** all good
+**Verified:**
+- Memo APIs ✓
+
+---
+
+#### 9. Best Practices
+**Status:** all good
+**Verified:**
+- All best practices valid ✓
+
+---
+
