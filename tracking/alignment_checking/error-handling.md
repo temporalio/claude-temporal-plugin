@@ -2,19 +2,19 @@
 
 ## Section Inventory
 
-| Section | Core | Python | Py# | TypeScript | TS# | Go |
-|---------|------|--------|-----|------------|-----|-----|
-| Overview | — | ✓ | 1 | ✓ | 1 | |
-| Application Errors/Failures | — | ✓ | 2 | ✓ | 2 | |
-| Non-Retryable Errors | — | ✓ | 3 | — | — | |
-| Activity Errors | — | — | — | ✓ | 3 | |
-| Handling Activity Errors in Workflows | — | ✓ | 4 | ✓ | 4 | |
-| Retry Configuration | — | ✓ | 5 | ✓ | 5 | |
-| Timeout Configuration | — | ✓ | 6 | ✓ | 6 | |
-| Workflow Failure | — | ✓ | 7 | ✓ | 7 | |
-| Cancellation Handling in Activities | — | — | — | — | — | |
-| Idempotency Patterns | — | — | — | — | — | |
-| Best Practices | — | ✓ | 8 | ✓ | 9 | |
+| Section | Core | Python | Py# | TypeScript | TS# | Go | PHP | PHP# |
+|---------|------|--------|-----|------------|-----|----|-----|------|
+| Overview | — | ✓ | 1 | ✓ | 1 | | TODO | 1 |
+| Application Errors/Failures | — | ✓ | 2 | ✓ | 2 | | TODO | 2 |
+| Non-Retryable Errors | — | ✓ | 3 | — | — | | TODO | 3 |
+| Activity Errors | — | — | — | ✓ | 3 | | — | — |
+| Handling Activity Errors in Workflows | — | ✓ | 4 | ✓ | 4 | | TODO | 4 |
+| Retry Configuration | — | ✓ | 5 | ✓ | 5 | | TODO | 5 |
+| Timeout Configuration | — | ✓ | 6 | ✓ | 6 | | TODO | 6 |
+| Workflow Failure | — | ✓ | 7 | ✓ | 7 | | TODO | 7 |
+| Cancellation Handling in Activities | — | — | — | — | — | | | |
+| Idempotency Patterns | — | — | — | — | — | | | |
+| Best Practices | — | ✓ | 8 | ✓ | 9 | | TODO | 8 |
 
 ## Style Compliance
 
@@ -23,18 +23,20 @@
 | Python | ✓ reference | — |
 | TypeScript | ✓ aligned | Uses `log`, has retry defaults note |
 | Go | — | Not started |
+| PHP | — | Not started |
 
 ## Status
 
 **Sections needing review (empty cells):**
 - Go column: all empty — Go files not yet created
+- PHP column: all TODO — PHP files not yet created
 
 **Intentionally missing (`—`):**
 - Core column: error handling is implementation-specific, no core concepts doc needed
-- Non-Retryable Errors: TS covers inline in Application Failures
-- Activity Errors: Python covers in Application Errors
+- Non-Retryable Errors: TS covers inline in Application Failures; PHP has dedicated section (nonRetryable param)
+- Activity Errors: Python and PHP cover in Application Errors/Failures; TS-specific section
 - Workflow Failure: TS-specific section not needed (different SDK design)
-- Idempotency Patterns: TS-specific detailed section; Python references core/patterns.md
+- Idempotency Patterns: TS-specific detailed section; Python/PHP reference core/patterns.md
 
 **Order alignment:** ✓ Aligned — TS# monotonically increases
 

@@ -2,17 +2,17 @@
 
 ## Section Inventory
 
-| Section | Core | Core# | Python | Py# | TypeScript | TS# | Go |
-|---------|------|-------|--------|-----|------------|-----|-----|
-| Overview | ✓ | 1 | — | — | — | — | |
-| Why Versioning is Needed | ✓ | 2 | — | — | — | — | |
-| Patching API | ✓ | 3 | ✓ | 1 | ✓ | 1 | |
-| Workflow Type Versioning | ✓ | 4 | ✓ | 2 | ✓ | 2 | |
-| Worker Versioning | ✓ | 5 | ✓ | 3 | ✓ | 3 | |
-| Choosing a Strategy | ✓ | 6 | — | — | — | — | |
-| Best Practices | ✓ | 7 | ✓ | 4 | ✓ | 4 | |
-| Finding Workflows by Version | ✓ | 8 | — | — | — | — | |
-| Common Mistakes | ✓ | 9 | — | — | — | — | |
+| Section | Core | Core# | Python | Py# | TypeScript | TS# | Go | PHP | PHP# |
+|---------|------|-------|--------|-----|------------|-----|----|-----|------|
+| Overview | ✓ | 1 | — | — | — | — | | — | — |
+| Why Versioning is Needed | ✓ | 2 | — | — | — | — | | — | — |
+| Patching API | ✓ | 3 | ✓ | 1 | ✓ | 1 | | TODO | 1 |
+| Workflow Type Versioning | ✓ | 4 | ✓ | 2 | ✓ | 2 | | TODO | 2 |
+| Worker Versioning | ✓ | 5 | ✓ | 3 | ✓ | 3 | | TODO | 3 |
+| Choosing a Strategy | ✓ | 6 | — | — | — | — | | — | — |
+| Best Practices | ✓ | 7 | ✓ | 4 | ✓ | 4 | | TODO | 4 |
+| Finding Workflows by Version | ✓ | 8 | — | — | — | — | | — | — |
+| Common Mistakes | ✓ | 9 | — | — | — | — | | — | — |
 
 ## Style Compliance
 
@@ -22,11 +22,13 @@
 | Python | ✓ aligned | Code only, refs core |
 | TypeScript | ✓ aligned | Code only, refs core |
 | Go | — | Not started |
+| PHP | — | Not started |
 
 ## Status
 
 **Sections needing review (empty cells):**
 - Go column: all empty — Go files not yet created
+- PHP column: all TODO — PHP files not yet created
 
 **Intentionally missing (`—`):**
 - Overview: Core-only (conceptual; languages reference core)
