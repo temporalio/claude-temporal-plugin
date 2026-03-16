@@ -5,12 +5,12 @@
 | Section | Core | Python | Py# | TypeScript | TS# | Go | PHP | PHP# |
 |---------|------|--------|-----|------------|-----|----|-----|------|
 | Overview | — | ✓ | 1 | ✓ | 1 | | ✓ | 1 |
-| Test Environment Setup | — | ✓ | 2 | ✓ | 2 | | ✓ | 2 |
+| Workflow Test Environment | — | ✓ | 2 | ✓ | 2 | | ✓ | 2 |
 | Time Skipping | — | — | — | — | — | | | |
-| Activity Mocking | — | ✓ | 3 | ✓ | 3 | | ✓ | 3 |
+| Mocking Activities | — | ✓ | 3 | ✓ | 3 | | ✓ | 3 |
 | Testing Signals and Queries | — | ✓ | 4 | ✓ | 4 | | ✓ | 4 |
 | Testing Failure Cases | — | ✓ | 5 | ✓ | 5 | | ✓ | 5 |
-| Replay Testing | — | ✓ | 6 | ✓ | 6 | | ✓ | 6 |
+| Workflow Replay Testing | — | ✓ | 6 | ✓ | 6 | | ✓ | 6 |
 | Activity Testing | — | ✓ | 7 | ✓ | 7 | | ✓ | 7 |
 | Best Practices | — | ✓ | 8 | ✓ | 8 | | ✓ | 8 |
 

@@ -7,7 +7,7 @@
 | Overview | — | ✓ | 1 | ✓ | 1 | | ✓ | 1 |
 | Default Data Converter | — | ✓ | 2 | ✓ | 2 | | ✓ | 2 |
 | Pydantic Integration | — | ✓ | 3 | — | — | | — | — |
-| Custom Data Converter | — | ✓ | 4 | ✓ | 3 | | ✓ | 3 |
+| Custom Data Conversion | — | ✓ | 4 | ✓ | 3 | | ✓ | 3 |
 | Composition of Payload Converters | — | — | — | ✓ | 4 | | — | — |
 | Protobuf Support | — | — | — | ✓ | 5 | | — | — |
 | Payload Encryption | — | ✓ | 5 | ✓ | 6 | | ✓ | 4 |

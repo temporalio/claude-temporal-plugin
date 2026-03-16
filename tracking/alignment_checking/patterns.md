@@ -21,7 +21,7 @@
 | Triggers | — | — | — | ✓ | 13 | | — | — |
 | Wait Condition with Timeout | — | ✓ | 13 | ✓ | 14 | | ✓ | 11 |
 | Waiting for All Handlers to Finish | — | ✓ | 14 | ✓ | 15 | | ✓ | 12 |
-| Activity Heartbeating | ✓ | ✓ | 15 | ✓ | 16 | | ✓ | 13 |
+| Activity Heartbeat Details | ✓ | ✓ | 15 | ✓ | 16 | | ✓ | 13 |
 | Timers | ✓ | ✓ | 16 | ✓ | 17 | | ✓ | 14 |
 | Large Data Handling | ✓ | — | — | — | — | | — | — |
 | Local Activities | ✓ | ✓ | 17 | ✓ | 18 | | ✓ | 15 |

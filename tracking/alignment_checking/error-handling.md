@@ -5,11 +5,11 @@
 | Section | Core | Python | Py# | TypeScript | TS# | Go | PHP | PHP# |
 |---------|------|--------|-----|------------|-----|----|-----|------|
 | Overview | — | ✓ | 1 | ✓ | 1 | | ✓ | 1 |
-| Application Errors/Failures | — | ✓ | 2 | ✓ | 2 | | ✓ | 2 |
+| Application Errors | — | ✓ | 2 | ✓ | 2 | | ✓ | 2 |
 | Non-Retryable Errors | — | ✓ | 3 | — | — | | ✓ | 3 |
 | Activity Errors | — | — | — | ✓ | 3 | | — | — |
-| Handling Activity Errors in Workflows | — | ✓ | 4 | ✓ | 4 | | ✓ | 4 |
-| Retry Configuration | — | ✓ | 5 | ✓ | 5 | | ✓ | 5 |
+| Handling Activity Errors | — | ✓ | 4 | ✓ | 4 | | ✓ | 4 |
+| Retry Policy Configuration | — | ✓ | 5 | ✓ | 5 | | ✓ | 5 |
 | Timeout Configuration | — | ✓ | 6 | ✓ | 6 | | ✓ | 6 |
 | Workflow Failure | — | ✓ | 7 | ✓ | 7 | | ✓ | 7 |
 | Cancellation Handling in Activities | — | — | — | — | — | | | |
