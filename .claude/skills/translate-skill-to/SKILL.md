@@ -7,7 +7,7 @@ disable-model-invocation: true
 The skill at @plugins/temporal-developer/skills/temporal-developer/ currently supports Python and TypeScript. Your task is to add
 support for $ARGUMENTS. 
 
-First, make sure that we are working off of a fresh branch for the git submodule at plugins/temporal-developer/skills/temporal-developer. The branch should be branched from `dev`. If the user is already on a feature branch or has non-clean Git state, communicate with the user, DON'T just nuke their git state.
+First, make sure that we are working off of a fresh branch for both this repo and the git submodule at plugins/temporal-developer/skills/temporal-developer. The branch should be branched from `dev`. If the user is already on a feature branch or has non-clean Git state, communicate with the user, DON'T just nuke their git state.
 
 You will then add support for $ARGUMENTS in 4 phases:
 
