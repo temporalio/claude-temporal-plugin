@@ -4,17 +4,17 @@
 
 | Section | Core | Core# | Python | Py# | TypeScript | TS# | Go | PHP | PHP# |
 |---------|------|-------|--------|-----|------------|-----|----|-----|------|
-| Overview | ✓ | 1 | ✓ | 1 | ✓ | 1 | | TODO | 1 |
-| Why Determinism Matters | ✓ | 2 | ✓ | 2 | ✓ | 2 | | TODO | 2 |
+| Overview | ✓ | 1 | ✓ | 1 | ✓ | 1 | | ✓ | 1 |
+| Why Determinism Matters | ✓ | 2 | ✓ | 2 | ✓ | 2 | | ✓ | 2 |
 | Sources of Non-Determinism | ✓ | 3 | — | — | — | — | | — | — |
 | Central Concept: Activities | ✓ | 4 | — | — | — | — | | — | — |
-| SDK Protection / Sandbox | ✓ | 5 | ✓ | 6 | ✓ | 3 | | TODO | 3 |
-| Forbidden Operations | — | — | ✓ | 3 | ✓ | 4 | | TODO | 4 |
+| SDK Protection / Sandbox | ✓ | 5 | ✓ | 6 | ✓ | 3 | | ✓ | 3 |
+| Forbidden Operations | — | — | ✓ | 3 | ✓ | 4 | | ✓ | 4 |
 | Safe Builtin Alternatives | — | — | ✓ | 4 | — | — | | — | — |
 | Detecting Non-Determinism | ✓ | 6 | — | — | — | — | | — | — |
 | Recovery from Non-Determinism | ✓ | 7 | — | — | — | — | | — | — |
-| Testing Replay Compatibility | — | — | ✓ | 5 | ✓ | 5 | | TODO | 5 |
-| Best Practices | ✓ | 8 | ✓ | 7 | ✓ | 6 | | TODO | 6 |
+| Testing Replay Compatibility | — | — | ✓ | 5 | ✓ | 5 | | ✓ | 5 |
+| Best Practices | ✓ | 8 | ✓ | 7 | ✓ | 6 | | ✓ | 6 |
 
 ## Style Compliance
 
@@ -24,13 +24,12 @@
 | Python | ✓ aligned | Practical focus |
 | TypeScript | ✓ aligned | Practical focus, V8 sandbox |
 | Go | — | Not started |
-| PHP | — | Not started |
+| PHP | ✓ aligned | Practical focus, no sandbox (runtime checks only) |
 
 ## Status
 
 **Sections needing review (empty cells):**
 - Go column: all empty — Go files not yet created
-- PHP column: all TODO — PHP files not yet created
 
 **Intentionally missing (`—`):**
 - Sources of Non-Determinism: Core-only (conceptual categories)

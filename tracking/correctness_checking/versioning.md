@@ -290,3 +290,39 @@ Correctness verification for `references/{language}/versioning.md`.
 
 ---
 
+
+## PHP
+
+**File:** `references/php/versioning.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Patching API | unchecked | | |
+| 2 | Workflow Type Versioning | unchecked | | |
+| 3 | Worker Versioning | unchecked | | |
+| 4 | Best Practices | unchecked | | |
+
+### Detailed Notes
+
+#### 1. Patching API
+**Status:** unchecked
+
+---
+
+#### 2. Workflow Type Versioning
+**Status:** unchecked
+
+---
+
+#### 3. Worker Versioning
+**Status:** unchecked
+
+---
+
+#### 4. Best Practices
+**Status:** unchecked
+
+---
+

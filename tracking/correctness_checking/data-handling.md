@@ -232,3 +232,57 @@ Correctness verification for `references/{language}/data-handling.md`.
 
 ---
 
+
+## PHP
+
+**File:** `references/php/data-handling.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Overview | unchecked | | |
+| 2 | Default Data Converter | unchecked | | |
+| 3 | Custom Data Converter | unchecked | | |
+| 4 | Payload Encryption | unchecked | | |
+| 5 | Search Attributes | unchecked | | |
+| 6 | Workflow Memo | unchecked | | |
+| 7 | Best Practices | unchecked | | |
+
+### Detailed Notes
+
+#### 1. Overview
+**Status:** unchecked
+
+---
+
+#### 2. Default Data Converter
+**Status:** unchecked
+
+---
+
+#### 3. Custom Data Converter
+**Status:** unchecked
+
+---
+
+#### 4. Payload Encryption
+**Status:** unchecked
+
+---
+
+#### 5. Search Attributes
+**Status:** unchecked
+
+---
+
+#### 6. Workflow Memo
+**Status:** unchecked
+
+---
+
+#### 7. Best Practices
+**Status:** unchecked
+
+---
+

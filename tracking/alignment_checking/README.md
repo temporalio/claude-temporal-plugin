@@ -15,7 +15,7 @@ Python is the reference style (code-first, minimal prose). All languages should 
 - `⚠️ needs work` = has style issues to address
 - `—` = not started
 
-**Supported languages:** Python (reference), TypeScript, Go (not started), PHP (columns added, content not yet created)
+**Supported languages:** Python (reference), TypeScript, Go (not started), PHP (all reference files created)
 
 ## Section Inventory Legend
 
@@ -28,9 +28,9 @@ Python is the reference style (code-first, minimal prose). All languages should 
 
 ## Implementation Status
 
-🔄 **IN PROGRESS** (2026-03-16)
+✅ **PHP CONTENT COMPLETE** (2026-03-16)
 
-PHP columns added to all 11 topic tracking files. PHP reference content (in `plugins/`) not yet created — all PHP cells are marked `TODO` pending content authoring.
+All 11 PHP reference files created. PHP columns present in all tracking files. Correctness verification pending.
 
 ## Files
 

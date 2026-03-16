@@ -190,3 +190,63 @@ Correctness verification for `references/{language}/error-handling.md`.
 
 ---
 
+
+## PHP
+
+**File:** `references/php/error-handling.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Overview | unchecked | | |
+| 2 | Application Errors/Failures | unchecked | | |
+| 3 | Non-Retryable Errors | unchecked | | |
+| 4 | Handling Activity Errors in Workflows | unchecked | | |
+| 5 | Retry Configuration | unchecked | | |
+| 6 | Timeout Configuration | unchecked | | |
+| 7 | Workflow Failure | unchecked | | |
+| 8 | Best Practices | unchecked | | |
+
+### Detailed Notes
+
+#### 1. Overview
+**Status:** unchecked
+
+---
+
+#### 2. Application Errors/Failures
+**Status:** unchecked
+
+---
+
+#### 3. Non-Retryable Errors
+**Status:** unchecked
+
+---
+
+#### 4. Handling Activity Errors in Workflows
+**Status:** unchecked
+
+---
+
+#### 5. Retry Configuration
+**Status:** unchecked
+
+---
+
+#### 6. Timeout Configuration
+**Status:** unchecked
+
+---
+
+#### 7. Workflow Failure
+**Status:** unchecked
+
+---
+
+#### 8. Best Practices
+**Status:** unchecked
+
+---
+

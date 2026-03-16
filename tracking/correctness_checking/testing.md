@@ -199,3 +199,63 @@ Correctness verification for `references/{language}/testing.md`.
 
 ---
 
+
+## PHP
+
+**File:** `references/php/testing.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Overview | unchecked | | |
+| 2 | Test Environment Setup | unchecked | | |
+| 3 | Activity Mocking | unchecked | | |
+| 4 | Testing Signals and Queries | unchecked | | |
+| 5 | Testing Failure Cases | unchecked | | |
+| 6 | Replay Testing | unchecked | | |
+| 7 | Activity Testing | unchecked | | |
+| 8 | Best Practices | unchecked | | |
+
+### Detailed Notes
+
+#### 1. Overview
+**Status:** unchecked
+
+---
+
+#### 2. Test Environment Setup
+**Status:** unchecked
+
+---
+
+#### 3. Activity Mocking
+**Status:** unchecked
+
+---
+
+#### 4. Testing Signals and Queries
+**Status:** unchecked
+
+---
+
+#### 5. Testing Failure Cases
+**Status:** unchecked
+
+---
+
+#### 6. Replay Testing
+**Status:** unchecked
+
+---
+
+#### 7. Activity Testing
+**Status:** unchecked
+
+---
+
+#### 8. Best Practices
+**Status:** unchecked
+
+---
+

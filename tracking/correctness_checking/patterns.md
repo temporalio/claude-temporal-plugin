@@ -550,3 +550,31 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 
 ---
 
+## PHP
+
+**File:** `references/php/patterns.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Signals | unchecked | | |
+| 2 | Dynamic Signal Handlers | unchecked | | |
+| 3 | Queries | unchecked | | |
+| 4 | Dynamic Query Handlers | unchecked | | |
+| 5 | Updates | unchecked | | |
+| 6 | Child Workflows | unchecked | | |
+| 7 | Handles to External Workflows | unchecked | | |
+| 8 | Parallel Execution | unchecked | | |
+| 9 | Continue-as-New | unchecked | | |
+| 10 | Saga Pattern | unchecked | | |
+| 11 | Wait Condition with Timeout | unchecked | | |
+| 12 | Waiting for All Handlers to Finish | unchecked | | |
+| 13 | Activity Heartbeating | unchecked | | |
+| 14 | Timers | unchecked | | |
+| 15 | Local Activities | unchecked | | |
+
+### Detailed Notes
+
+No sections verified yet. All sections are `unchecked`.
+

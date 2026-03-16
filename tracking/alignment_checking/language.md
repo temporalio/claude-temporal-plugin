@@ -6,16 +6,16 @@ Tracks alignment for `python.md`, `typescript.md`, `go.md`, etc.
 
 | Section | Core | Python | Py# | TypeScript | TS# | Go | PHP | PHP# |
 |---------|------|--------|-----|------------|-----|----|-----|------|
-| Overview | — | ✓ | 1 | ✓ | 1 | | TODO | 1 |
+| Overview | — | ✓ | 1 | ✓ | 1 | | ✓ | 1 |
 | How Temporal Works: History Replay | — | — | — | — | — | | | |
 | Understanding Replay | — | — | — | ✓ | 2 | | — | — |
-| Quick Start / Quick Demo | — | ✓ | 2 | ✓ | 3 | | TODO | 2 |
-| Key Concepts | — | ✓ | 3 | ✓ | 4 | | TODO | 3 |
-| File Organization Best Practice | — | ✓ | 4 | ✓ | 5 | | TODO | 4 |
-| Determinism Rules | — | — | — | ✓ | 6 | | TODO | 5 |
-| Common Pitfalls | — | ✓ | 5 | ✓ | 7 | | TODO | 6 |
-| Writing Tests | — | ✓ | 6 | ✓ | 8 | | TODO | 7 |
-| Additional Resources | — | ✓ | 7 | ✓ | 9 | | TODO | 8 |
+| Quick Start / Quick Demo | — | ✓ | 2 | ✓ | 3 | | ✓ | 2 |
+| Key Concepts | — | ✓ | 3 | ✓ | 4 | | ✓ | 3 |
+| File Organization Best Practice | — | ✓ | 4 | ✓ | 5 | | ✓ | 4 |
+| Determinism Rules | — | — | — | ✓ | 6 | | ✓ | 5 |
+| Common Pitfalls | — | ✓ | 5 | ✓ | 7 | | ✓ | 6 |
+| Writing Tests | — | ✓ | 6 | ✓ | 8 | | ✓ | 7 |
+| Additional Resources | — | ✓ | 7 | ✓ | 9 | | ✓ | 8 |
 
 ## Style Compliance
 
@@ -24,13 +24,13 @@ Tracks alignment for `python.md`, `typescript.md`, `go.md`, etc.
 | Python | ✓ reference | — |
 | TypeScript | ✓ aligned | Has Understanding Replay, Determinism Rules |
 | Go | — | Not started |
-| PHP | — | Not started |
+| PHP | ✓ aligned | Has Determinism Rules, RoadRunner-specific file org |
 
 ## Status
 
 **Sections needing review (empty cells):**
 - Go column: all empty — Go files not yet created
-- PHP column: all TODO — PHP files not yet created
+- PHP column: all ✓ — PHP file created
 
 **Intentionally missing (`—`):**
 - Core column: no core top-level file (these are language entry points)

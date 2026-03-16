@@ -187,3 +187,45 @@ Correctness verification for `references/{language}/observability.md`.
 
 ---
 
+
+## PHP
+
+**File:** `references/php/observability.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Overview | unchecked | | |
+| 2 | Logging / Replay-Aware Logging | unchecked | | |
+| 3 | Customizing the Logger | unchecked | | |
+| 4 | Search Attributes (Visibility) | unchecked | | |
+| 5 | Best Practices | unchecked | | |
+
+### Detailed Notes
+
+#### 1. Overview
+**Status:** unchecked
+
+---
+
+#### 2. Logging / Replay-Aware Logging
+**Status:** unchecked
+
+---
+
+#### 3. Customizing the Logger
+**Status:** unchecked
+
+---
+
+#### 4. Search Attributes (Visibility)
+**Status:** unchecked
+
+---
+
+#### 5. Best Practices
+**Status:** unchecked
+
+---
+

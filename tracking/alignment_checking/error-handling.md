@@ -4,17 +4,17 @@
 
 | Section | Core | Python | Py# | TypeScript | TS# | Go | PHP | PHP# |
 |---------|------|--------|-----|------------|-----|----|-----|------|
-| Overview | — | ✓ | 1 | ✓ | 1 | | TODO | 1 |
-| Application Errors/Failures | — | ✓ | 2 | ✓ | 2 | | TODO | 2 |
-| Non-Retryable Errors | — | ✓ | 3 | — | — | | TODO | 3 |
+| Overview | — | ✓ | 1 | ✓ | 1 | | ✓ | 1 |
+| Application Errors/Failures | — | ✓ | 2 | ✓ | 2 | | ✓ | 2 |
+| Non-Retryable Errors | — | ✓ | 3 | — | — | | ✓ | 3 |
 | Activity Errors | — | — | — | ✓ | 3 | | — | — |
-| Handling Activity Errors in Workflows | — | ✓ | 4 | ✓ | 4 | | TODO | 4 |
-| Retry Configuration | — | ✓ | 5 | ✓ | 5 | | TODO | 5 |
-| Timeout Configuration | — | ✓ | 6 | ✓ | 6 | | TODO | 6 |
-| Workflow Failure | — | ✓ | 7 | ✓ | 7 | | TODO | 7 |
+| Handling Activity Errors in Workflows | — | ✓ | 4 | ✓ | 4 | | ✓ | 4 |
+| Retry Configuration | — | ✓ | 5 | ✓ | 5 | | ✓ | 5 |
+| Timeout Configuration | — | ✓ | 6 | ✓ | 6 | | ✓ | 6 |
+| Workflow Failure | — | ✓ | 7 | ✓ | 7 | | ✓ | 7 |
 | Cancellation Handling in Activities | — | — | — | — | — | | | |
 | Idempotency Patterns | — | — | — | — | — | | | |
-| Best Practices | — | ✓ | 8 | ✓ | 9 | | TODO | 8 |
+| Best Practices | — | ✓ | 8 | ✓ | 9 | | ✓ | 8 |
 
 ## Style Compliance
 
@@ -23,13 +23,13 @@
 | Python | ✓ reference | — |
 | TypeScript | ✓ aligned | Uses `log`, has retry defaults note |
 | Go | — | Not started |
-| PHP | — | Not started |
+| PHP | ✓ aligned | Matches Python section structure and code-first style |
 
 ## Status
 
 **Sections needing review (empty cells):**
 - Go column: all empty — Go files not yet created
-- PHP column: all TODO — PHP files not yet created
+- Go column: all empty — Go files not yet created
 
 **Intentionally missing (`—`):**
 - Core column: error handling is implementation-specific, no core concepts doc needed
@@ -40,4 +40,4 @@
 
 **Order alignment:** ✓ Aligned — TS# monotonically increases
 
-**Style alignment:** ✅ Complete. Added Workflow Failure section, removed Cancellation Handling (moved to patterns.md), replaced Idempotency Patterns with core reference. TS uses `log` for error handling, has note about preferring defaults for retry config.
+**Style alignment:** ✅ Complete. Added Workflow Failure section, removed Cancellation Handling (moved to patterns.md), replaced Idempotency Patterns with core reference. TS uses `log` for error handling, has note about preferring defaults for retry config. PHP added with matching section structure.

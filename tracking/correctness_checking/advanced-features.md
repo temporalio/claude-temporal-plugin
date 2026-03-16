@@ -134,3 +134,39 @@ Correctness verification for `references/{language}/advanced-features.md`.
 
 ---
 
+
+## PHP
+
+**File:** `references/php/advanced-features.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Schedules | unchecked | | |
+| 2 | Async Activity Completion | unchecked | | |
+| 3 | Worker Tuning | unchecked | | |
+| 4 | RoadRunner Configuration | unchecked | | |
+
+### Detailed Notes
+
+#### 1. Schedules
+**Status:** unchecked
+
+---
+
+#### 2. Async Activity Completion
+**Status:** unchecked
+
+---
+
+#### 3. Worker Tuning
+**Status:** unchecked
+
+---
+
+#### 4. RoadRunner Configuration
+**Status:** unchecked
+
+---
+

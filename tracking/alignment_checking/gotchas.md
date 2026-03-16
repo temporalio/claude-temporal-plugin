@@ -14,11 +14,11 @@
 | Bundling Issues | — | — | — | — | ✓ | 2 | | — | — |
 | Async vs Sync Activities | — | — | ✓ | 2 | — | — | | — | — |
 | Error Handling | ✓ | 8 | — | — | — | — | | | |
-| Wrong Retry Classification | ✓ | 8 | ✓ | 3 | ✓ | 3 | | TODO | 1 |
-| Cancellation | ✓ | 10 | ✓ | 4 | ✓ | 4 | | TODO | 2 |
-| Heartbeating | — | — | ✓ | 5 | ✓ | 5 | | TODO | 3 |
-| Testing | ✓ | 7 | ✓ | 6 | ✓ | 6 | | TODO | 4 |
-| Timers and Sleep | — | — | ✓ | 7 | ✓ | 7 | | TODO | 5 |
+| Wrong Retry Classification | ✓ | 8 | ✓ | 3 | ✓ | 3 | | ✓ | 1 |
+| Cancellation | ✓ | 10 | ✓ | 4 | ✓ | 4 | | ✓ | 2 |
+| Heartbeating | — | — | ✓ | 5 | ✓ | 5 | | ✓ | 3 |
+| Testing | ✓ | 7 | ✓ | 6 | ✓ | 6 | | ✓ | 4 |
+| Timers and Sleep | — | — | ✓ | 7 | ✓ | 7 | | ✓ | 5 |
 | Payload Size Limits | ✓ | 9 | — | — | — | — | | | |
 
 ## Style Compliance
@@ -29,13 +29,12 @@
 | Python | ✓ aligned | Language-specific gotchas |
 | TypeScript | ✓ aligned | Language-specific gotchas |
 | Go | — | Not started |
-| PHP | — | Not started |
+| PHP | ✓ aligned | 5 sections (Wrong Retry Classification, Cancellation, Heartbeating, Testing, Timers and Sleep) |
 
 ## Status
 
 **Sections needing review (empty cells):**
 - Go column: all empty — Go files not yet created
-- PHP column: all TODO — PHP files not yet created
 
 **Decided to keep as-is:**
 - Multiple Workers with Different Code: Core-only (conceptual explanation sufficient)
@@ -49,7 +48,7 @@
 - Bundling Issues: TS-specific (workflow bundling)
 - Async vs Sync Activities: Python-specific (PHP uses generators + yield, different model)
 - Cancellation: Core has conceptual overview, TS/Python/PHP have language-specific patterns
-- Timers and Sleep: TS-specific naming; PHP has equivalent TODO
+- Timers and Sleep: TS-specific naming; PHP has equivalent (now created)
 
 **Order alignment:** N/A — Core has conceptual sections, language files have implementation-specific sections
 
@@ -57,3 +56,4 @@
 - Core: 10 conceptual sections with symptoms/fixes (authoritative for cross-cutting concerns)
 - TypeScript: 7 sections (Activity Imports, Bundling, Cancellation, Heartbeating, Testing, Timers, Wrong Retry Classification)
 - Python: 7 sections (File Organization, Async vs Sync, Wrong Retry Classification, Cancellation, Heartbeating, Testing, Timers and Sleep)
+- PHP: 5 sections (Wrong Retry Classification, Cancellation, Heartbeating, Testing, Timers and Sleep) — matches Python structure minus Python-specific sections

@@ -159,3 +159,51 @@ Correctness verification for `references/{language}/determinism.md`.
 
 ---
 
+
+## PHP
+
+**File:** `references/php/determinism.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Overview | unchecked | | |
+| 2 | Why Determinism Matters: History Replay | unchecked | | |
+| 3 | SDK Protection / Runtime Checking | unchecked | | |
+| 4 | Forbidden Operations | unchecked | | |
+| 5 | Testing Replay Compatibility | unchecked | | |
+| 6 | Best Practices | unchecked | | |
+
+### Detailed Notes
+
+#### 1. Overview
+**Status:** unchecked
+
+---
+
+#### 2. Why Determinism Matters: History Replay
+**Status:** unchecked
+
+---
+
+#### 3. SDK Protection / Runtime Checking
+**Status:** unchecked
+
+---
+
+#### 4. Forbidden Operations
+**Status:** unchecked
+
+---
+
+#### 5. Testing Replay Compatibility
+**Status:** unchecked
+
+---
+
+#### 6. Best Practices
+**Status:** unchecked
+
+---
+

@@ -4,10 +4,10 @@
 
 | Section | Core | Python | Py# | TypeScript | TS# | Go | PHP | PHP# |
 |---------|------|--------|-----|------------|-----|----|-----|------|
-| Overview | — | ✓ | 1 | ✓ | 1 | | TODO | 1 |
+| Overview | — | ✓ | 1 | ✓ | 1 | | ✓ | 1 |
 | How the Sandbox Works | — | ✓ | 2 | — | — | | — | — |
 | Import Blocking | — | — | — | ✓ | 2 | | — | — |
-| Forbidden Operations | — | ✓ | 3 | — | — | | TODO | 2 |
+| Forbidden Operations | — | ✓ | 3 | — | — | | ✓ | 2 |
 | Function Replacement | — | — | — | ✓ | 3 | | — | — |
 | Pass-Through Pattern | — | ✓ | 4 | — | — | | — | — |
 | Importing Activities | — | ✓ | 5 | — | — | | — | — |
@@ -16,8 +16,8 @@
 | Import Notification Policy | — | ✓ | 8 | — | — | | — | — |
 | Disable Lazy sys.modules Passthrough | — | ✓ | 9 | — | — | | — | — |
 | File Organization | — | ✓ | 10 | — | — | | — | — |
-| Common Issues | — | ✓ | 11 | — | — | | TODO | 3 |
-| Best Practices | — | ✓ | 12 | — | — | | TODO | 4 |
+| Common Issues | — | ✓ | 11 | — | — | | ✓ | 3 |
+| Best Practices | — | ✓ | 12 | — | — | | ✓ | 4 |
 
 ## Style Compliance
 
@@ -26,13 +26,12 @@
 | Python | ✓ reference | Comprehensive (12 sections) |
 | TypeScript | ✓ aligned | Minimal (3 sections) — V8 is automatic |
 | Go | — | Not started |
-| PHP | — | Not started |
+| PHP | ✓ aligned | Minimal (4 sections) — no sandbox |
 
 ## Status
 
 **Sections needing review (empty cells):**
 - Go column: all empty — Go files not yet created
-- PHP column: minimal TODO — PHP has no sandbox
 
 **Intentionally missing (`—`):**
 - Core column: no core file (sandbox implementation is language-specific)

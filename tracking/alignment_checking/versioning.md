@@ -6,11 +6,11 @@
 |---------|------|-------|--------|-----|------------|-----|----|-----|------|
 | Overview | ✓ | 1 | — | — | — | — | | — | — |
 | Why Versioning is Needed | ✓ | 2 | — | — | — | — | | — | — |
-| Patching API | ✓ | 3 | ✓ | 1 | ✓ | 1 | | TODO | 1 |
-| Workflow Type Versioning | ✓ | 4 | ✓ | 2 | ✓ | 2 | | TODO | 2 |
-| Worker Versioning | ✓ | 5 | ✓ | 3 | ✓ | 3 | | TODO | 3 |
+| Patching API | ✓ | 3 | ✓ | 1 | ✓ | 1 | | ✓ | 1 |
+| Workflow Type Versioning | ✓ | 4 | ✓ | 2 | ✓ | 2 | | ✓ | 2 |
+| Worker Versioning | ✓ | 5 | ✓ | 3 | ✓ | 3 | | ✓ | 3 |
 | Choosing a Strategy | ✓ | 6 | — | — | — | — | | — | — |
-| Best Practices | ✓ | 7 | ✓ | 4 | ✓ | 4 | | TODO | 4 |
+| Best Practices | ✓ | 7 | ✓ | 4 | ✓ | 4 | | ✓ | 4 |
 | Finding Workflows by Version | ✓ | 8 | — | — | — | — | | — | — |
 | Common Mistakes | ✓ | 9 | — | — | — | — | | — | — |
 
@@ -22,13 +22,12 @@
 | Python | ✓ aligned | Code only, refs core |
 | TypeScript | ✓ aligned | Code only, refs core |
 | Go | — | Not started |
-| PHP | — | Not started |
+| PHP | ✓ aligned | Code only, refs core; uses getVersion() not patched() |
 
 ## Status
 
 **Sections needing review (empty cells):**
 - Go column: all empty — Go files not yet created
-- PHP column: all TODO — PHP files not yet created
 
 **Intentionally missing (`—`):**
 - Overview: Core-only (conceptual; languages reference core)
@@ -41,6 +40,6 @@
 
 **Style alignment:** ✅ Complete — Aligned to core-concepts/language-code pattern
 - Core: Conceptual explanations with decision guidance (Overview, Why Versioning, Choosing a Strategy, Common Mistakes)
-- Python/TypeScript: Code examples only, reference core for concepts
-- Removed duplicate Overview, Why Versioning, and Choosing a Strategy from Python and TypeScript
+- Python/TypeScript/PHP: Code examples only, reference core for concepts
+- PHP uses `Workflow::getVersion()` instead of `patched()`; three-step process adapted accordingly
 - Eliminates duplicate conceptual content across files
