@@ -2,22 +2,24 @@
 
 ## Section Inventory
 
-| Section | Core | Python | Py# | TypeScript | TS# | Go |
-|---------|------|--------|-----|------------|-----|-----|
-| Overview | — | ✓ | 1 | ✓ | 1 | |
-| How the Sandbox Works | — | ✓ | 2 | — | — | |
-| Import Blocking | — | — | — | ✓ | 2 | |
-| Forbidden Operations | — | ✓ | 3 | — | — | |
-| Function Replacement | — | — | — | ✓ | 3 | |
-| Pass-Through Pattern | — | ✓ | 4 | — | — | |
-| Importing Activities | — | ✓ | 5 | — | — | |
-| Disabling the Sandbox | — | ✓ | 6 | — | — | |
-| Customizing Invalid Module Members | — | ✓ | 7 | — | — | |
-| Import Notification Policy | — | ✓ | 8 | — | — | |
-| Disable Lazy sys.modules Passthrough | — | ✓ | 9 | — | — | |
-| File Organization | — | ✓ | 10 | — | — | |
-| Common Issues | — | ✓ | 11 | — | — | |
-| Best Practices | — | ✓ | 12 | — | — | |
+| Section | Core | Python | Py# | TypeScript | TS# | Go | Go# |
+|---------|------|--------|-----|------------|-----|-----|-----|
+| Overview | — | ✓ | 1 | ✓ | 1 | TODO | 1 |
+| How the Sandbox Works | — | ✓ | 2 | — | — | — | — |
+| Import Blocking | — | — | — | ✓ | 2 | — | — |
+| Forbidden Operations | — | ✓ | 3 | — | — | — | — |
+| Function Replacement | — | — | — | ✓ | 3 | — | — |
+| workflowcheck Static Analysis | — | — | — | — | — | TODO | 2 |
+| Determinism Rules | — | — | — | — | — | TODO | 3 |
+| Pass-Through Pattern | — | ✓ | 4 | — | — | — | — |
+| Importing Activities | — | ✓ | 5 | — | — | — | — |
+| Disabling the Sandbox | — | ✓ | 6 | — | — | — | — |
+| Customizing Invalid Module Members | — | ✓ | 7 | — | — | — | — |
+| Import Notification Policy | — | ✓ | 8 | — | — | — | — |
+| Disable Lazy sys.modules Passthrough | — | ✓ | 9 | — | — | — | — |
+| File Organization | — | ✓ | 10 | — | — | — | — |
+| Common Issues | — | ✓ | 11 | — | — | — | — |
+| Best Practices | — | ✓ | 12 | — | — | TODO | 4 |
 
 ## Style Compliance
 
@@ -25,22 +27,31 @@
 |----------|--------|-------|
 | Python | ✓ reference | Comprehensive (12 sections) |
 | TypeScript | ✓ aligned | Minimal (3 sections) — V8 is automatic |
-| Go | — | Not started |
+| Go | TODO | Minimal (4 sections) — no runtime sandbox, convention + static analysis |
 
 ## Status
 
-**Sections needing review (empty cells):**
-- Go column: all empty — Go files not yet created
+**Sections needing review (TODO cells):**
+- Go column: TODO items — Go files to be created
+
+**Go-specific notes:**
+- Go has NO runtime sandbox (unlike Python's import-restricting sandbox or TS's V8 isolate)
+- Determinism enforcement is purely by developer convention + optional static analysis
+- `workflowcheck` tool: `go.temporal.io/sdk/contrib/tools/workflowcheck` — detects non-deterministic function calls, channel ops, goroutines, map range
+- The tool flags: `time.Now`, `time.Sleep`, `math/rand.globalRand`, `crypto/rand.Reader`, `os.Stdin/Stdout/Stderr`, native goroutines, channel send/receive/range, map range iteration
+- Determinism Rules section: covers what developers must avoid (unique to Go since no sandbox catches these)
+- Overview: brief explanation that Go relies on convention rather than sandboxing
+- Best Practices: use workflowcheck in CI, follow workflow.* API conventions
 
 **Intentionally missing (`—`):**
 - Core column: no core file (sandbox implementation is language-specific)
-- Most sections are language-specific due to different sandbox architectures:
-  - Python: Pass-through pattern, customization APIs, notification policies
-  - TypeScript: Import blocking, function replacement (V8-specific)
+- Most Python sections (sandbox internals, import blocking, pass-through, customization): Not applicable to Go (no sandbox)
+- TS sections (Import Blocking, Function Replacement): Not applicable to Go (no V8 isolate)
+- Go doesn't need sandbox customization sections because there's no sandbox to customize
 
-**Order alignment:** N/A — files have completely different structures (Python: 12 sections, TS: 3 sections)
+**Order alignment:** N/A — files have completely different structures per language
 
-**Style alignment:** ⚠️ Very different structures (intentional, different sandboxes require different documentation)
+**Style alignment:** ⚠️ Very different structures (intentional, different protection mechanisms)
 - Python: Comprehensive (12 sections) — complex sandbox with many customization options
 - TypeScript: Minimal (3 sections) — V8 sandbox is mostly automatic
-- This is appropriate given the different sandbox architectures
+- Go: Minimal (4 sections) — no sandbox, convention-based with static analysis tool

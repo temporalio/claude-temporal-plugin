@@ -2,20 +2,20 @@
 
 ## Section Inventory
 
-| Section | Core | Python | Py# | TypeScript | TS# | Go |
-|---------|------|--------|-----|------------|-----|-----|
-| Overview | — | ✓ | 1 | ✓ | 1 | |
-| Default Data Converter | — | ✓ | 2 | ✓ | 2 | |
-| Pydantic Integration | — | ✓ | 3 | — | — | |
-| Custom Data Converter | — | ✓ | 4 | ✓ | 3 | |
-| Composition of Payload Converters | — | — | — | ✓ | 4 | |
-| Protobuf Support | — | — | — | ✓ | 5 | |
-| Payload Encryption | — | ✓ | 5 | ✓ | 6 | |
-| Search Attributes | — | ✓ | 6 | ✓ | 7 | |
-| Workflow Memo | — | ✓ | 7 | ✓ | 8 | |
-| Large Payloads | — | — | — | — | — | |
-| Deterministic APIs for Values | — | ✓ | 8 | — | — | |
-| Best Practices | — | ✓ | 9 | ✓ | 9 | |
+| Section | Core | Python | Py# | TypeScript | TS# | Go | Go# |
+|---------|------|--------|-----|------------|-----|-----|-----|
+| Overview | — | ✓ | 1 | ✓ | 1 | TODO | 1 |
+| Default Data Converter | — | ✓ | 2 | ✓ | 2 | TODO | 2 |
+| Pydantic Integration | — | ✓ | 3 | — | — | — | — |
+| Custom Data Converter | — | ✓ | 4 | ✓ | 3 | TODO | 3 |
+| Composition of Payload Converters | — | — | — | ✓ | 4 | TODO | 4 |
+| Protobuf Support | — | — | — | ✓ | 5 | TODO | 5 |
+| Payload Encryption | — | ✓ | 5 | ✓ | 6 | TODO | 6 |
+| Search Attributes | — | ✓ | 6 | ✓ | 7 | TODO | 7 |
+| Workflow Memo | — | ✓ | 7 | ✓ | 8 | TODO | 8 |
+| Large Payloads | — | — | — | — | — | — | — |
+| Deterministic APIs for Values | — | ✓ | 8 | — | — | — | — |
+| Best Practices | — | ✓ | 9 | ✓ | 9 | TODO | 9 |
 
 ## Style Compliance
 
@@ -23,20 +23,29 @@
 |----------|--------|-------|
 | Python | ✓ reference | — |
 | TypeScript | ✓ aligned | — |
-| Go | — | Not started |
+| Go | TODO | JSON default, protobuf native, converter.CompositeDataConverter |
 
 ## Status
 
-**Sections needing review (empty cells):**
-- Go column: all empty — Go files not yet created
+**Sections needing review (TODO cells):**
+- Go column: TODO items — Go files to be created
+
+**Go-specific notes:**
+- Default Data Converter: Go uses `converter.NewCompositeDataConverter()` with JSON as default — chain: NilPayloadConverter, ByteSlicePayloadConverter, ProtoPayloadConverter, ProtoJSONPayloadConverter, JSONPayloadConverter
+- Custom Data Converter: implement `converter.DataConverter` interface
+- Composition of Payload Converters: Go has `converter.NewCompositeDataConverter()` — similar to TS
+- Protobuf Support: Go has native proto support via `converter.NewProtoPayloadConverter()` — both proto binary and proto JSON
+- Payload Encryption: Go uses `converter.PayloadCodec` interface for encryption/compression
+- Search Attributes: `workflow.UpsertSearchAttributes(ctx, map)`, query via client
+- Workflow Memo: set in `client.StartWorkflowOptions`
+- Note on v1.26.0+: proto types changed from gogo to google protobuf; `LegacyTemporalProtoCompat` option available
 
 **Intentionally missing (`—`):**
-- Core column: data handling is implementation-specific, no core concepts doc needed
-- Pydantic Integration: Python-specific (TS uses plain JSON/types)
-- Protobuf Support: TS-specific section (Python handles protobufs via default converter)
-- Deterministic APIs for Values: Python-specific (`workflow.uuid4()`, `workflow.random()`)
-- Large Payloads: Moved to `core/patterns.md` (Large Data Handling) and `core/gotchas.md` (Payload Size Limits)
+- Core column: data handling is implementation-specific
+- Pydantic Integration: Python-specific
+- Deterministic APIs for Values: Python-specific; Go covers in determinism.md Safe Builtin Alternatives
+- Large Payloads: Moved to core/patterns.md and core/gotchas.md
 
-**Order alignment:** ✅ ALIGNED — Reordered TypeScript to match Python order
+**Order alignment:** ✅ ALIGNED — Go sections follow same order as Python/TypeScript
 
-**Style alignment:** All TypeScript sections aligned with Python. No changes needed.
+**Style alignment:** ✅ Complete (Python, TypeScript)

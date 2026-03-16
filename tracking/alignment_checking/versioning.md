@@ -2,17 +2,17 @@
 
 ## Section Inventory
 
-| Section | Core | Core# | Python | Py# | TypeScript | TS# | Go |
-|---------|------|-------|--------|-----|------------|-----|-----|
-| Overview | ✓ | 1 | — | — | — | — | |
-| Why Versioning is Needed | ✓ | 2 | — | — | — | — | |
-| Patching API | ✓ | 3 | ✓ | 1 | ✓ | 1 | |
-| Workflow Type Versioning | ✓ | 4 | ✓ | 2 | ✓ | 2 | |
-| Worker Versioning | ✓ | 5 | ✓ | 3 | ✓ | 3 | |
-| Choosing a Strategy | ✓ | 6 | — | — | — | — | |
-| Best Practices | ✓ | 7 | ✓ | 4 | ✓ | 4 | |
-| Finding Workflows by Version | ✓ | 8 | — | — | — | — | |
-| Common Mistakes | ✓ | 9 | — | — | — | — | |
+| Section | Core | Core# | Python | Py# | TypeScript | TS# | Go | Go# |
+|---------|------|-------|--------|-----|------------|-----|-----|-----|
+| Overview | ✓ | 1 | — | — | — | — | — | — |
+| Why Versioning is Needed | ✓ | 2 | — | — | — | — | — | — |
+| Patching API / GetVersion API | ✓ | 3 | ✓ | 1 | ✓ | 1 | TODO | 1 |
+| Workflow Type Versioning | ✓ | 4 | ✓ | 2 | ✓ | 2 | TODO | 2 |
+| Worker Versioning | ✓ | 5 | ✓ | 3 | ✓ | 3 | TODO | 3 |
+| Choosing a Strategy | ✓ | 6 | — | — | — | — | — | — |
+| Best Practices | ✓ | 7 | ✓ | 4 | ✓ | 4 | TODO | 4 |
+| Finding Workflows by Version | ✓ | 8 | — | — | — | — | — | — |
+| Common Mistakes | ✓ | 9 | — | — | — | — | — | — |
 
 ## Style Compliance
 
@@ -21,12 +21,21 @@
 | Core | ✓ reference | Conceptual content |
 | Python | ✓ aligned | Code only, refs core |
 | TypeScript | ✓ aligned | Code only, refs core |
-| Go | — | Not started |
+| Go | TODO | Uses `workflow.GetVersion` (not patching); code only, refs core |
 
 ## Status
 
-**Sections needing review (empty cells):**
-- Go column: all empty — Go files not yet created
+**Sections needing review (TODO cells):**
+- Go column: TODO items — Go files to be created
+
+**Go-specific notes:**
+- Go uses `workflow.GetVersion(ctx, changeID, minSupported, maxSupported)` — returns a `Version` (int)
+- Different from Python/TS `patched()`/`deprecatePatch()` — Go uses a version number approach
+- Three-step lifecycle: add GetVersion branch -> increase minSupported -> collapse to single branch
+- `workflow.DefaultVersion` constant (-1) represents pre-versioned code
+- TemporalChangeVersion search attribute set automatically
+- Worker Versioning works the same across all SDKs (server-side feature)
+- Query filters for finding workflows by version are available
 
 **Intentionally missing (`—`):**
 - Overview: Core-only (conceptual; languages reference core)
@@ -35,10 +44,6 @@
 - Finding Workflows by Version: Core-only section (languages cover in Query Filters subsections)
 - Common Mistakes: Core-only section
 
-**Order alignment:** ✓ Aligned — languages now focus on code: Patching API, Type Versioning, Worker Versioning, Best Practices
+**Order alignment:** ✓ Aligned — languages focus on code: Patching/GetVersion API, Type Versioning, Worker Versioning, Best Practices
 
-**Style alignment:** ✅ Complete — Aligned to core-concepts/language-code pattern
-- Core: Conceptual explanations with decision guidance (Overview, Why Versioning, Choosing a Strategy, Common Mistakes)
-- Python/TypeScript: Code examples only, reference core for concepts
-- Removed duplicate Overview, Why Versioning, and Choosing a Strategy from Python and TypeScript
-- Eliminates duplicate conceptual content across files
+**Style alignment:** ✅ Complete (Python, TypeScript)
