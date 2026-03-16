@@ -565,13 +565,13 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 | 5 | Updates | all good | | temporal-docs message-passing |
 | 6 | Child Workflows | all good | | temporal-docs child-workflows, ruby.temporal.io |
 | 7 | Child Workflow Options | all good | | ruby.temporal.io start_child_workflow API |
-| 8 | Handles to External Workflows | needs fixes | | temporal-docs message-passing |
+| 8 | Handles to External Workflows | FIXED | Fixed signal call to use class method ref | temporal-docs message-passing |
 | 9 | Parallel Execution | all good | | temporal blog (crash-proof fibers), Slack |
 | 10 | Continue-as-New | all good | | temporal-docs continue-as-new |
 | 11 | Saga Pattern | all good | | standard pattern, matches Python |
 | 12 | Cancellation (Token-based) | all good | | sdk-ruby README (Fiber Scheduling and Cancellation) |
 | 13 | Wait Condition with Timeout | all good | | sdk-ruby README (Timers and Conditions) |
-| 14 | Waiting for All Handlers to Finish | needs fixes | | ruby.temporal.io API reference |
+| 14 | Waiting for All Handlers to Finish | FIXED | Added ? suffix to all_handlers_finished | ruby.temporal.io API reference |
 | 15 | Activity Heartbeat Details | all good | | temporal-docs failure-detection, sdk-ruby README |
 | 16 | Timers | all good | | sdk-ruby README |
 | 17 | Local Activities | all good | | ruby.temporal.io execute_local_activity API |

@@ -232,7 +232,7 @@ Correctness verification for `references/{language}/{language}.md` (e.g., typesc
 | # | Section | Status | Fix Applied | Sources |
 |---|---------|--------|-------------|---------|
 | 1 | Overview | all good | | sdk-ruby README |
-| 2 | Quick Demo | needs fixes | | sdk-ruby README |
+| 2 | Quick Demo | FIXED | Added 'default' namespace to Client.connect | sdk-ruby README |
 | 3 | Key Concepts | all good | | sdk-ruby README |
 | 4 | File Organization | all good | | N/A |
 | 5 | Common Pitfalls | all good | | N/A |
