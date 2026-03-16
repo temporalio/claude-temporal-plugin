@@ -30,6 +30,9 @@ Tracks alignment for `python.md`, `typescript.md`, `go.md`, etc.
 **Sections needing review (TODO cells):**
 - Go column: all TODO — Go files to be created
 
+**Section content notes:**
+- Writing Tests: all languages should be a brief link to `references/<lang>/testing.md`, NOT inline code examples
+
 **Go-specific notes:**
 - Go uses exported functions (not decorators) for workflows/activities
 - Activities commonly defined as struct methods for dependency injection
