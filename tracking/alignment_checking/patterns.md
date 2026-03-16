@@ -66,6 +66,7 @@
 
 **Ruby notes:**
 - Ruby uses `workflow_signal`, `workflow_query`, `workflow_update` class methods (not decorators)
+- Entry point is `def execute` — no annotation needed (unlike Python's `@workflow.run`)
 - Dynamic handlers use `dynamic: true` parameter
 - Parallel execution uses `Temporalio::Workflow::Future.all_of` (not Promise.all or asyncio.gather)
 - Continue-as-New raises `Temporalio::Workflow::ContinueAsNewError` (not a function call)
