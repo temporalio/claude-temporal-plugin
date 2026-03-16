@@ -1,17 +1,22 @@
-"""Validates a generated Python Temporal greeting workflow.
+"""Validates greeting workflow implementation."""
 
-Writes per-check rewards to /logs/verifier/reward.json.
-"""
-
+import asyncio
 import json
 import os
 import py_compile
 import re
+import subprocess
+import time
 from pathlib import Path
+
+import subprocess as _sp
+_sp.run(["pip", "install", "--break-system-packages", "-q", "temporalio"], check=True)
+del _sp
+
+from temporalio.testing import WorkflowEnvironment
 
 WORKSPACE = Path("/workspace")
 REWARD_PATH = Path("/logs/verifier/reward.json")
-
 rewards: dict[str, float] = {}
 
 
@@ -21,52 +26,70 @@ def check(key: str, passed: bool, label: str) -> None:
     print(f"{status}: {label}")
 
 
+def run(cmd: list[str], timeout: int = 30) -> tuple[str, str, int]:
+    try:
+        result = subprocess.run(
+            cmd, capture_output=True, text=True, timeout=timeout, cwd=WORKSPACE
+        )
+        return result.stdout, result.stderr, result.returncode
+    except subprocess.TimeoutExpired:
+        return "", "TIMEOUT", -1
+
+
 def any_py_contains(pattern: str) -> bool:
-    """Search all .py files for a pattern."""
     for f in WORKSPACE.rglob("*.py"):
-        if re.search(pattern, f.read_text()):
-            return True
+        try:
+            if re.search(pattern, f.read_text()):
+                return True
+        except Exception:
+            pass
     return False
 
 
 os.chdir(WORKSPACE)
 
-py_files = list(WORKSPACE.rglob("*.py"))
 
-# --- Project structure ---
-check("file_deps", any((WORKSPACE / p).is_file() for p in ["requirements.txt", "pyproject.toml"]), "dependency file exists")
-check("has_py_files", len(py_files) > 0, "has .py files")
+async def main() -> None:
+    async with await WorkflowEnvironment.start_local(port=7233) as env:
+        # Install deps
+        _, _, sync_rc = run(["uv", "sync"], timeout=60)
+        if sync_rc != 0:
+            _, _, sync_rc = run(["pip", "install", "--break-system-packages", "-r", "requirements.txt"], timeout=60)
+        check("deps_installed", sync_rc == 0, "dependencies install")
 
-# --- Code patterns ---
-check("pattern_workflow_defn", any_py_contains(r"@workflow\.defn"), "@workflow.defn decorator")
-check("pattern_activity_defn", any_py_contains(r"@activity\.defn"), "@activity.defn decorator")
-check("pattern_workflow_run", any_py_contains(r"@workflow\.run"), "@workflow.run decorator")
-check("pattern_async_def", any_py_contains(r"async\s+def"), "async def")
-check("pattern_await", any_py_contains(r"await\s"), "await")
-check("pattern_imports", any_py_contains(r"from temporalio|import temporalio"), "temporalio imports")
-check("pattern_signal", any_py_contains(r"@workflow\.signal"), "@workflow.signal decorator")
-check("pattern_query", any_py_contains(r"@workflow\.query"), "@workflow.query decorator")
+        # Start worker in background
+        worker_proc = subprocess.Popen(
+            ["uv", "run", "python", "worker.py"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            cwd=WORKSPACE,
+        )
+        time.sleep(3)
 
-# --- Python syntax ---
-all_compile = True
-for f in py_files:
-    try:
-        py_compile.compile(str(f), doraise=True)
-    except py_compile.PyCompileError:
-        all_compile = False
-        break
-check("syntax_valid", all_compile, "all .py files compile")
+        try:
+            stdout, stderr, rc = run(["uv", "run", "python", "client.py", "Jake"], timeout=10)
+            check("runs_successfully", rc == 0, "client exits cleanly")
+            check("correct_output", "Jake" in stdout, "greeting contains name")
+        finally:
+            worker_proc.terminate()
+            worker_proc.wait(timeout=5)
 
-# --- Dependencies ---
-check(
-    "deps_temporalio",
-    any(
-        (WORKSPACE / p).is_file() and re.search(r"temporalio", (WORKSPACE / p).read_text()) is not None
-        for p in ["requirements.txt", "pyproject.toml"]
-    ),
-    "temporalio in dependencies",
-)
+        # Static checks
+        check("has_workflow_defn", any_py_contains(r"@workflow\.defn"), "@workflow.defn decorator")
 
-# --- Write rewards ---
-REWARD_PATH.parent.mkdir(parents=True, exist_ok=True)
-REWARD_PATH.write_text(json.dumps(rewards))
+        py_files = list(WORKSPACE.rglob("*.py"))
+        all_compile = True
+        for f in py_files:
+            try:
+                py_compile.compile(str(f), doraise=True)
+            except py_compile.PyCompileError:
+                all_compile = False
+                break
+        check("syntax_valid", all_compile, "all .py files compile")
+
+    REWARD_PATH.parent.mkdir(parents=True, exist_ok=True)
+    REWARD_PATH.write_text(json.dumps(rewards))
+
+
+asyncio.run(main())

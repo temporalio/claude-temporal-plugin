@@ -1,0 +1,20 @@
+version = "1.0"
+
+[metadata]
+author_name = "Temporal Developer Skill"
+difficulty = "hard"
+category = "programming"
+tags = ["temporal", "python", "workflow"]
+
+[agent]
+timeout_sec = 300.0
+
+[verifier]
+timeout_sec = 120.0
+
+[environment]
+build_timeout_sec = 300.0
+cpus = 2
+memory_mb = 8192
+storage_mb = 10240
+allow_internet = true
