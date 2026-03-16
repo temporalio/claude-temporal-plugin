@@ -22,13 +22,17 @@ Python is the reference style (code-first, minimal prose). All languages should 
 - `—` = missing, intentional (language doesn't need this)
 - `TODO` = missing, should add
 - `DEL` = present, should remove or merge
-- `Py#` / `TS#` / `Go#` = section order in file (should monotonically increase if order is aligned)
+- `Py#` / `TS#` / `Rb#` / `Go#` = section order in file (should monotonically increase if order is aligned)
 
 ## Implementation Status
 
-✅ **COMPLETE** (2026-02-25)
+✅ **Python/TypeScript COMPLETE** (2026-02-25)
 
-All TODO/DEL/BUG items have been implemented.
+All TODO/DEL/BUG items have been implemented for Python and TypeScript.
+
+⏳ **Ruby IN PROGRESS** (2026-03-16)
+
+Ruby columns added to all alignment tracking files. Ruby reference files not yet created.
 
 ## Files
 
