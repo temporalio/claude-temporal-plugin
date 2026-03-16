@@ -22,13 +22,13 @@ Python is the reference style (code-first, minimal prose). All languages should 
 - `—` = missing, intentional (language doesn't need this)
 - `TODO` = missing, should add
 - `DEL` = present, should remove or merge
-- `Py#` / `TS#` / `Go#` = section order in file (should monotonically increase if order is aligned)
+- `Py#` / `TS#` / `DN#` / `Go#` = section order in file (should monotonically increase if order is aligned)
 
 ## Implementation Status
 
-✅ **COMPLETE** (2026-02-25)
+✅ **COMPLETE** for Python/TypeScript (2026-02-25)
 
-All TODO/DEL/BUG items have been implemented.
+🔄 **IN PROGRESS** for .NET (2026-03-16) — alignment tracking docs created with TODO markers
 
 ## Files
 
