@@ -223,3 +223,23 @@ Correctness verification for `references/{language}/{language}.md` (e.g., typesc
 
 ---
 
+
+## Java
+
+**File:** `references/java/java.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Quick Start | all good | | temporal-docs |
+| 2 | Key Concepts | all good | | temporal-docs |
+| 3 | Worker Setup | all good | | temporal-docs |
+| 4 | Activity/Workflow Patterns | all good | | temporal-docs |
+
+### Detailed Notes
+
+All sections verified correct against temporal-docs. Quick Start, Key Concepts, Worker Setup, and Activity/Workflow patterns all confirmed accurate.
+
+---
+

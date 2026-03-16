@@ -159,3 +159,24 @@ Correctness verification for `references/{language}/determinism.md`.
 
 ---
 
+
+## Java
+
+**File:** `references/java/determinism.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Workflow.* APIs | all good | | temporal-docs |
+| 2 | NonDeterministicException | all good | | temporal-docs |
+| 3 | Cooperative Threading Model | all good | | temporal-docs |
+| 4 | Forbidden Operations | all good | | temporal-docs |
+| 5 | Best Practices | all good | | temporal-docs |
+
+### Detailed Notes
+
+All sections verified correct against temporal-docs. All Workflow.* APIs (Workflow.sleep, Workflow.currentTimeMillis, Workflow.newRandom, etc.) confirmed accurate. NonDeterministicException and cooperative threading model confirmed.
+
+---
+

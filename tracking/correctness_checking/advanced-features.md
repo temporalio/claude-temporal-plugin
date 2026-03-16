@@ -134,3 +134,24 @@ Correctness verification for `references/{language}/advanced-features.md`.
 
 ---
 
+
+## Java
+
+**File:** `references/java/advanced-features.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | ScheduleClient | all good | | temporal-docs |
+| 2 | ActivityCompletionClient | all good | | temporal-docs |
+| 3 | WorkerOptions Setters | all good | | temporal-docs |
+| 4 | setFailWorkflowExceptionTypes | all good | | temporal-docs |
+| 5 | Worker Tuning | all good | | temporal-docs |
+
+### Detailed Notes
+
+All sections verified correct against temporal-docs. ScheduleClient, ActivityCompletionClient, WorkerOptions setters, and setFailWorkflowExceptionTypes all confirmed accurate.
+
+---
+

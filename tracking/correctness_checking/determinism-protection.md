@@ -185,3 +185,23 @@ Correctness verification for `references/{language}/determinism-protection.md`.
 
 ---
 
+
+## Java
+
+**File:** `references/java/determinism-protection.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | No Sandbox | all good | | temporal-docs |
+| 2 | Determinism Responsibility | all good | | temporal-docs |
+| 3 | Forbidden Operations | all good | | temporal-docs |
+| 4 | Best Practices | all good | | temporal-docs |
+
+### Detailed Notes
+
+All claims verified correct against temporal-docs. Java has no sandbox confirmed -- determinism is the developer's responsibility. Forbidden operations and best practices all accurate.
+
+---
+

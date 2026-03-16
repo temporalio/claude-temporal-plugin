@@ -187,3 +187,24 @@ Correctness verification for `references/{language}/observability.md`.
 
 ---
 
+
+## Java
+
+**File:** `references/java/observability.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Workflow.getLogger() | all good | | temporal-docs |
+| 2 | MicrometerClientStatsReporter | all good | | temporal-docs |
+| 3 | RootScopeBuilder | all good | | temporal-docs |
+| 4 | Metrics Configuration | all good | | temporal-docs |
+| 5 | Best Practices | all good | | temporal-docs |
+
+### Detailed Notes
+
+All sections verified correct against temporal-docs. Workflow.getLogger(), MicrometerClientStatsReporter, and RootScopeBuilder all confirmed accurate.
+
+---
+
