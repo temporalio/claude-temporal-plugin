@@ -26,6 +26,14 @@ You will then add support for $ARGUMENTS in phases:
 
 5) Apply the correctness edits to the actual content files. This step is potentially massively parallizable. When done, commit this.
 
+6) Update all files that reference supported languages to include $ARGUMENTS:
+  - `SKILL.md` frontmatter `description` field: add trigger phrases like "Temporal $ARGUMENTS"
+  - `SKILL.md` Overview: update the list of supported languages
+  - `SKILL.md` Getting Started > Read All Relevant References: add entry for $ARGUMENTS
+  - `references/core/determinism.md` SDK Protection Mechanisms: add $ARGUMENTS entry describing its determinism enforcement approach
+  - Any other `core/` files that enumerate languages explicitly
+  When done, commit this.
+
 Do these steps one at a time, asking for human review after each step.
 
 Make sure to use the /edit-plugin-skills skill to have an understanding of how to work with the alignment and correctness tracking docs.
