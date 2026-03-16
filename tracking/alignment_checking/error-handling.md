@@ -8,8 +8,8 @@
 | Application Errors/Failures | — | ✓ | 2 | ✓ | 2 | TODO | 2 | |
 | Non-Retryable Errors | — | ✓ | 3 | — | — | TODO | 3 | |
 | Activity Errors | — | — | — | ✓ | 3 | TODO | 4 | |
-| Handling Activity Errors in Workflows | — | ✓ | 4 | ✓ | 4 | TODO | 5 | |
-| Retry Configuration | — | ✓ | 5 | ✓ | 5 | TODO | 6 | |
+| Handling Activity Errors | — | ✓ | 4 | ✓ | 4 | TODO | 5 | |
+| Retry Policy Configuration | — | ✓ | 5 | ✓ | 5 | TODO | 6 | |
 | Timeout Configuration | — | ✓ | 6 | ✓ | 6 | TODO | 7 | |
 | Workflow Failure | — | ✓ | 7 | ✓ | 7 | TODO | 8 | |
 | Cancellation Handling in Activities | — | — | — | — | — | — | — | |

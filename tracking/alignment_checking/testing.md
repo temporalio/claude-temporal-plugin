@@ -5,12 +5,12 @@
 | Section | Core | Python | Py# | TypeScript | TS# | Java | J# | Go |
 |---------|------|--------|-----|------------|-----|------|----|----|
 | Overview | — | ✓ | 1 | ✓ | 1 | TODO | 1 | |
-| Test Environment Setup | — | ✓ | 2 | ✓ | 2 | TODO | 2 | |
+| Workflow Test Environment | — | ✓ | 2 | ✓ | 2 | TODO | 2 | |
 | Time Skipping | — | — | — | — | — | — | — | |
-| Activity Mocking | — | ✓ | 3 | ✓ | 3 | TODO | 3 | |
+| Mocking Activities | — | ✓ | 3 | ✓ | 3 | TODO | 3 | |
 | Testing Signals and Queries | — | ✓ | 4 | ✓ | 4 | TODO | 4 | |
 | Testing Failure Cases | — | ✓ | 5 | ✓ | 5 | TODO | 5 | |
-| Replay Testing | — | ✓ | 6 | ✓ | 6 | TODO | 6 | |
+| Workflow Replay Testing | — | ✓ | 6 | ✓ | 6 | TODO | 6 | |
 | Activity Testing | — | ✓ | 7 | ✓ | 7 | TODO | 7 | |
 | Best Practices | — | ✓ | 8 | ✓ | 8 | TODO | 8 | |
 
