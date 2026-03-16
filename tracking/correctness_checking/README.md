@@ -17,12 +17,12 @@ Each file in this directory tracks correctness for a corresponding reference fil
 
 | File | TypeScript | Python | PHP | Go |
 |------|------------|--------|-----|-----|
-| patterns.md | ✅ | partial | unchecked | — |
+| patterns.md | ✅ | partial | ✅ | — |
 | testing.md | ✅ | partial | unchecked | — |
-| language.md | ✅ | partial | — | — |
+| language.md | ✅ | partial | unchecked | — |
 | versioning.md | ✅ | partial | unchecked | — |
 | advanced-features.md | ✅ | partial | unchecked | — |
-| data-handling.md | ✅ | partial | unchecked | — |
+| data-handling.md | ✅ | partial | partial | — |
 | determinism-protection.md | ✅ | partial | unchecked | — |
 | determinism.md | ✅ | partial | unchecked | — |
 | error-handling.md | ✅ | partial | unchecked | — |

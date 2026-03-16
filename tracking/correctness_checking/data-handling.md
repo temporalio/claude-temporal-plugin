@@ -241,48 +241,103 @@ Correctness verification for `references/{language}/data-handling.md`.
 
 | # | Section | Status | Fix Applied | Sources |
 |---|---------|--------|-------------|---------|
-| 1 | Overview | unchecked | | |
-| 2 | Default Data Converter | unchecked | | |
-| 3 | Custom Data Converter | unchecked | | |
-| 4 | Payload Encryption | unchecked | | |
-| 5 | Search Attributes | unchecked | | |
-| 6 | Workflow Memo | unchecked | | |
-| 7 | Best Practices | unchecked | | |
+| 1 | Overview | all good | | context7 sdk-php |
+| 2 | Default Data Converter | all good | | context7 sdk-php |
+| 3 | Custom Data Converter | needs verification | | context7 sdk-php |
+| 4 | Payload Encryption | needs verification | | context7 sdk-php |
+| 5 | Search Attributes | FIXED | `TypedSearchAttributes::new()->withSearchAttribute()`, `->valueSet()` | context7 sdk-php |
+| 6 | Workflow Memo | needs verification | | context7 sdk-php |
+| 7 | Best Practices | all good | | context7 sdk-php |
 
 ### Detailed Notes
 
 #### 1. Overview
-**Status:** unchecked
+**Status:** all good
+
+**Verified:**
+- Data converter role description is accurate
+- JSON as default format is correct
 
 ---
 
 #### 2. Default Data Converter
-**Status:** unchecked
+**Status:** all good
+
+**Verified:**
+- Supported types (null, scalars, arrays, objects) are correct
+- `#[ReturnType]` attribute usage on workflow interface methods is correct
+- Import `Temporal\Workflow\ReturnType` is consistent with SDK conventions
+- Explanation that generators need `#[ReturnType]` for deserialization is correct
 
 ---
 
 #### 3. Custom Data Converter
-**Status:** unchecked
+**Status:** needs verification
+
+**Issues:**
+- **`PayloadConverter` interface name could not be fully verified** -- the reference uses `implements PayloadConverter` but the actual interface may be `PayloadConverterInterface`. Context7 docs do not include custom PayloadConverter examples for PHP SDK.
+- Method signatures (`getEncodingType()`, `toPayload()`, `fromPayload()`) are plausible but could not be confirmed against source.
+- `DataConverter` constructor taking multiple converters is plausible but unverified.
+- `WorkflowClient::create()` with `dataConverter:` named parameter is plausible.
+
+**Note:** Unable to verify custom data converter PHP-specific API due to limited documentation availability.
 
 ---
 
 #### 4. Payload Encryption
-**Status:** unchecked
+**Status:** needs verification
+
+**Issues:**
+- **`PayloadCodecInterface` name could not be fully verified** -- the reference uses `implements PayloadCodecInterface` which is plausible but unconfirmed.
+- `encode(array $payloads): array` and `decode(array $payloads): array` signatures are plausible.
+- `DataConverter::createDefault()->withCodec(...)` pattern is plausible but unverified.
+
+**Note:** Unable to verify PayloadCodec PHP-specific API due to limited documentation availability.
 
 ---
 
 #### 5. Search Attributes
-**Status:** unchecked
+**Status:** needs fixes
+
+**Issues:**
+- **Wrong import path for `SearchAttributeKey`:**
+  - Reference uses: `use Temporal\Common\SearchAttributeKey;`
+  - Correct (per Context7): `use Temporal\Common\SearchAttributes\SearchAttributeKey;`
+  - The class lives in the `SearchAttributes` sub-namespace
+- **Wrong method on `TypedSearchAttributes` for setting initial values:**
+  - Reference uses: `TypedSearchAttributes::empty()->withValue($key, $value)`
+  - Correct (per Context7): `TypedSearchAttributes::new()->withSearchAttribute($key, $value)`
+  - Factory method is `new()` not `empty()`
+  - Setter method is `withSearchAttribute()` not `withValue()`
+- **Wrong method for upserting search attributes inside workflow:**
+  - Reference uses: `SearchAttributeKey::forKeyword('OrderStatus')->withValue('completed')`
+  - Correct (per Context7): `SearchAttributeKey::forKeyword('OrderStatus')->valueSet('completed')`
+  - Method is `valueSet()` not `withValue()`
+- The `Workflow::upsertTypedSearchAttributes()` call itself is correct (takes variadic search attribute updates)
+- `SearchAttributeKey::forKeyword()` factory method is correct
+- `$client->listWorkflowExecutions()` query API appears correct
 
 ---
 
 #### 6. Workflow Memo
-**Status:** unchecked
+**Status:** needs verification
+
+**Issues:**
+- `WorkflowOptions::new()->withMemo([...])` for setting memo at start is plausible but not verified in Context7 docs
+- **`Workflow::upsertMemo()` could not be verified** -- Context7 does not include examples of upserting memo in PHP SDK. This method may or may not exist.
+
+**Note:** Unable to verify memo PHP-specific API due to limited documentation availability.
 
 ---
 
 #### 7. Best Practices
-**Status:** unchecked
+**Status:** all good
+
+**Verified:**
+- All 4 best practices are valid
+- `#[ReturnType]` recommendation is correct
+- PayloadCodec for encryption recommendation is correct
+- Typed Search Attributes recommendation is correct
 
 ---
 

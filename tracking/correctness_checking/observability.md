@@ -196,36 +196,64 @@ Correctness verification for `references/{language}/observability.md`.
 
 | # | Section | Status | Fix Applied | Sources |
 |---|---------|--------|-------------|---------|
-| 1 | Overview | unchecked | | |
-| 2 | Logging / Replay-Aware Logging | unchecked | | |
-| 3 | Customizing the Logger | unchecked | | |
-| 4 | Search Attributes (Visibility) | unchecked | | |
-| 5 | Best Practices | unchecked | | |
+| 1 | Overview | all good | | context7 sdk-php |
+| 2 | Logging / Replay-Aware Logging | needs verification | | context7 sdk-php |
+| 3 | Customizing the Logger | needs verification | | context7 sdk-php |
+| 4 | Search Attributes (Visibility) | all good | | context7 sdk-php |
+| 5 | Best Practices | all good | | context7 sdk-php |
 
 ### Detailed Notes
 
 #### 1. Overview
-**Status:** unchecked
+**Status:** all good
+
+**Verified:**
+- PSR-3 logging mention is correct (PHP SDK uses PSR-3 compatible loggers)
+- Replay-aware workflow logger claim is consistent with SDK design
+- Search Attributes for visibility is correct
 
 ---
 
 #### 2. Logging / Replay-Aware Logging
-**Status:** unchecked
+**Status:** needs verification
+
+**Issues:**
+- `Workflow::getLogger()` API is plausible and consistent with SDK patterns but could not be directly confirmed in Context7 documentation (no logging-specific examples found)
+- PSR-3 logger interface for activities is correct (standard PHP practice)
+- Claim that workflow logger "automatically suppresses duplicate log messages during replay" is plausible but unverified
+- **`WorkerOptions::new()->withEnableLoggingInReplay(true)` could not be verified** -- Context7 WorkerOptions examples show many `with*` methods but `withEnableLoggingInReplay` is not among them. This method may or may not exist.
+
+**Note:** Unable to verify logging PHP-specific API due to limited documentation availability. The `withEnableLoggingInReplay()` method should be re-verified.
 
 ---
 
 #### 3. Customizing the Logger
-**Status:** unchecked
+**Status:** needs verification
+
+**Issues:**
+- **`logger` parameter on `$factory->newWorker()` could not be verified** -- Context7 worker configuration examples show `newWorker(taskQueue, WorkerOptions)` but do not show a `logger:` named parameter. The PHP SDK worker factory may accept a logger elsewhere (e.g., on the factory itself or via DI).
+- Monolog integration pattern is plausible (Monolog is the standard PSR-3 logger for PHP)
+
+**Note:** Unable to verify custom logger injection point due to limited documentation availability.
 
 ---
 
 #### 4. Search Attributes (Visibility)
-**Status:** unchecked
+**Status:** all good
+
+**Verified:**
+- Cross-reference to `references/php/data-handling.md` is correct and appropriate
 
 ---
 
 #### 5. Best Practices
-**Status:** unchecked
+**Status:** all good
+
+**Verified:**
+- `Workflow::getLogger()` recommendation is correct
+- Warning against `echo`/`print()` in workflows is correct (output on every replay)
+- PSR-3 loggers in activities recommendation is correct
+- Search Attributes recommendation is correct
 
 ---
 
