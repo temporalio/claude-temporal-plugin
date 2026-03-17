@@ -16,10 +16,10 @@
 | Deterministic Asyncio Alternatives | — | ✓ | 9 | — | — | — | — |
 | Selector Pattern | — | — | — | — | — | ✓ | 7 |
 | Continue-as-New | ✓ | ✓ | 10 | ✓ | 10 | ✓ | 8 |
-| Saga Pattern | ✓ | ✓ | 11 | ✓ | 11 | ✓ | 9 |
 | Cancellation Handling (asyncio) | — | ✓ | 12 | — | — | — | — |
 | Cancellation Scopes | — | — | — | ✓ | 12 | — | — |
-| Cancellation Handling | — | — | — | — | — | ✓ | 10 |
+| Cancellation Handling | — | — | — | — | — | ✓ | 9 |
+| Saga Pattern | ✓ | ✓ | 11 | ✓ | 11 | ✓ | 10 |
 | Triggers | — | — | — | ✓ | 13 | — | — |
 | Wait Condition with Timeout | — | ✓ | 13 | ✓ | 14 | ✓ | 11 |
 | Waiting for All Handlers to Finish | — | ✓ | 14 | ✓ | 15 | ✓ | 12 |
@@ -41,6 +41,12 @@
 | Go | ✓ aligned | Channel-based signals, SetQueryHandler, SetUpdateHandler, Selector, compensation slice saga |
 
 ## Status
+
+**Cross-language notes:**
+- **Updates — Validator constraints:** All languages (core, Python, TS, Go) now document that validators must NOT mutate state or block (read-only, like query handlers). Added in PR #38 review.
+- Cancellation Handling reordered before Saga in Go (Go# 9→10) so `NewDisconnectedContext` is introduced before Saga uses it
+- Saga Pattern in Go now uses `NewDisconnectedContext` for compensations (PR #38 review)
+- Local Activities: added WFT persistence risk warning to **core** (applies to all languages, not Go-specific). PR #38 review.
 
 **Go-specific notes:**
 - Child Workflow Options: demoted to `###` subsection under Child Workflows in Go (Go# 4s = subsection of 4). TS has it as separate `##`.
@@ -75,7 +81,8 @@
 
 **Order alignment:** ✓ Aligned — TS# and Go# monotonically increase
 
-**Style alignment:** ✅ All issues fixed (Python, TypeScript)
+**Style alignment:** ✅ All issues fixed (Python, TypeScript, Go)
 - ✅ **Queries:** TS now has "Important: must NOT modify state" note
+- ✅ **Updates:** All languages now have "validators must NOT mutate state or block" note
 - ✅ **Saga Pattern:** TS now has idempotency note, comments about saving compensation BEFORE activity
 - ✅ **Saga Pattern:** TS now uses `log` from `@temporalio/workflow`
