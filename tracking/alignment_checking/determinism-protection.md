@@ -60,3 +60,4 @@
 - TypeScript: Minimal (3 sections) — V8 sandbox is mostly automatic
 - Java: Minimal (4 sections) — no sandbox, conventions only
 - This is appropriate given the fundamentally different approaches to determinism protection
+- **Style rule:** Java's Convention-Based Enforcement section should NOT include explicit Python/TS comparisons. State Java's approach on its own terms.

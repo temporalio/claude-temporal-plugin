@@ -13,13 +13,13 @@
 | Activity Imports | — | — | — | — | ✓ | 1 | — | — | |
 | Bundling Issues | — | — | — | — | ✓ | 2 | — | — | |
 | Async vs Sync Activities | — | — | ✓ | 2 | — | — | — | — | |
-| Non-Deterministic Operations | — | — | — | — | — | — | TODO | 1 | |
+| Non-Deterministic Operations | — | — | — | — | — | — | ✓ | 1 | |
 | Error Handling | ✓ | 8 | — | — | — | — | — | — | |
-| Wrong Retry Classification | ✓ | 8 | ✓ | 3 | ✓ | 3 | TODO | 2 | |
-| Cancellation | ✓ | 10 | ✓ | 4 | ✓ | 4 | TODO | 3 | |
-| Heartbeating | — | — | ✓ | 5 | ✓ | 5 | TODO | 4 | |
-| Testing | ✓ | 7 | ✓ | 6 | ✓ | 6 | TODO | 5 | |
-| Timers and Sleep | — | — | ✓ | 7 | ✓ | 7 | TODO | 6 | |
+| Wrong Retry Classification | ✓ | 8 | ✓ | 3 | ✓ | 3 | ✓ | 2 | |
+| Heartbeating | — | — | ✓ | 5 | ✓ | 5 | ✓ | 3 | |
+| Cancellation | ✓ | 10 | ✓ | 4 | ✓ | 4 | ✓ | 4 | |
+| Testing | ✓ | 7 | ✓ | 6 | ✓ | 6 | ✓ | 5 | |
+| Timers and Sleep | — | — | ✓ | 7 | ✓ | 7 | ✓ | 6 | |
 | Payload Size Limits | ✓ | 9 | — | — | — | — | — | — | |
 
 ## Style Compliance
@@ -29,7 +29,7 @@
 | Core | ✓ reference | Conceptual gotchas |
 | Python | ✓ aligned | Language-specific gotchas |
 | TypeScript | ✓ aligned | Language-specific gotchas |
-| Java | — | Not started |
+| Java | ✓ aligned | 6 sections; Heartbeating before Cancellation (matches Python/TS order) |
 | Go | — | Not started |
 
 ## Status
@@ -66,8 +66,11 @@
 
 **Order alignment:** N/A — Core has conceptual sections, language files have implementation-specific sections
 
-**Style alignment:** ✅ Complete (Python, TypeScript)
+**Style alignment:** ✅ Complete (Python, TypeScript, Java)
 - Core: 10 conceptual sections with symptoms/fixes (authoritative for cross-cutting concerns)
 - TypeScript: 7 sections (Activity Imports, Bundling, Cancellation, Heartbeating, Testing, Timers, Wrong Retry Classification)
 - Python: 7 sections (File Organization, Async vs Sync, Wrong Retry Classification, Cancellation, Heartbeating, Testing, Timers and Sleep)
-- Java: 6 sections planned (Non-Deterministic Operations, Wrong Retry Classification, Cancellation, Heartbeating, Testing, Timers and Sleep)
+- Java: 6 sections (Non-Deterministic Operations, Wrong Retry Classification, Heartbeating, Cancellation, Testing, Timers and Sleep)
+  - Note: Heartbeating comes before Cancellation in Java (matches Python/TS order)
+  - Wrong Retry Classification: brief with one example line + reference (not full inline examples)
+  - Non-Deterministic Operations: compact bullet list + reference to determinism.md (not full BAD/GOOD per operation)
