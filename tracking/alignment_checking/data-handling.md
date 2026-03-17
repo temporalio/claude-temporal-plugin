@@ -4,18 +4,18 @@
 
 | Section | Core | Python | Py# | TypeScript | TS# | Go | Go# |
 |---------|------|--------|-----|------------|-----|-----|-----|
-| Overview | — | ✓ | 1 | ✓ | 1 | TODO | 1 |
-| Default Data Converter | — | ✓ | 2 | ✓ | 2 | TODO | 2 |
+| Overview | — | ✓ | 1 | ✓ | 1 | ✓ | 1 |
+| Default Data Converter | — | ✓ | 2 | ✓ | 2 | ✓ | 2 |
 | Pydantic Integration | — | ✓ | 3 | — | — | — | — |
-| Custom Data Converter | — | ✓ | 4 | ✓ | 3 | TODO | 3 |
-| Composition of Payload Converters | — | — | — | ✓ | 4 | TODO | 4 |
-| Protobuf Support | — | — | — | ✓ | 5 | TODO | 5 |
-| Payload Encryption | — | ✓ | 5 | ✓ | 6 | TODO | 6 |
-| Search Attributes | — | ✓ | 6 | ✓ | 7 | TODO | 7 |
-| Workflow Memo | — | ✓ | 7 | ✓ | 8 | TODO | 8 |
+| Custom Data Converter | — | ✓ | 4 | ✓ | 3 | ✓ | 3 |
+| Composition of Payload Converters | — | — | — | ✓ | 4 | ✓ | 4 |
+| Protobuf Support | — | — | — | ✓ | 5 | ✓ | 5 |
+| Payload Encryption | — | ✓ | 5 | ✓ | 6 | ✓ | 6 |
+| Search Attributes | — | ✓ | 6 | ✓ | 7 | ✓ | 7 |
+| Workflow Memo | — | ✓ | 7 | ✓ | 8 | ✓ | 8 |
 | Large Payloads | — | — | — | — | — | — | — |
 | Deterministic APIs for Values | — | ✓ | 8 | — | — | — | — |
-| Best Practices | — | ✓ | 9 | ✓ | 9 | TODO | 9 |
+| Best Practices | — | ✓ | 9 | ✓ | 9 | ✓ | 9 |
 
 ## Style Compliance
 
@@ -23,12 +23,9 @@
 |----------|--------|-------|
 | Python | ✓ reference | — |
 | TypeScript | ✓ aligned | — |
-| Go | TODO | JSON default, protobuf native, converter.CompositeDataConverter |
+| Go | ✓ aligned | JSON default, protobuf native, converter.CompositeDataConverter |
 
 ## Status
-
-**Sections needing review (TODO cells):**
-- Go column: TODO items — Go files to be created
 
 **Go-specific notes:**
 - Default Data Converter: Go uses `converter.NewCompositeDataConverter()` with JSON as default — chain: NilPayloadConverter, ByteSlicePayloadConverter, ProtoPayloadConverter, ProtoJSONPayloadConverter, JSONPayloadConverter

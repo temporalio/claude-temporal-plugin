@@ -13,14 +13,14 @@
 | Activity Imports | — | — | — | — | ✓ | 1 | — | — |
 | Bundling Issues | — | — | — | — | ✓ | 2 | — | — |
 | Async vs Sync Activities | — | — | ✓ | 2 | — | — | — | — |
-| Goroutines and Concurrency | — | — | — | — | — | — | TODO | 1 |
-| Non-Deterministic Operations | — | — | — | — | — | — | TODO | 2 |
+| Goroutines and Concurrency | — | — | — | — | — | — | ✓ | 1 |
+| Non-Deterministic Operations | — | — | — | — | — | — | ✓ | 2 |
 | Error Handling | ✓ | 8 | — | — | — | — | — | — |
-| Wrong Retry Classification | ✓ | 8 | ✓ | 3 | ✓ | 3 | TODO | 3 |
-| Cancellation | ✓ | 10 | ✓ | 4 | ✓ | 4 | TODO | 4 |
-| Heartbeating | — | — | ✓ | 5 | ✓ | 5 | TODO | 5 |
-| Testing | ✓ | 7 | ✓ | 6 | ✓ | 6 | TODO | 6 |
-| Timers and Sleep | — | — | ✓ | 7 | ✓ | 7 | TODO | 7 |
+| Wrong Retry Classification | ✓ | 8 | ✓ | 3 | ✓ | 3 | ✓ | 3 |
+| Heartbeating | — | — | ✓ | 5 | ✓ | 5 | ✓ | 4 |
+| Cancellation | ✓ | 10 | ✓ | 4 | ✓ | 4 | ✓ | 5 |
+| Testing | ✓ | 7 | ✓ | 6 | ✓ | 6 | ✓ | 6 |
+| Timers and Sleep | — | — | ✓ | 7 | ✓ | 7 | ✓ | 7 |
 | Payload Size Limits | ✓ | 9 | — | — | — | — | — | — |
 
 ## Style Compliance
@@ -30,19 +30,16 @@
 | Core | ✓ reference | Conceptual gotchas |
 | Python | ✓ aligned | Language-specific gotchas |
 | TypeScript | ✓ aligned | Language-specific gotchas |
-| Go | TODO | Language-specific gotchas — goroutines, channels, selectors, map range |
+| Go | ✓ aligned | Language-specific gotchas — goroutines, channels, selectors, map range |
 
 ## Status
-
-**Sections needing review (TODO cells):**
-- Go column: TODO items — Go files to be created
 
 **Go-specific notes:**
 - Goroutines and Concurrency: MUST use `workflow.Go()` not native `go`, `workflow.Channel` not native channels, `workflow.Selector` not native `select`
 - Non-Deterministic Operations: map range iteration, `time.Now()`/`time.Sleep()`, `math/rand`, accessing `os.Stdin`/`os.Stdout`/`os.Stderr`
-- Wrong Retry Classification: same concept as Python/TS but uses Go error types (`temporal.NewNonRetryableApplicationError`)
+- Wrong Retry Classification: cross-references `error-handling.md` (no inline code, matching Python style)
+- Heartbeating: moved before Cancellation (Go# 4) to match conceptual flow — heartbeating is prerequisite for activity cancellation
 - Cancellation: Go uses `ctx.Done()` channel + `workflow.NewDisconnectedContext` for cleanup
-- Heartbeating: `activity.RecordHeartbeat`, `activity.GetHeartbeatDetails`
 - Testing: common mistakes with Go test framework (forgetting to register activities, using `time.Sleep` in tests)
 - Timers: using `time.Sleep` instead of `workflow.Sleep`; using `time.After` instead of `workflow.NewTimer`
 

@@ -28,7 +28,7 @@ Python is the reference style (code-first, minimal prose). All languages should 
 
 **Python/TypeScript:** ✅ COMPLETE (2026-02-25) — All TODO/DEL/BUG items implemented.
 
-**Go:** 🔄 IN PROGRESS (2026-03-16) — Alignment docs created with TODO items for all Go sections. Go reference files not yet written.
+**Go:** ✅ COMPLETE (2026-03-17) — All Go reference files created and aligned.
 
 ## Files
 

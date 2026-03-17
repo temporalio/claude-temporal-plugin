@@ -4,13 +4,13 @@
 
 | Section | Core | Python | Py# | TypeScript | TS# | Go | Go# |
 |---------|------|--------|-----|------------|-----|-----|-----|
-| Overview | — | ✓ | 1 | ✓ | 1 | TODO | 1 |
+| Overview | — | ✓ | 1 | ✓ | 1 | ✓ | 1 |
 | How the Sandbox Works | — | ✓ | 2 | — | — | — | — |
 | Import Blocking | — | — | — | ✓ | 2 | — | — |
 | Forbidden Operations | — | ✓ | 3 | — | — | — | — |
 | Function Replacement | — | — | — | ✓ | 3 | — | — |
-| workflowcheck Static Analysis | — | — | — | — | — | TODO | 2 |
-| Determinism Rules | — | — | — | — | — | TODO | 3 |
+| workflowcheck Static Analysis | — | — | — | — | — | ✓ | 2 |
+| Determinism Rules | — | — | — | — | — | ✓ | 3 |
 | Pass-Through Pattern | — | ✓ | 4 | — | — | — | — |
 | Importing Activities | — | ✓ | 5 | — | — | — | — |
 | Disabling the Sandbox | — | ✓ | 6 | — | — | — | — |
@@ -19,7 +19,7 @@
 | Disable Lazy sys.modules Passthrough | — | ✓ | 9 | — | — | — | — |
 | File Organization | — | ✓ | 10 | — | — | — | — |
 | Common Issues | — | ✓ | 11 | — | — | — | — |
-| Best Practices | — | ✓ | 12 | — | — | TODO | 4 |
+| Best Practices | — | ✓ | 12 | — | — | ✓ | 4 |
 
 ## Style Compliance
 
@@ -27,12 +27,9 @@
 |----------|--------|-------|
 | Python | ✓ reference | Comprehensive (12 sections) |
 | TypeScript | ✓ aligned | Minimal (3 sections) — V8 is automatic |
-| Go | TODO | Minimal (4 sections) — no runtime sandbox, convention + static analysis |
+| Go | ✓ aligned | Minimal (4 sections) — no runtime sandbox, convention + static analysis |
 
 ## Status
-
-**Sections needing review (TODO cells):**
-- Go column: TODO items — Go files to be created
 
 **Go-specific notes:**
 - Go has NO runtime sandbox (unlike Python's import-restricting sandbox or TS's V8 isolate)

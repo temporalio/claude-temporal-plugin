@@ -4,17 +4,17 @@
 
 | Section | Core | Core# | Python | Py# | TypeScript | TS# | Go | Go# |
 |---------|------|-------|--------|-----|------------|-----|-----|-----|
-| Overview | ✓ | 1 | ✓ | 1 | ✓ | 1 | TODO | 1 |
-| Why Determinism Matters | ✓ | 2 | ✓ | 2 | ✓ | 2 | TODO | 2 |
+| Overview | ✓ | 1 | ✓ | 1 | ✓ | 1 | ✓ | 1 |
+| Why Determinism Matters | ✓ | 2 | ✓ | 2 | ✓ | 2 | ✓ | 2 |
 | Sources of Non-Determinism | ✓ | 3 | — | — | — | — | — | — |
 | Central Concept: Activities | ✓ | 4 | — | — | — | — | — | — |
-| SDK Protection / Sandbox | ✓ | 5 | ✓ | 6 | ✓ | 3 | TODO | 3 |
-| Forbidden Operations | — | — | ✓ | 3 | ✓ | 4 | TODO | 4 |
-| Safe Builtin Alternatives | — | — | ✓ | 4 | — | — | TODO | 5 |
+| SDK Protection / Sandbox | ✓ | 5 | ✓ | 6 | ✓ | 3 | — | — |
+| Forbidden Operations | — | — | ✓ | 3 | ✓ | 4 | ✓ | 3 |
+| Safe Builtin Alternatives | — | — | ✓ | 4 | — | — | ✓ | 4 |
 | Detecting Non-Determinism | ✓ | 6 | — | — | — | — | — | — |
 | Recovery from Non-Determinism | ✓ | 7 | — | — | — | — | — | — |
-| Testing Replay Compatibility | — | — | ✓ | 5 | ✓ | 5 | TODO | 6 |
-| Best Practices | ✓ | 8 | ✓ | 7 | ✓ | 6 | TODO | 7 |
+| Testing Replay Compatibility | — | — | ✓ | 5 | ✓ | 5 | ✓ | 5 |
+| Best Practices | ✓ | 8 | ✓ | 7 | ✓ | 6 | ✓ | 6 |
 
 ## Style Compliance
 
@@ -23,15 +23,13 @@
 | Core | ✓ reference | Deep conceptual content |
 | Python | ✓ aligned | Practical focus |
 | TypeScript | ✓ aligned | Practical focus, V8 sandbox |
-| Go | TODO | Practical focus, no sandbox, workflowcheck tool, workflow.* replacements |
+| Go | ✓ aligned | Practical focus, no sandbox, workflowcheck tool, workflow.* replacements |
 
 ## Status
 
-**Sections needing review (TODO cells):**
-- Go column: all TODO — Go files to be created
-
 **Go-specific notes:**
-- SDK Protection: Go has NO runtime sandbox (unlike Python/TS). Uses `workflowcheck` static analysis tool + convention
+- SDK Protection: Go merged this into Overview (cross-references `determinism-protection.md` instead of having separate section). Marked `—` in table.
+- Testing Replay: Go cross-references `testing.md` rather than inlining code (matching Python style)
 - Forbidden Operations: Go-specific list — native goroutines, native channels, native select, map range iteration, time.Now/Sleep, crypto/rand, os.Stdin/Stdout/Stderr
 - Safe Builtin Alternatives: Go has a table similar to Python — `workflow.Go()` for goroutines, `workflow.Channel` for channels, `workflow.Selector` for select, `workflow.Now()` for time, `workflow.SideEffect` for random, `workflow.Sleep` for sleep
 - Testing Replay: Go uses `worker.ReplayWorkflowHistory` from testsuite

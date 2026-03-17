@@ -4,14 +4,14 @@
 
 | Section | Core | Python | Py# | TypeScript | TS# | Go | Go# |
 |---------|------|--------|-----|------------|-----|-----|-----|
-| Schedules | — | ✓ | 1 | ✓ | 1 | TODO | 1 |
-| Async Activity Completion | — | ✓ | 2 | ✓ | 2 | TODO | 2 |
+| Schedules | — | ✓ | 1 | ✓ | 1 | ✓ | 1 |
+| Async Activity Completion | — | ✓ | 2 | ✓ | 2 | ✓ | 2 |
 | Sandbox Customization | — | ✓ | 3 | — | — | — | — |
 | Gevent Compatibility Warning | — | ✓ | 4 | — | — | — | — |
-| Worker Tuning | — | ✓ | 5 | ✓ | 3 | TODO | 3 |
+| Worker Tuning | — | ✓ | 5 | ✓ | 3 | ✓ | 3 |
 | Workflow Init Decorator | — | ✓ | 6 | — | — | — | — |
 | Workflow Failure Exception Types | — | ✓ | 7 | — | — | — | — |
-| Sessions | — | — | — | — | — | TODO | 4 |
+| Sessions | — | — | — | — | — | ✓ | 4 |
 | Interceptors | — | — | — | — | — | — | — |
 | Continue-as-New | — | — | — | — | — | — | — |
 | Workflow Updates | — | — | — | — | — | — | — |
@@ -27,12 +27,9 @@
 |----------|--------|-------|
 | Python | ✓ reference | 7 sections |
 | TypeScript | ✓ aligned | 4 sections (removed duplicates) |
-| Go | TODO | 4 sections — Schedules, Async Completion, Worker Tuning, Sessions |
+| Go | ✓ aligned | 4 sections — Schedules, Async Completion, Worker Tuning, Sessions |
 
 ## Status
-
-**Sections needing review (TODO cells):**
-- Go column: TODO items — Go files to be created
 
 **Go-specific notes:**
 - Schedules: `client.ScheduleClient` — same concept as Python/TS

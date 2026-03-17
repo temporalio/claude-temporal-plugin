@@ -6,11 +6,11 @@
 |---------|------|-------|--------|-----|------------|-----|-----|-----|
 | Overview | ✓ | 1 | — | — | — | — | — | — |
 | Why Versioning is Needed | ✓ | 2 | — | — | — | — | — | — |
-| Patching API / GetVersion API | ✓ | 3 | ✓ | 1 | ✓ | 1 | TODO | 1 |
-| Workflow Type Versioning | ✓ | 4 | ✓ | 2 | ✓ | 2 | TODO | 2 |
-| Worker Versioning | ✓ | 5 | ✓ | 3 | ✓ | 3 | TODO | 3 |
+| Patching API / GetVersion API | ✓ | 3 | ✓ | 1 | ✓ | 1 | ✓ | 1 |
+| Workflow Type Versioning | ✓ | 4 | ✓ | 2 | ✓ | 2 | ✓ | 2 |
+| Worker Versioning | ✓ | 5 | ✓ | 3 | ✓ | 3 | ✓ | 3 |
 | Choosing a Strategy | ✓ | 6 | — | — | — | — | — | — |
-| Best Practices | ✓ | 7 | ✓ | 4 | ✓ | 4 | TODO | 4 |
+| Best Practices | ✓ | 7 | ✓ | 4 | ✓ | 4 | ✓ | 4 |
 | Finding Workflows by Version | ✓ | 8 | — | — | — | — | — | — |
 | Common Mistakes | ✓ | 9 | — | — | — | — | — | — |
 
@@ -21,12 +21,9 @@
 | Core | ✓ reference | Conceptual content |
 | Python | ✓ aligned | Code only, refs core |
 | TypeScript | ✓ aligned | Code only, refs core |
-| Go | TODO | Uses `workflow.GetVersion` (not patching); code only, refs core |
+| Go | ✓ aligned | Uses `workflow.GetVersion` (not patching); code only, refs core |
 
 ## Status
-
-**Sections needing review (TODO cells):**
-- Go column: TODO items — Go files to be created
 
 **Go-specific notes:**
 - Go uses `workflow.GetVersion(ctx, changeID, minSupported, maxSupported)` — returns a `Version` (int)

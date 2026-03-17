@@ -6,16 +6,16 @@ Tracks alignment for `python.md`, `typescript.md`, `go.md`, etc.
 
 | Section | Core | Python | Py# | TypeScript | TS# | Go | Go# |
 |---------|------|--------|-----|------------|-----|-----|-----|
-| Overview | — | ✓ | 1 | ✓ | 1 | TODO | 1 |
+| Overview | — | ✓ | 1 | ✓ | 1 | ✓ | 1 |
 | How Temporal Works: History Replay | — | — | — | — | — | — | — |
 | Understanding Replay | — | — | — | ✓ | 2 | — | — |
-| Quick Start / Quick Demo | — | ✓ | 2 | ✓ | 3 | TODO | 2 |
-| Key Concepts | — | ✓ | 3 | ✓ | 4 | TODO | 3 |
-| File Organization Best Practice | — | ✓ | 4 | ✓ | 5 | TODO | 4 |
+| Quick Start / Quick Demo | — | ✓ | 2 | ✓ | 3 | ✓ | 2 |
+| Key Concepts | — | ✓ | 3 | ✓ | 4 | ✓ | 3 |
+| File Organization Best Practice | — | ✓ | 4 | ✓ | 5 | ✓ | 4 |
 | Determinism Rules | — | — | — | ✓ | 6 | — | — |
-| Common Pitfalls | — | ✓ | 5 | ✓ | 7 | TODO | 5 |
-| Writing Tests | — | ✓ | 6 | ✓ | 8 | TODO | 6 |
-| Additional Resources | — | ✓ | 7 | ✓ | 9 | TODO | 7 |
+| Common Pitfalls | — | ✓ | 5 | ✓ | 7 | ✓ | 5 |
+| Writing Tests | — | ✓ | 6 | ✓ | 8 | ✓ | 6 |
+| Additional Resources | — | ✓ | 7 | ✓ | 9 | ✓ | 7 |
 
 ## Style Compliance
 
@@ -23,12 +23,9 @@ Tracks alignment for `python.md`, `typescript.md`, `go.md`, etc.
 |----------|--------|-------|
 | Python | ✓ reference | — |
 | TypeScript | ✓ aligned | Has Understanding Replay, Determinism Rules |
-| Go | TODO | Function-based (no decorators), workflowcheck, struct activities |
+| Go | ✓ aligned | Function-based (no decorators), workflowcheck, struct activities |
 
 ## Status
-
-**Sections needing review (TODO cells):**
-- Go column: all TODO — Go files to be created
 
 **Section content notes:**
 - Writing Tests: all languages should be a brief link to `references/<lang>/testing.md`, NOT inline code examples
