@@ -34,7 +34,7 @@
 **Java column decisions:**
 - Overview: Java has no sandbox — determinism protection relies on developer discipline
 - Why Determinism Matters: Same as Python/TS — brief reference to core, focus on Java-specific implications
-- SDK Protection / Sandbox: Java-specific — explains there is NO sandbox and NO static analyzer. SDK provides `Workflow.*` APIs as alternatives but does NOT enforce them at compile/load time. Non-determinism is only caught at replay time via `NonDeterministicException`. Cooperative threading model (global lock, one thread at a time) eliminates synchronization needs. See `determinism-protection.md` for details.
+- SDK Protection / Sandbox: Java-specific — explains there is NO sandbox. SDK provides `Workflow.*` APIs as alternatives but does NOT enforce them at compile/load time. Non-determinism is only caught at replay time via `NonDeterministicException`. Cooperative threading model (global lock, one thread at a time) eliminates synchronization needs. See `determinism-protection.md` for details.
 - Forbidden Operations: Java-specific list — `Thread.sleep()`, `new Thread()`, `synchronized` blocks, `UUID.randomUUID()`, `Math.random()`, `System.currentTimeMillis()`, direct file/network I/O, mutable global state
 - Safe Builtin Alternatives: Java should have this (like Python) — table mapping Java stdlib → Workflow.* APIs (`Thread.sleep()` → `Workflow.sleep()`, `UUID.randomUUID()` → `Workflow.randomUUID()`, etc.). Important because Java has no auto-replacement.
 - Testing Replay Compatibility: Java uses `WorkflowReplayer` class

@@ -9,7 +9,8 @@
 | Import Blocking | — | — | — | ✓ | 2 | — | — | |
 | Forbidden Operations | — | ✓ | 3 | — | — | TODO | 2 | |
 | Function Replacement | — | — | — | ✓ | 3 | — | — | |
-| Convention-Based Enforcement | — | — | — | — | — | TODO | 3 | |
+| Static Analysis (workflowcheck) | — | — | — | — | — | TODO | 3 | |
+| Convention-Based Enforcement | — | — | — | — | — | TODO | 4 | |
 | Pass-Through Pattern | — | ✓ | 4 | — | — | — | — | |
 | Importing Activities | — | ✓ | 5 | — | — | — | — | |
 | Disabling the Sandbox | — | ✓ | 6 | — | — | — | — | |
@@ -18,7 +19,7 @@
 | Disable Lazy sys.modules Passthrough | — | ✓ | 9 | — | — | — | — | |
 | File Organization | — | ✓ | 10 | — | — | — | — | |
 | Common Issues | — | ✓ | 11 | — | — | — | — | |
-| Best Practices | — | ✓ | 12 | — | — | TODO | 4 | |
+| Best Practices | — | ✓ | 12 | — | — | TODO | 5 | |
 
 ## Style Compliance
 
@@ -35,12 +36,12 @@
 - Go column: all empty — Go files not yet created
 
 **Java column decisions:**
-- Overview: Java has NO sandbox and NO static analyzer. Determinism protection relies on: (1) developer conventions, (2) runtime replay detection (`NonDeterministicException` when commands don't match events), (3) `WorkflowReplayer` for test-time verification. The SDK's cooperative threading model (one workflow thread at a time under global lock) eliminates the need for synchronization but does NOT prevent calling non-deterministic APIs.
+- Overview: Java has NO sandbox. A static analysis tool (`temporal-workflowcheck`, beta) is available. Determinism protection relies on: (1) developer conventions, (2) runtime replay detection (`NonDeterministicException` when commands don't match events), (3) `WorkflowReplayer` for test-time verification. The SDK's cooperative threading model (one workflow thread at a time under global lock) eliminates the need for synchronization but does NOT prevent calling non-deterministic APIs.
 - How the Sandbox Works: — (Java has no sandbox)
 - Import Blocking: — (Java has no import restrictions)
 - Forbidden Operations: Java-specific list — `Thread.sleep()`, `new Thread()`, synchronization primitives, `UUID.randomUUID()`, `Math.random()`, `System.currentTimeMillis()`, direct I/O in workflows. These are NOT blocked by the SDK — developer must avoid them manually.
 - Function Replacement: — (Java does not replace any functions)
-- Convention-Based Enforcement: Java-specific — explains that determinism is the developer's responsibility. SDK provides `Workflow.*` alternatives but does not enforce them at compile time or runtime (until replay). Contrast with Python (sandbox blocks operations) and TS (V8 isolation replaces functions). Note: Go has a `workflowcheck` static analyzer but Java does not have an equivalent.
+- Convention-Based Enforcement: Java-specific — explains cooperative threading model, `NonDeterministicException` at replay, `temporal-workflowcheck` for static analysis (beta), and `WorkflowReplayer` for replay testing.
 - Pass-Through, Importing Activities, Disabling Sandbox, Customizing, Notification Policy, Lazy Passthrough: — (all Python sandbox-specific)
 - File Organization: — (less critical in Java; no sandbox reload)
 - Common Issues: — (Python sandbox-specific)
@@ -58,6 +59,6 @@
 **Style alignment:** ⚠️ Very different structures (intentional, different protection architectures)
 - Python: Comprehensive (12 sections) — complex sandbox with many customization options
 - TypeScript: Minimal (3 sections) — V8 sandbox is mostly automatic
-- Java: Minimal (4 sections) — no sandbox, conventions only
+- Java: 5 sections — no sandbox, has `temporal-workflowcheck` (beta) for static analysis
 - This is appropriate given the fundamentally different approaches to determinism protection
 - **Style rule:** Java's Convention-Based Enforcement section should NOT include explicit Python/TS comparisons. State Java's approach on its own terms.
