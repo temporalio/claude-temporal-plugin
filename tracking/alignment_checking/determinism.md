@@ -30,7 +30,7 @@
 **Go-specific notes:**
 - SDK Protection: Go merged this into Overview (cross-references `determinism-protection.md` instead of having separate section). Marked `—` in table.
 - Testing Replay: Go cross-references `testing.md` rather than inlining code (matching Python style)
-- Forbidden Operations: Go-specific list — native goroutines, native channels, native select, map range iteration, time.Now/Sleep, crypto/rand, os.Stdin/Stdout/Stderr
+- Forbidden Operations: Go-specific list — native goroutines, native channels, native select, map range iteration, time.Now/Sleep, crypto/rand, os.Stdin/Stdout/Stderr, anonymous functions as local activities (non-deterministic name)
 - Safe Builtin Alternatives: Go has a table similar to Python — `workflow.Go()` for goroutines, `workflow.Channel` for channels, `workflow.Selector` for select, `workflow.Now()` for time, `workflow.SideEffect` for random, `workflow.Sleep` for sleep
 - Testing Replay: Go uses `worker.ReplayWorkflowHistory` from testsuite
 - `workflowcheck` tool: static analysis that detects non-deterministic function calls at compile time (runs as linter)

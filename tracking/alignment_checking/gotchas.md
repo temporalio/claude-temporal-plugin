@@ -36,7 +36,7 @@
 
 **Go-specific notes:**
 - Goroutines and Concurrency: MUST use `workflow.Go()` not native `go`, `workflow.Channel` not native channels, `workflow.Selector` not native `select`
-- Non-Deterministic Operations: map range iteration, `time.Now()`/`time.Sleep()`, `math/rand`, accessing `os.Stdin`/`os.Stdout`/`os.Stderr`
+- Non-Deterministic Operations: map range iteration, `time.Now()`/`time.Sleep()`, `math/rand`, accessing `os.Stdin`/`os.Stdout`/`os.Stderr`, anonymous functions as local activities (non-deterministic name — use named functions instead)
 - Wrong Retry Classification: cross-references `error-handling.md` (no inline code, matching Python style)
 - Heartbeating: moved before Cancellation (Go# 4) to match conceptual flow — heartbeating is prerequisite for activity cancellation
 - Cancellation: Go uses `ctx.Done()` channel + `workflow.NewDisconnectedContext` for cleanup
