@@ -243,7 +243,7 @@ Correctness verification for `references/{language}/data-handling.md`.
 |---|---------|--------|-------------|---------|
 | 1 | Overview | all good | | temporal-docs |
 | 2 | Default Data Converter | all good | | temporal-docs |
-| 3 | Custom Data Converter | FIXED | Added missing `ToStrings` method | temporal-docs |
+| 3 | Custom Data Converter | FIXED | Added full PayloadConverter example (msgpack), CompositeDataConverter usage, per-call override, deadlock detection note | temporal-docs |
 | 4 | Composition of Payload Converters | all good | | temporal-docs |
 | 5 | Protobuf Support | all good | | temporal-docs |
 | 6 | Payload Encryption | all good | | temporal-docs |
@@ -271,9 +271,19 @@ Correctness verification for `references/{language}/data-handling.md`.
 #### 3. Custom Data Converter
 **Status:** FIXED
 
-**Issue:** Listed 5 interface methods for `converter.DataConverter` but the actual interface has 6 -- was missing `ToStrings`.
+**Issue 1:** Listed 5 interface methods but actual `converter.DataConverter` has 6 -- was missing `ToStrings`. Fixed.
 
-**Fix Applied:** Added `ToStrings` to the interface method list.
+**Issue 2 (PR #38 feedback):** Section had no substantive content — no example of how to actually implement a custom converter. Rewrote with full working example.
+
+**Fix Applied:**
+- Shows `PayloadConverter` interface (the right abstraction for most users, not the full `DataConverter`)
+- Full msgpack `PayloadConverter` implementation showing all 4 methods (`ToPayload` returning nil for unhandled types, `FromPayload` checking encoding, `ToString` for UI, `Encoding`)
+- `converter.MetadataEncoding` metadata key usage
+- `converter.NewCompositeDataConverter` composition pattern
+- Per-activity override via `workflow.WithDataConverter`
+- `workflow.DataConverterWithoutDeadlockDetection` note for remote-call converters (e.g. KMS)
+
+**Sources:** temporal-docs (pkg.go.dev/go.temporal.io/sdk/converter, docs.temporal.io/develop/go/converters-and-encryption)
 
 ---
 
