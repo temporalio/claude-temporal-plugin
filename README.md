@@ -1,12 +1,12 @@
-# Temporal Claude Code Marketplace
+# Temporal Coding Agent Plugin Marketplace
 
-This repository provides a [Claude Code Marketplace](https://code.claude.com/docs/en/discover-plugins) of Claude Code Plugins for working with [Temporal](https://temporal.io/)
+This repository provides a [Marketplace](https://code.claude.com/docs/en/discover-plugins) of coding agent plugins for working with [Temporal](https://temporal.io/).
 
 > [!WARNING]
 > These plugins are in Public Preview, and will continue to evolve and improve.
 > We would love to hear your feedback - positive or negative - over in the [Community Slack](https://t.mp/slack), in the [#topic-ai channel](https://temporalio.slack.com/archives/C0818FQPYKY)
 
-## Installation
+## Installation - Claude Code
 
 **Step 1:** Marketplace Installation
 
@@ -19,6 +19,10 @@ This repository provides a [Claude Code Marketplace](https://code.claude.com/doc
 **Step 2:** Plugin Installation
 1. run `/plugin install temporal-developer@temporalio-agent-skills` 
 2. Restart Claude Code
+
+## Other Coding Agents
+
+If using other coding agents, please see **[temporal-developer](https://github.com/temporalio/skill-temporal-developer)** for installing the skill directly.
 
 ## Current Plugins
 
