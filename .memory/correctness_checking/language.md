@@ -223,6 +223,45 @@ Correctness verification for `references/{language}/{language}.md` (e.g., typesc
 
 ---
 
+## Ruby
+
+**File:** `references/ruby/ruby.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Overview | all good | | sdk-ruby README |
+| 2 | Quick Demo | FIXED | Added 'default' namespace to Client.connect | sdk-ruby README |
+| 3 | Key Concepts | all good | | sdk-ruby README |
+| 4 | File Organization | all good | | N/A |
+| 5 | Common Pitfalls | all good | | N/A |
+| 6 | Writing Tests | all good | | cross-reference |
+| 7 | Additional Resources | all good | | cross-reference |
+
+### Detailed Notes
+
+#### 2. Quick Demo
+**Status:** needs fixes
+
+**Issue:** `Temporalio::Client.connect('localhost:7233')` is missing the namespace argument. The SDK README and all official examples include namespace as the second positional argument.
+
+**Before:**
+```ruby
+client = Temporalio::Client.connect('localhost:7233')
+```
+
+**After:**
+```ruby
+client = Temporalio::Client.connect('localhost:7233', 'default')
+```
+
+This appears twice in ruby.md (worker.rb and execute_workflow.rb examples).
+
+**Source:** sdk-ruby README: `Temporalio::Client.connect('localhost:7233', 'my-namespace')`
+
+---
+
 
 ## Go
 
