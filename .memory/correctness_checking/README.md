@@ -9,27 +9,27 @@ Track verification of factual statements and code examples in reference files fo
 
 Each file in this directory tracks correctness for a corresponding reference file. Within each file, sections are organized by language (e.g., `## TypeScript`, `## Python`).
 
-**Supported languages:** TypeScript, Python, Go
+**Supported languages:** TypeScript, Python, .NET, Go
 
 **Adding a new language:** Add a new `## {Language}` section to each relevant file with a Tracking table and Detailed Notes.
 
 ## Summary
 
-| File | TypeScript | Python | Go |
-|------|------------|--------|-----|
-| patterns.md | ✅ | partial | ✅ |
-| testing.md | ✅ | partial | ✅ |
-| language.md | ✅ | partial | ✅ |
-| versioning.md | ✅ | partial | ✅ |
-| advanced-features.md | ✅ | partial | ✅ |
-| data-handling.md | ✅ | partial | ✅ |
-| determinism-protection.md | ✅ | partial | ✅ |
-| determinism.md | ✅ | partial | ✅ |
-| error-handling.md | ✅ | partial | ✅ |
-| gotchas.md | ✅ | partial | ✅ |
-| observability.md | ✅ | partial | ✅ |
-| ai-patterns.md | — | partial | — |
-| sync-vs-async.md | — | ✅ | — |
+| File | TypeScript | Python | .NET | Go |
+|------|------------|--------|------|-----|
+| patterns.md | ✅ | partial | — | ✅ |
+| testing.md | ✅ | partial | — | ✅ |
+| language.md | ✅ | partial | — | ✅ |
+| versioning.md | ✅ | partial | — | ✅ |
+| advanced-features.md | ✅ | partial | — | ✅ |
+| data-handling.md | ✅ | partial | — | ✅ |
+| determinism-protection.md | ✅ | partial | — | ✅ |
+| determinism.md | ✅ | partial | — | ✅ |
+| error-handling.md | ✅ | partial | — | ✅ |
+| gotchas.md | ✅ | partial | — | ✅ |
+| observability.md | ✅ | partial | — | ✅ |
+| ai-patterns.md | — | partial | — | — |
+| sync-vs-async.md | — | ✅ | — | — |
 
 **Legend:** ✅ = all sections verified, partial = some sections need fixes, unchecked = not yet verified, — = N/A
 

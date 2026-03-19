@@ -2,19 +2,19 @@
 
 ## Section Inventory
 
-| Section | Core | Core# | Python | Py# | TypeScript | TS# | Go | Go# |
-|---------|------|-------|--------|-----|------------|-----|-----|-----|
-| Overview | ✓ | 1 | ✓ | 1 | ✓ | 1 | ✓ | 1 |
-| Why Determinism Matters | ✓ | 2 | ✓ | 2 | ✓ | 2 | ✓ | 2 |
-| Sources of Non-Determinism | ✓ | 3 | — | — | — | — | — | — |
-| Central Concept: Activities | ✓ | 4 | — | — | — | — | — | — |
-| SDK Protection / Sandbox | ✓ | 5 | ✓ | 6 | ✓ | 3 | — | — |
-| Forbidden Operations | — | — | ✓ | 3 | ✓ | 4 | ✓ | 3 |
-| Safe Builtin Alternatives | — | — | ✓ | 4 | — | — | ✓ | 4 |
-| Detecting Non-Determinism | ✓ | 6 | — | — | — | — | — | — |
-| Recovery from Non-Determinism | ✓ | 7 | — | — | — | — | — | — |
-| Testing Replay Compatibility | — | — | ✓ | 5 | ✓ | 5 | ✓ | 5 |
-| Best Practices | ✓ | 8 | ✓ | 7 | ✓ | 6 | ✓ | 6 |
+| Section | Core | Core# | Python | Py# | TypeScript | TS# | .NET | DN# | Go | Go# |
+|---------|------|-------|--------|-----|------------|-----|------|-----|----|-----|
+| Overview | ✓ | 1 | ✓ | 1 | ✓ | 1 | TODO | 1 | ✓ | 1 |
+| Why Determinism Matters | ✓ | 2 | ✓ | 2 | ✓ | 2 | TODO | 2 | ✓ | 2 |
+| Sources of Non-Determinism | ✓ | 3 | — | — | — | — | — | — | — | — |
+| Central Concept: Activities | ✓ | 4 | — | — | — | — | — | — | — | — |
+| SDK Protection / Sandbox | ✓ | 5 | ✓ | 6 | ✓ | 3 | TODO | 3 | — | — |
+| Forbidden Operations | — | — | ✓ | 3 | ✓ | 4 | TODO | 4 | ✓ | 3 |
+| Safe Builtin Alternatives | — | — | ✓ | 4 | — | — | TODO | 5 | ✓ | 4 |
+| Detecting Non-Determinism | ✓ | 6 | — | — | — | — | — | — | — | — |
+| Recovery from Non-Determinism | ✓ | 7 | — | — | — | — | — | — | — | — |
+| Testing Replay Compatibility | — | — | ✓ | 5 | ✓ | 5 | TODO | 6 | ✓ | 5 |
+| Best Practices | ✓ | 8 | ✓ | 7 | ✓ | 6 | TODO | 7 | ✓ | 6 |
 
 ## Style Compliance
 
@@ -23,6 +23,7 @@
 | Core | ✓ reference | Deep conceptual content |
 | Python | ✓ aligned | Practical focus |
 | TypeScript | ✓ aligned | Practical focus, V8 sandbox |
+| .NET | — | Not started |
 | Go | ✓ aligned | Practical focus, no sandbox, workflowcheck tool, workflow.* replacements |
 
 ## Status

@@ -2,20 +2,20 @@
 
 ## Section Inventory
 
-| Section | Core | Python | Py# | TypeScript | TS# | Go | Go# |
-|---------|------|--------|-----|------------|-----|-----|-----|
-| Overview | — | ✓ | 1 | ✓ | 1 | ✓ | 1 |
-| Default Data Converter | — | ✓ | 2 | ✓ | 2 | ✓ | 2 |
-| Pydantic Integration | — | ✓ | 3 | — | — | — | — |
-| Custom Data Converter | — | ✓ | 4 | ✓ | 3 | ✓ | 3 |
-| Composition of Payload Converters | — | — | — | ✓ | 4 | ✓ | 4 |
-| Protobuf Support | — | — | — | ✓ | 5 | ✓ | 5 |
-| Payload Encryption | — | ✓ | 5 | ✓ | 6 | ✓ | 6 |
-| Search Attributes | — | ✓ | 6 | ✓ | 7 | ✓ | 7 |
-| Workflow Memo | — | ✓ | 7 | ✓ | 8 | ✓ | 8 |
-| Large Payloads | — | — | — | — | — | — | — |
-| Deterministic APIs for Values | — | ✓ | 8 | — | — | — | — |
-| Best Practices | — | ✓ | 9 | ✓ | 9 | ✓ | 9 |
+| Section | Core | Python | Py# | TypeScript | TS# | .NET | DN# | Go | Go# |
+|---------|------|--------|-----|------------|-----|------|-----|----|-----|
+| Overview | — | ✓ | 1 | ✓ | 1 | TODO | 1 | ✓ | 1 |
+| Default Data Converter | — | ✓ | 2 | ✓ | 2 | TODO | 2 | ✓ | 2 |
+| Pydantic Integration | — | ✓ | 3 | — | — | — | — | — | — |
+| Custom Data Converter | — | ✓ | 4 | ✓ | 3 | TODO | 3 | ✓ | 3 |
+| Composition of Payload Converters | — | — | — | ✓ | 4 | — | — | ✓ | 4 |
+| Protobuf Support | — | — | — | ✓ | 5 | TODO | 4 | ✓ | 5 |
+| Payload Encryption | — | ✓ | 5 | ✓ | 6 | TODO | 5 | ✓ | 6 |
+| Search Attributes | — | ✓ | 6 | ✓ | 7 | TODO | 6 | ✓ | 7 |
+| Workflow Memo | — | ✓ | 7 | ✓ | 8 | TODO | 7 | ✓ | 8 |
+| Large Payloads | — | — | — | — | — | — | — | — | — |
+| Deterministic APIs for Values | — | ✓ | 8 | — | — | TODO | 8 | — | — |
+| Best Practices | — | ✓ | 9 | ✓ | 9 | TODO | 9 | ✓ | 9 |
 
 ## Style Compliance
 
@@ -23,6 +23,7 @@
 |----------|--------|-------|
 | Python | ✓ reference | — |
 | TypeScript | ✓ aligned | — |
+| .NET | — | Not started |
 | Go | ✓ aligned | JSON default, protobuf native, converter.CompositeDataConverter |
 
 ## Status

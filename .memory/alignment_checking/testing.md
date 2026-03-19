@@ -2,17 +2,17 @@
 
 ## Section Inventory
 
-| Section | Core | Python | Py# | TypeScript | TS# | Go | Go# |
-|---------|------|--------|-----|------------|-----|-----|-----|
-| Overview | — | ✓ | 1 | ✓ | 1 | ✓ | 1 |
-| Test Environment Setup | — | ✓ | 2 | ✓ | 2 | ✓ | 2 |
-| Time Skipping | — | — | — | — | — | — | — |
-| Activity Mocking | — | ✓ | 3 | ✓ | 3 | ✓ | 3 |
-| Testing Signals and Queries | — | ✓ | 4 | ✓ | 4 | ✓ | 4 |
-| Testing Failure Cases | — | ✓ | 5 | ✓ | 5 | ✓ | 5 |
-| Replay Testing | — | ✓ | 6 | ✓ | 6 | ✓ | 6 |
-| Activity Testing | — | ✓ | 7 | ✓ | 7 | ✓ | 7 |
-| Best Practices | — | ✓ | 8 | ✓ | 8 | ✓ | 8 |
+| Section | Core | Python | Py# | TypeScript | TS# | .NET | DN# | Go | Go# |
+|---------|------|--------|-----|------------|-----|------|-----|----|-----|
+| Overview | — | ✓ | 1 | ✓ | 1 | TODO | 1 | ✓ | 1 |
+| Test Environment Setup | — | ✓ | 2 | ✓ | 2 | TODO | 2 | ✓ | 2 |
+| Time Skipping | — | — | — | — | — | — | — | — | — |
+| Activity Mocking | — | ✓ | 3 | ✓ | 3 | TODO | 3 | ✓ | 3 |
+| Testing Signals and Queries | — | ✓ | 4 | ✓ | 4 | TODO | 4 | ✓ | 4 |
+| Testing Failure Cases | — | ✓ | 5 | ✓ | 5 | TODO | 5 | ✓ | 5 |
+| Replay Testing | — | ✓ | 6 | ✓ | 6 | TODO | 6 | ✓ | 6 |
+| Activity Testing | — | ✓ | 7 | ✓ | 7 | TODO | 7 | ✓ | 7 |
+| Best Practices | — | ✓ | 8 | ✓ | 8 | TODO | 8 | ✓ | 8 |
 
 ## Style Compliance
 
@@ -20,6 +20,7 @@
 |----------|--------|-------|
 | Python | ✓ reference | — |
 | TypeScript | ✓ aligned | Added failure/activity testing |
+| .NET | — | Not started |
 | Go | ✓ aligned | testsuite package, testify, mock activities, TestWorkflowEnvironment |
 
 ## Status

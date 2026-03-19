@@ -2,35 +2,37 @@
 
 ## Section Inventory
 
-| Section | Core | Python | Py# | TypeScript | TS# | Go | Go# |
-|---------|------|--------|-----|------------|-----|-----|-----|
-| Signals | ✓ | ✓ | 1 | ✓ | 1 | ✓ | 1 |
-| Dynamic Signal Handlers | — | ✓ | 2 | ✓ | 2 | — | — |
-| Queries | ✓ | ✓ | 3 | ✓ | 3 | ✓ | 2 |
-| Dynamic Query Handlers | — | ✓ | 4 | ✓ | 4 | — | — |
-| Updates | ✓ | ✓ | 5 | ✓ | 5 | ✓ | 3 |
-| Child Workflows | ✓ | ✓ | 6 | ✓ | 6 | ✓ | 4 |
-| Child Workflow Options | — | — | — | ✓ | 7 | ✓ | 4s |
-| Handles to External Workflows | — | ✓ | 7 | ✓ | 8 | ✓ | 5 |
-| Parallel Execution | ✓ | ✓ | 8 | ✓ | 9 | ✓ | 6 |
-| Deterministic Asyncio Alternatives | — | ✓ | 9 | — | — | — | — |
-| Selector Pattern | — | — | — | — | — | ✓ | 7 |
-| Continue-as-New | ✓ | ✓ | 10 | ✓ | 10 | ✓ | 8 |
-| Cancellation Handling (asyncio) | — | ✓ | 12 | — | — | — | — |
-| Cancellation Scopes | — | — | — | ✓ | 12 | — | — |
-| Cancellation Handling | — | — | — | — | — | ✓ | 9 |
-| Saga Pattern | ✓ | ✓ | 11 | ✓ | 11 | ✓ | 10 |
-| Triggers | — | — | — | ✓ | 13 | — | — |
-| Wait Condition with Timeout | — | ✓ | 13 | ✓ | 14 | ✓ | 11 |
-| Waiting for All Handlers to Finish | — | ✓ | 14 | ✓ | 15 | ✓ | 12 |
-| Activity Heartbeat Details | ✓ | ✓ | 15 | ✓ | 16 | ✓ | 13 |
-| Timers | ✓ | ✓ | 16 | ✓ | 17 | ✓ | 14 |
-| Large Data Handling | ✓ | — | — | — | — | — | — |
-| Local Activities | ✓ | ✓ | 17 | ✓ | 18 | ✓ | 15 |
-| Entity Workflow Pattern | ✓ | — | — | — | — | — | — |
-| Polling Patterns | ✓ | — | — | — | — | — | — |
-| Idempotency Patterns | ✓ | — | — | — | — | — | — |
-| Using Pydantic Models | — | ✓ | 18 | — | — | — | — |
+| Section | Core | Python | Py# | TypeScript | TS# | .NET | DN# | Go | Go# |
+|---------|------|--------|-----|------------|-----|------|-----|----|-----|
+| Signals | ✓ | ✓ | 1 | ✓ | 1 | TODO | 1 | ✓ | 1 |
+| Dynamic Signal Handlers | — | ✓ | 2 | ✓ | 2 | TODO | 2 | — | — |
+| Queries | ✓ | ✓ | 3 | ✓ | 3 | TODO | 3 | ✓ | 2 |
+| Dynamic Query Handlers | — | ✓ | 4 | ✓ | 4 | TODO | 4 | — | — |
+| Updates | ✓ | ✓ | 5 | ✓ | 5 | TODO | 5 | ✓ | 3 |
+| Child Workflows | ✓ | ✓ | 6 | ✓ | 6 | TODO | 6 | ✓ | 4 |
+| Child Workflow Options | — | — | — | ✓ | 7 | — | — | ✓ | 4s |
+| Handles to External Workflows | — | ✓ | 7 | ✓ | 8 | TODO | 7 | ✓ | 5 |
+| Parallel Execution | ✓ | ✓ | 8 | ✓ | 9 | TODO | 8 | ✓ | 6 |
+| Deterministic Asyncio Alternatives | — | ✓ | 9 | — | — | — | — | — | — |
+| Deterministic Task Alternatives | — | — | — | — | — | TODO | 9 | — | — |
+| Selector Pattern | — | — | — | — | — | — | — | ✓ | 7 |
+| Continue-as-New | ✓ | ✓ | 10 | ✓ | 10 | TODO | 10 | ✓ | 8 |
+| Cancellation Handling (asyncio) | — | ✓ | 12 | — | — | — | — | — | — |
+| Cancellation Scopes | — | — | — | ✓ | 12 | — | — | — | — |
+| Cancellation Handling (CancellationToken) | — | — | — | — | — | TODO | 12 | — | — |
+| Cancellation Handling | — | — | — | — | — | — | — | ✓ | 9 |
+| Saga Pattern | ✓ | ✓ | 11 | ✓ | 11 | TODO | 11 | ✓ | 10 |
+| Triggers | — | — | — | ✓ | 13 | — | — | — | — |
+| Wait Condition with Timeout | — | ✓ | 13 | ✓ | 14 | TODO | 13 | ✓ | 11 |
+| Waiting for All Handlers to Finish | — | ✓ | 14 | ✓ | 15 | TODO | 14 | ✓ | 12 |
+| Activity Heartbeat Details | ✓ | ✓ | 15 | ✓ | 16 | TODO | 15 | ✓ | 13 |
+| Timers | ✓ | ✓ | 16 | ✓ | 17 | TODO | 16 | ✓ | 14 |
+| Large Data Handling | ✓ | — | — | — | — | — | — | — | — |
+| Local Activities | ✓ | ✓ | 17 | ✓ | 18 | TODO | 17 | ✓ | 15 |
+| Entity Workflow Pattern | ✓ | — | — | — | — | — | — | — | — |
+| Polling Patterns | ✓ | — | — | — | — | — | — | — | — |
+| Idempotency Patterns | ✓ | — | — | — | — | — | — | — | — |
+| Using Pydantic Models | — | ✓ | 18 | — | — | — | — | — | — |
 
 ## Style Compliance
 
@@ -38,6 +40,7 @@
 |----------|--------|-------|
 | Python | ✓ reference | — |
 | TypeScript | ✓ aligned | Uses `log`, CancellationScope idiom |
+| .NET | — | Not started |
 | Go | ✓ aligned | Channel-based signals, SetQueryHandler, SetUpdateHandler, Selector, compensation slice saga |
 
 ## Status
