@@ -30,7 +30,7 @@ Python is the reference style (code-first, minimal prose). All languages should 
 
 **Go:** ✅ COMPLETE (2026-03-17) — All Go reference files created and aligned.
 
-**Java alignment:** IN PROGRESS (2026-03-16) — Java columns added to all tracking files with TODO markers and section decisions documented.
+**Java:** ⏳ IN PROGRESS (2026-03-16) — Java columns added to all alignment tracking files with TODO markers and section decisions documented.
 
 ## Files
 

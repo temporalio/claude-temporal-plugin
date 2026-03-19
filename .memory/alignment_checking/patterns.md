@@ -2,35 +2,35 @@
 
 ## Section Inventory
 
-| Section | Core | Python | Py# | TypeScript | TS# | Go | Go# |
-|---------|------|--------|-----|------------|-----|-----|-----|
-| Signals | ✓ | ✓ | 1 | ✓ | 1 | ✓ | 1 |
-| Dynamic Signal Handlers | — | ✓ | 2 | ✓ | 2 | — | — |
-| Queries | ✓ | ✓ | 3 | ✓ | 3 | ✓ | 2 |
-| Dynamic Query Handlers | — | ✓ | 4 | ✓ | 4 | — | — |
-| Updates | ✓ | ✓ | 5 | ✓ | 5 | ✓ | 3 |
-| Child Workflows | ✓ | ✓ | 6 | ✓ | 6 | ✓ | 4 |
-| Child Workflow Options | — | — | — | ✓ | 7 | ✓ | 4s |
-| Handles to External Workflows | — | ✓ | 7 | ✓ | 8 | ✓ | 5 |
-| Parallel Execution | ✓ | ✓ | 8 | ✓ | 9 | ✓ | 6 |
-| Deterministic Asyncio Alternatives | — | ✓ | 9 | — | — | — | — |
-| Selector Pattern | — | — | — | — | — | ✓ | 7 |
-| Continue-as-New | ✓ | ✓ | 10 | ✓ | 10 | ✓ | 8 |
-| Cancellation Handling (asyncio) | — | ✓ | 12 | — | — | — | — |
-| Cancellation Scopes | — | — | — | ✓ | 12 | — | — |
-| Cancellation Handling | — | — | — | — | — | ✓ | 9 |
-| Saga Pattern | ✓ | ✓ | 11 | ✓ | 11 | ✓ | 10 |
-| Triggers | — | — | — | ✓ | 13 | — | — |
-| Wait Condition with Timeout | — | ✓ | 13 | ✓ | 14 | ✓ | 11 |
-| Waiting for All Handlers to Finish | — | ✓ | 14 | ✓ | 15 | ✓ | 12 |
-| Activity Heartbeat Details | ✓ | ✓ | 15 | ✓ | 16 | ✓ | 13 |
-| Timers | ✓ | ✓ | 16 | ✓ | 17 | ✓ | 14 |
-| Large Data Handling | ✓ | — | — | — | — | — | — |
-| Local Activities | ✓ | ✓ | 17 | ✓ | 18 | ✓ | 15 |
-| Entity Workflow Pattern | ✓ | — | — | — | — | — | — |
-| Polling Patterns | ✓ | — | — | — | — | — | — |
-| Idempotency Patterns | ✓ | — | — | — | — | — | — |
-| Using Pydantic Models | — | ✓ | 18 | — | — | — | — |
+| Section | Core | Python | Py# | TypeScript | TS# | Java | J# | Go | Go# |
+|---------|------|--------|-----|------------|-----|------|----|----|-----|
+| Signals | ✓ | ✓ | 1 | ✓ | 1 | TODO | 1 | ✓ | 1 |
+| Dynamic Signal Handlers | — | ✓ | 2 | ✓ | 2 | TODO | 2 | — | — |
+| Queries | ✓ | ✓ | 3 | ✓ | 3 | TODO | 3 | ✓ | 2 |
+| Dynamic Query Handlers | — | ✓ | 4 | ✓ | 4 | TODO | 4 | — | — |
+| Updates | ✓ | ✓ | 5 | ✓ | 5 | TODO | 5 | ✓ | 3 |
+| Child Workflows | ✓ | ✓ | 6 | ✓ | 6 | TODO | 6 | ✓ | 4 |
+| Child Workflow Options | — | — | — | ✓ | 7 | TODO | 7 | ✓ | 4s |
+| Handles to External Workflows | — | ✓ | 7 | ✓ | 8 | TODO | 8 | ✓ | 5 |
+| Parallel Execution | ✓ | ✓ | 8 | ✓ | 9 | TODO | 9 | ✓ | 6 |
+| Deterministic Asyncio Alternatives | — | ✓ | 9 | — | — | — | — | — | — |
+| Selector Pattern | — | — | — | — | — | — | — | ✓ | 7 |
+| Continue-as-New | ✓ | ✓ | 10 | ✓ | 10 | TODO | 10 | ✓ | 8 |
+| Cancellation Handling (asyncio) | — | ✓ | 12 | — | — | — | — | — | — |
+| Cancellation Scopes | — | — | — | ✓ | 12 | TODO | 12 | — | — |
+| Cancellation Handling | — | — | — | — | — | — | — | ✓ | 9 |
+| Saga Pattern | ✓ | ✓ | 11 | ✓ | 11 | TODO | 11 | ✓ | 10 |
+| Triggers | — | — | — | ✓ | 13 | — | — | — | — |
+| Wait Condition with Timeout | — | ✓ | 13 | ✓ | 14 | TODO | 13 | ✓ | 11 |
+| Waiting for All Handlers to Finish | — | ✓ | 14 | ✓ | 15 | TODO | 14 | ✓ | 12 |
+| Activity Heartbeat Details | ✓ | ✓ | 15 | ✓ | 16 | TODO | 15 | ✓ | 13 |
+| Timers | ✓ | ✓ | 16 | ✓ | 17 | TODO | 16 | ✓ | 14 |
+| Large Data Handling | ✓ | — | — | — | — | — | — | — | — |
+| Local Activities | ✓ | ✓ | 17 | ✓ | 18 | TODO | 17 | ✓ | 15 |
+| Entity Workflow Pattern | ✓ | — | — | — | — | — | — | — | — |
+| Polling Patterns | ✓ | — | — | — | — | — | — | — | — |
+| Idempotency Patterns | ✓ | — | — | — | — | — | — | — | — |
+| Using Pydantic Models | — | ✓ | 18 | — | — | — | — | — | — |
 
 ## Style Compliance
 
@@ -38,9 +38,24 @@
 |----------|--------|-------|
 | Python | ✓ reference | — |
 | TypeScript | ✓ aligned | Uses `log`, CancellationScope idiom |
+| Java | — | Not started |
 | Go | ✓ aligned | Channel-based signals, SetQueryHandler, SetUpdateHandler, Selector, compensation slice saga |
 
 ## Status
+
+**Java column decisions:**
+- Signals, Queries, Updates, Dynamic Handlers: Java has `@SignalMethod`, `@QueryMethod`, `@UpdateMethod`, plus dynamic handlers via `DynamicSignalHandler`/`DynamicQueryHandler`
+- Child Workflows: Java uses `Workflow.newChildWorkflowStub()` with `ChildWorkflowOptions`
+- Child Workflow Options: Java has `ChildWorkflowOptions` (shows separately, like TS)
+- Handles to External Workflows: Java has `Workflow.newExternalWorkflowStub()`
+- Parallel Execution: Java uses `Async.function()` + `Promise.allOf()`
+- Cancellation Scopes: Java has `CancellationScope` (like TS)
+- Wait Condition with Timeout: Java has `Workflow.await(timeout, condition)`
+- Deterministic Asyncio Alternatives: — (Python-specific)
+- Cancellation Handling (asyncio): — (Python-specific)
+- Selector Pattern: — (Go-specific)
+- Triggers: — (TS-specific; Java has `CompletablePromise` but not a separate section)
+- Using Pydantic Models: — (Python-specific)
 
 **Cross-language notes:**
 - **Updates — Validator constraints:** All languages (core, Python, TS, Go) now document that validators must NOT mutate state or block (read-only, like query handlers). Added in PR #38 review.
@@ -71,17 +86,19 @@
 - Idempotency Patterns: Core conceptual explanation sufficient
 
 **Intentionally missing (`—`):**
-- Dynamic handlers, External workflow handles, Wait conditions: language-specific implementation, core has concepts only
-- Child Workflow Options: TS-specific (Python shows inline)
-- Deterministic Asyncio Alternatives: Python-specific (TS doesn't have this issue)
-- Cancellation Handling vs Cancellation Scopes: different idioms per language
+- Dynamic handlers: Go handles signals by channel name (no "default handler" concept)
+- Selector Pattern: Go-specific (`workflow.Selector` replaces `select`)
+- Deterministic Asyncio Alternatives: Python-specific
+- Cancellation Handling (asyncio): Python-specific
+- Cancellation Scopes: TS/Java use `CancellationScope`; Go uses disconnected context
+- Cancellation Handling: Go-specific section name for its context-based pattern
 - Triggers: TS-specific pattern
-- Entity Workflow Pattern: conceptual in core, implementation left to user
+- Entity Workflow Pattern, Polling, Idempotency: Core-only
 - Using Pydantic Models: Python-specific
 
-**Order alignment:** ✓ Aligned — TS# and Go# monotonically increase
+**Order alignment:** ✓ Aligned — TS#, J#, and Go# monotonically increase
 
-**Style alignment:** ✅ All issues fixed (Python, TypeScript, Go)
+**Style alignment:** ✅ All issues fixed (Python, TypeScript, Go). Java: ~17 sections planned.
 - ✅ **Queries:** TS now has "Important: must NOT modify state" note
 - ✅ **Updates:** All languages now have "validators must NOT mutate state or block" note
 - ✅ **Saga Pattern:** TS now has idempotency note, comments about saving compensation BEFORE activity

@@ -4,18 +4,18 @@ Tracks alignment for `python.md`, `typescript.md`, `go.md`, etc.
 
 ## Section Inventory
 
-| Section | Core | Python | Py# | TypeScript | TS# | Go | Go# |
-|---------|------|--------|-----|------------|-----|-----|-----|
-| Overview | — | ✓ | 1 | ✓ | 1 | ✓ | 1 |
-| How Temporal Works: History Replay | — | — | — | — | — | — | — |
-| Understanding Replay | — | — | — | ✓ | 2 | — | — |
-| Quick Start / Quick Demo | — | ✓ | 2 | ✓ | 3 | ✓ | 2 |
-| Key Concepts | — | ✓ | 3 | ✓ | 4 | ✓ | 3 |
-| File Organization Best Practice | — | ✓ | 4 | ✓ | 5 | ✓ | 4 |
-| Determinism Rules | — | — | — | ✓ | 6 | — | — |
-| Common Pitfalls | — | ✓ | 5 | ✓ | 7 | ✓ | 5 |
-| Writing Tests | — | ✓ | 6 | ✓ | 8 | ✓ | 6 |
-| Additional Resources | — | ✓ | 7 | ✓ | 9 | ✓ | 7 |
+| Section | Core | Python | Py# | TypeScript | TS# | Java | J# | Go | Go# |
+|---------|------|--------|-----|------------|-----|------|----|----|-----|
+| Overview | — | ✓ | 1 | ✓ | 1 | ✓ | 1 | ✓ | 1 |
+| How Temporal Works: History Replay | — | — | — | — | — | — | — | — | — |
+| Understanding Replay | — | — | — | ✓ | 2 | — | — | — | — |
+| Quick Start / Quick Demo | — | ✓ | 2 | ✓ | 3 | ✓ | 2 | ✓ | 2 |
+| Key Concepts | — | ✓ | 3 | ✓ | 4 | ✓ | 3 | ✓ | 3 |
+| File Organization Best Practice | — | ✓ | 4 | ✓ | 5 | ✓ | 4 | ✓ | 4 |
+| Determinism Rules | — | — | — | ✓ | 6 | ✓ | 5 | — | — |
+| Common Pitfalls | — | ✓ | 5 | ✓ | 7 | ✓ | 6 | ✓ | 5 |
+| Writing Tests | — | ✓ | 6 | ✓ | 8 | ✓ | 7 | ✓ | 6 |
+| Additional Resources | — | ✓ | 7 | ✓ | 9 | ✓ | 8 | ✓ | 7 |
 
 ## Style Compliance
 
@@ -23,9 +23,19 @@ Tracks alignment for `python.md`, `typescript.md`, `go.md`, etc.
 |----------|--------|-------|
 | Python | ✓ reference | — |
 | TypeScript | ✓ aligned | Has Understanding Replay, Determinism Rules |
+| Java | ✓ aligned | No Understanding Replay (covered in Overview); has Determinism Rules |
 | Go | ✓ aligned | Function-based (no decorators), workflowcheck, struct activities |
 
 ## Status
+
+**Java column decisions:**
+- Overview: Java SDK intro, interface+implementation pattern, requirements
+- Understanding Replay: — (omitted; Java Overview already notes no sandbox — adding a dedicated replay section would be redundant)
+- Quick Start: Full tutorial — interface, implementation, activities, worker (WorkerFactory), client starter. Uses Gradle/Maven.
+- Key Concepts: `@WorkflowInterface`/`@WorkflowMethod`, `@ActivityInterface`/`@ActivityMethod`, `Workflow.newActivityStub()`, worker setup with `WorkerFactory`
+- File Organization: Separate workflow and activity files is good practice; no need to mention sandbox/performance rationale
+- Determinism Rules: Important for Java — NO sandbox, developer must follow conventions. `Workflow.sleep()`, `Workflow.currentTimeMillis()`, `Workflow.newRandom()`, `Workflow.randomUUID()`, `Async.function()`/`Promise` instead of Thread
+- Common Pitfalls: Non-deterministic code, using Thread/locks, missing timeouts on activity stubs, forgetting to heartbeat
 
 **Section content notes:**
 - Writing Tests: all languages should be a brief link to `references/<lang>/testing.md`, NOT inline code examples
@@ -41,12 +51,12 @@ Tracks alignment for `python.md`, `typescript.md`, `go.md`, etc.
 
 **Intentionally missing (`—`):**
 - Core column: no core top-level file (these are language entry points)
-- Determinism Rules — TS has separate section; Python/Go have subsection in Key Concepts
-- Understanding Replay — TS-specific; Python/Go reference core
+- Determinism Rules — TS and Java have separate section; Python/Go have subsection in Key Concepts
+- Understanding Replay — TS-specific; Python/Java/Go omit (covered in Overview or references core)
 
-**Order alignment:** ✓ Aligned — All languages have similar structure (Overview, Quick Start, Key Concepts, File Organization, Common Pitfalls, Writing Tests, Additional Resources)
+**Order alignment:** ✓ Aligned — Java structure matches TS minus Understanding Replay (J# numbers contiguous)
 
-**Style alignment:** ✅ Complete (Python, TypeScript)
+**Style alignment:** ✅ Complete (Python, TypeScript, Java, Go)
 - Removed "How Temporal Works" from TS (now brief "Understanding Replay" referencing core)
 - Added "File Organization Best Practice" to TS
 - Python Quick Demo and TypeScript Quick Start now match (full tutorial with 4 files, run instructions, expected output)

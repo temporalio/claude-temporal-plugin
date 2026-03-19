@@ -2,24 +2,24 @@
 
 ## Section Inventory
 
-| Section | Core | Python | Py# | TypeScript | TS# | Go | Go# |
-|---------|------|--------|-----|------------|-----|-----|-----|
-| Overview | — | ✓ | 1 | ✓ | 1 | ✓ | 1 |
-| How the Sandbox Works | — | ✓ | 2 | — | — | — | — |
-| Import Blocking | — | — | — | ✓ | 2 | — | — |
-| Forbidden Operations | — | ✓ | 3 | — | — | — | — |
-| Function Replacement | — | — | — | ✓ | 3 | — | — |
-| workflowcheck Static Analysis | — | — | — | — | — | ✓ | 2 |
-| Determinism Rules | — | — | — | — | — | ✓ | 3 |
-| Pass-Through Pattern | — | ✓ | 4 | — | — | — | — |
-| Importing Activities | — | ✓ | 5 | — | — | — | — |
-| Disabling the Sandbox | — | ✓ | 6 | — | — | — | — |
-| Customizing Invalid Module Members | — | ✓ | 7 | — | — | — | — |
-| Import Notification Policy | — | ✓ | 8 | — | — | — | — |
-| Disable Lazy sys.modules Passthrough | — | ✓ | 9 | — | — | — | — |
-| File Organization | — | ✓ | 10 | — | — | — | — |
-| Common Issues | — | ✓ | 11 | — | — | — | — |
-| Best Practices | — | ✓ | 12 | — | — | ✓ | 4 |
+| Section | Core | Python | Py# | TypeScript | TS# | Java | J# | Go | Go# |
+|---------|------|--------|-----|------------|-----|------|----|----|-----|
+| Overview | — | ✓ | 1 | ✓ | 1 | TODO | 1 | ✓ | 1 |
+| How the Sandbox Works | — | ✓ | 2 | — | — | — | — | — | — |
+| Import Blocking | — | — | — | ✓ | 2 | — | — | — | — |
+| Forbidden Operations | — | ✓ | 3 | — | — | TODO | 2 | — | — |
+| Function Replacement | — | — | — | ✓ | 3 | — | — | — | — |
+| Static Analysis (workflowcheck) | — | — | — | — | — | TODO | 3 | ✓ | 2 |
+| Convention-Based Enforcement / Determinism Rules | — | — | — | — | — | TODO | 4 | ✓ | 3 |
+| Pass-Through Pattern | — | ✓ | 4 | — | — | — | — | — | — |
+| Importing Activities | — | ✓ | 5 | — | — | — | — | — | — |
+| Disabling the Sandbox | — | ✓ | 6 | — | — | — | — | — | — |
+| Customizing Invalid Module Members | — | ✓ | 7 | — | — | — | — | — | — |
+| Import Notification Policy | — | ✓ | 8 | — | — | — | — | — | — |
+| Disable Lazy sys.modules Passthrough | — | ✓ | 9 | — | — | — | — | — | — |
+| File Organization | — | ✓ | 10 | — | — | — | — | — | — |
+| Common Issues | — | ✓ | 11 | — | — | — | — | — | — |
+| Best Practices | — | ✓ | 12 | — | — | TODO | 5 | ✓ | 4 |
 
 ## Style Compliance
 
@@ -27,9 +27,20 @@
 |----------|--------|-------|
 | Python | ✓ reference | Comprehensive (12 sections) |
 | TypeScript | ✓ aligned | Minimal (3 sections) — V8 is automatic |
+| Java | — | Not started |
 | Go | ✓ aligned | Minimal (4 sections) — no runtime sandbox, convention + static analysis |
 
 ## Status
+
+**Java column decisions:**
+- Overview: Java has NO sandbox. A static analysis tool (`temporal-workflowcheck`, beta) is available. Non-determinism is only caught at replay time via `NonDeterministicException`. The SDK's cooperative threading model eliminates synchronization needs but does NOT prevent calling non-deterministic APIs.
+- How the Sandbox Works: — (Java has no sandbox)
+- Import Blocking: — (Java has no import restrictions)
+- Forbidden Operations: Java-specific list — `Thread.sleep()`, `new Thread()`, synchronization primitives, `UUID.randomUUID()`, `Math.random()`, `System.currentTimeMillis()`, direct I/O in workflows. NOT blocked by SDK — developer must avoid manually.
+- Function Replacement: — (Java does not replace any functions)
+- Static Analysis (workflowcheck): Java has `temporal-workflowcheck` (beta) — similar concept to Go's tool but separate
+- Convention-Based Enforcement / Determinism Rules: Java-specific — explains cooperative threading model, `NonDeterministicException` at replay, `temporal-workflowcheck` for static analysis, and `WorkflowReplayer` for replay testing
+- Best Practices: Java best practices for determinism (use Workflow.* APIs, avoid stdlib alternatives, test with replay)
 
 **Go-specific notes:**
 - Go has NO runtime sandbox (unlike Python's import-restricting sandbox or TS's V8 isolate)
@@ -51,4 +62,5 @@
 **Style alignment:** ⚠️ Very different structures (intentional, different protection mechanisms)
 - Python: Comprehensive (12 sections) — complex sandbox with many customization options
 - TypeScript: Minimal (3 sections) — V8 sandbox is mostly automatic
+- Java: ~5 sections — no sandbox, `temporal-workflowcheck` (beta), cooperative threading, replay detection
 - Go: Minimal (4 sections) — no sandbox, convention-based with static analysis tool
