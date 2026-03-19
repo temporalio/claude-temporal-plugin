@@ -20,7 +20,7 @@ Correctness verification for `references/{language}/patterns.md`.
 | 8 | Handles to External Workflows | all good | | context7 sdk-typescript |
 | 9 | Parallel Execution | all good | | context7 sdk-typescript |
 | 10 | Continue-as-New | all good | | context7 sdk-typescript |
-| 11 | Saga Pattern | all good | Added idempotency note, BEFORE comments, `log` import during alignment | temporal-docs, samples-typescript, edu-102-typescript |
+| 11 | Saga Pattern | FIXED | Wrap compensations in CancellationScope.nonCancellable(); move registration before activity call | temporal-docs |
 | 12 | Cancellation Scopes | all good | | context7 sdk-typescript, temporal-docs |
 | 13 | Triggers (Promise-like Signals) | all good | | temporal-docs api reference |
 | 14 | Wait Condition with Timeout | all good | | context7 sdk-typescript, temporal-docs |
@@ -172,21 +172,19 @@ setDefaultQueryHandler((queryName: string, ...args: any[]) => {
 ---
 
 #### 11. Saga Pattern
-**Status:** all good
+**Status:** FIXED
 
 **Verified:**
 - Array of compensation functions pattern ✓
-- Try/catch with compensations in reverse order ✓
-- Official samples-typescript/saga uses same pattern ✓
 - No built-in Saga class in TS SDK (unlike Java), manual implementation correct ✓
+- Idempotency note ✓
+- Replay-safe logging `import { log } from '@temporalio/workflow'` ✓
 
-**Alignment changes verified:**
-- **Idempotency note**: "Compensation activities should be idempotent" ✓
-  - temporal-docs blog: "you, the programmer, need to make sure each Temporal Activity is *idempotent*"
-- **BEFORE comments**: "Save compensation BEFORE calling the activity" ✓
-  - All official samples show `saga.addCompensation()` BEFORE activity execution
-  - Reason: if activity crashes mid-execution but completed its side effect, compensation must still run
-- **Replay-safe logging**: `import { log } from '@temporalio/workflow'` ✓
+**Issues fixed:**
+- **Compensations must run in `CancellationScope.nonCancellable()`**: When the workflow is cancelled, any new activity scheduled in the root scope throws `CancelledFailure` immediately before starting. Official docs: "Cleanup logic must be in a nonCancellable scope — If we'd run cleanup outside of a nonCancellable scope it would've been cancelled before being started because the Workflow's root scope is cancelled." (docs.temporal.io/develop/typescript/cancellation#external-cancellation-example)
+- **Compensation registration order was wrong**: Compensations were pushed *after* calling the activity. Must be registered *before* the activity call.
+
+**Fix applied:** Wrapped compensation loop in `CancellationScope.nonCancellable(async () => { ... })` and moved `compensations.push(...)` before each activity call.
   - docs.temporal.io: "This logger is replay-aware and will omit log messages on workflow replay"
   - edu-102-typescript: "import `log` from `@temporalio/workflow` to access the Workflow Logger"
 
@@ -327,7 +325,7 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 | 8 | Parallel Execution | needs fixes | | context7 sdk-python, sdk source |
 | 9 | Deterministic Alternatives to asyncio | needs fixes | | context7 sdk-python, sdk source |
 | 10 | Continue-as-New | needs fixes | | context7 sdk-python, temporal-docs |
-| 11 | Saga Pattern | needs fixes | | temporal-docs |
+| 11 | Saga Pattern | FIXED | Wrap compensations in asyncio.shield(); existing registration order was already correct | temporal-docs |
 | 12 | Cancellation Handling | needs fixes | | context7 sdk-python |
 | 13 | Wait Condition with Timeout | all good | | context7 sdk-python |
 | 14 | Waiting for All Handlers to Finish | FIXED | Added context about non-async handler preference | SDK team feedback, context7 sdk-python |
@@ -448,15 +446,20 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 ---
 
 #### 11. Saga Pattern
-**Status:** needs fixes
+**Status:** FIXED
 
-**Issues:**
+**Verified:**
 - Compensation list pattern correct ✓
 - `reversed(compensations)` for LIFO correct ✓
 - "Save compensation BEFORE running activity" correct and well-explained ✓
 - Idempotent compensation naming convention correct ✓
-- **Missing:** `ship_order` activity has no compensation registered
-- Should either add compensation or explain why shipping is terminal action
+
+**Issues fixed:**
+- **Compensations must run under `asyncio.shield()`**: When the workflow is cancelled, Python propagates `CancelledError` into the coroutine. Activities scheduled in the `except` block without shielding will also receive cancellation and may not run. Official Temporal blog (compensating-actions-part-of-a-complete-breakfast-with-sagas) uses `asyncio.shield(asyncio.ensure_future(...))` with comment "Ensure the compensations run in the face of cancellation."
+
+**Fix applied:** Wrapped compensation loop in `await asyncio.shield(asyncio.ensure_future(run_compensations()))`.
+
+**Still outstanding:** `ship_order` has no compensation registered — minor, acceptable if shipping is treated as a terminal action.
 
 ---
 
@@ -582,6 +585,163 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 #### 3. Queries
 **Status:** FIXED
 **Verified:** All 17 sections verified against temporal-docs. Only issue found was in the Queries section where `ActivityStub` was used instead of the correct typed interface. Fixed.
+
+---
+
+
+## Go
+
+**File:** `references/go/patterns.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Signals | all good | | temporal-docs |
+| 2 | Queries | all good | | temporal-docs |
+| 3 | Updates | all good | | temporal-docs |
+| 4 | Child Workflows | all good | | temporal-docs |
+| 5 | Child Workflow Options | all good | | temporal-docs |
+| 6 | Handles to External Workflows | all good | | temporal-docs |
+| 7 | Parallel Execution | all good | | temporal-docs |
+| 8 | Selector Pattern | all good | | temporal-docs |
+| 9 | Continue-as-New | all good | | temporal-docs |
+| 10 | Saga Pattern (Compensations) | all good | | temporal-docs |
+| 11 | Cancellation Handling | all good | | temporal-docs |
+| 12 | Wait Condition with Timeout | all good | | temporal-docs |
+| 13 | Waiting for All Handlers to Finish | all good | | temporal-docs |
+| 14 | Activity Heartbeat Details | all good | | temporal-docs |
+| 15 | Timers | all good | | temporal-docs |
+| 16 | Local Activities | all good | | temporal-docs |
+
+### Detailed Notes
+
+#### 1. Signals
+**Status:** all good
+**Verified:**
+- Channel-based signal reception via `workflow.GetSignalChannel` ✓
+- `channel.Receive(ctx, &value)` pattern ✓
+
+---
+
+#### 2. Queries
+**Status:** all good
+**Verified:**
+- `workflow.SetQueryHandler` API ✓
+- Synchronous handler returning value and error ✓
+
+---
+
+#### 3. Updates
+**Status:** all good
+**Verified:**
+- `workflow.SetUpdateHandler` with optional validator ✓
+- Handler and validator signatures ✓
+
+---
+
+#### 4. Child Workflows
+**Status:** all good
+**Verified:**
+- `workflow.ExecuteChildWorkflow` API ✓
+- Returns Future, `.Get(ctx, &result)` pattern ✓
+
+---
+
+#### 5. Child Workflow Options
+**Status:** all good
+**Verified:**
+- `workflow.ChildWorkflowOptions` struct fields ✓
+- `ParentClosePolicy` values ✓
+
+---
+
+#### 6. Handles to External Workflows
+**Status:** all good
+**Verified:**
+- `workflow.SignalExternalWorkflow` API ✓
+
+---
+
+#### 7. Parallel Execution
+**Status:** all good
+**Verified:**
+- `workflow.Go` for spawning coroutines ✓
+- Selector pattern for parallel coordination ✓
+
+---
+
+#### 8. Selector Pattern
+**Status:** all good
+**Verified:**
+- `workflow.NewSelector` API ✓
+- `AddFuture`, `AddReceive` methods ✓
+- `Select(ctx)` to block until one callback fires ✓
+
+---
+
+#### 9. Continue-as-New
+**Status:** all good
+**Verified:**
+- `workflow.NewContinueAsNewError` API ✓
+- Return the error to trigger continue-as-new ✓
+
+---
+
+#### 10. Saga Pattern (Compensations)
+**Status:** all good
+**Verified:**
+- Compensation slice pattern with LIFO execution ✓
+- Save compensation BEFORE calling activity ✓
+
+---
+
+#### 11. Cancellation Handling
+**Status:** all good
+**Verified:**
+- `workflow.NewDisconnectedContext` for cleanup after cancellation ✓
+- `ctx.Err()` check for cancellation detection ✓
+
+---
+
+#### 12. Wait Condition with Timeout
+**Status:** all good
+**Verified:**
+- Selector with timer future for timeout ✓
+- `workflow.NewTimer` API ✓
+
+---
+
+#### 13. Waiting for All Handlers to Finish
+**Status:** all good
+**Verified:**
+- `workflow.AllHandlersFinished` API ✓
+- `workflow.Await(ctx, workflow.AllHandlersFinished)` pattern ✓
+
+---
+
+#### 14. Activity Heartbeat Details
+**Status:** all good
+**Verified:**
+- `activity.RecordHeartbeat` API ✓
+- `activity.GetHeartbeatDetails` for resume ✓
+- Cancellation delivery via heartbeat ✓
+
+---
+
+#### 15. Timers
+**Status:** all good
+**Verified:**
+- `workflow.Sleep(ctx, duration)` API ✓
+- `workflow.NewTimer(ctx, duration)` for cancellable timers ✓
+
+---
+
+#### 16. Local Activities
+**Status:** all good
+**Verified:**
+- `workflow.ExecuteLocalActivity` API ✓
+- `workflow.LocalActivityOptions` struct ✓
 
 ---
 

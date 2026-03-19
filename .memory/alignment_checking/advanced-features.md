@@ -25,13 +25,16 @@
 |----------|--------|-------|
 | Python | ✓ reference | 7 sections |
 | TypeScript | ✓ aligned | 4 sections (removed duplicates) |
+| Go | ✓ aligned | 4 sections — Schedules, Async Completion, Worker Tuning, Sessions |
 | Java | — | Not started |
-| Go | — | Not started |
 
 ## Status
 
-**Sections needing review (empty cells):**
-- Go column: all empty — Go files not yet created
+**Go-specific notes:**
+- Schedules: `client.ScheduleClient` — same concept as Python/TS
+- Async Activity Completion: `activity.GetInfo(ctx).TaskToken` + `client.CompleteActivity` / `client.CompleteActivityByID`
+- Worker Tuning: `worker.Options` — `MaxConcurrentActivityExecutionSize`, `MaxConcurrentWorkflowTaskExecutionSize`, `MaxConcurrentActivityTaskPollers`
+- Sessions: Go-specific feature — `workflow.CreateSession(ctx, options)` pins activities to a specific worker. Useful for file processing where activities need local state.
 
 **Java column decisions:**
 - Schedules: Java has full Schedule API (`ScheduleClient`, `Schedule.newBuilder()`)
@@ -45,15 +48,18 @@
 
 **Intentionally missing (`—`):**
 - Core column: advanced features are implementation-specific
-- Sandbox Customization: Python-specific (TS has determinism-protection.md, Java has no sandbox)
+- Sandbox Customization: Python-specific (TS has determinism-protection.md, Java has no sandbox, Go has no sandbox)
 - Gevent Compatibility Warning: Python-specific
 - Workflow Init Decorator: Python-specific (@workflow.init)
 - Sinks: TS-specific feature
+- Sessions: Go-specific
+- Interceptors: Decided not to include for any language (all SDKs have them, but too advanced for current scope)
 - Continue-as-New, Workflow Updates, CancellationScope Patterns, Nexus Operations, Activity Cancellation, Best Practices: all covered elsewhere
 
-**Order alignment:** N/A — Files have different structures by design (language-specific advanced features)
+**Order alignment:** N/A — Files have different structures by design
 
 **Style alignment:** ✅ Complete (Python, TypeScript)
 - Python: 7 sections (Schedules, Async Activity Completion, Sandbox Customization, Gevent Warning, Worker Tuning, Workflow Init, Failure Exception Types)
 - TypeScript: 4 sections (Schedules, Async Activity Completion, Worker Tuning, Sinks)
 - Java: 4 sections planned (Schedules, Async Activity Completion, Worker Tuning, Workflow Failure Exception Types)
+

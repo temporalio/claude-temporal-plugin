@@ -26,9 +26,11 @@ Python is the reference style (code-first, minimal prose). All languages should 
 
 ## Implementation Status
 
-**Java alignment:** IN PROGRESS (2026-03-16) — Java columns added to all tracking files with TODO markers and section decisions documented.
+**Python/TypeScript:** ✅ COMPLETE (2026-02-25) — All TODO/DEL/BUG items implemented.
 
-✅ **Python/TypeScript COMPLETE** (2026-02-25) — All TODO/DEL/BUG items have been implemented.
+**Go:** ✅ COMPLETE (2026-03-17) — All Go reference files created and aligned.
+
+**Java alignment:** IN PROGRESS (2026-03-16) — Java columns added to all tracking files with TODO markers and section decisions documented.
 
 ## Files
 

@@ -255,5 +255,100 @@ Correctness verification for `references/{language}/data-handling.md`.
 **Status:** FIXED
 **Verified:** Default Data Converter chain was missing ProtobufPayloadConverter. Fixed to include it. All other sections (JacksonJsonPayloadConverter, PayloadCodec, CodecDataConverter, SearchAttributeKey) confirmed correct.
 
+## Go
+
+**File:** `references/go/data-handling.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Overview | all good | | temporal-docs |
+| 2 | Default Data Converter | all good | | temporal-docs |
+| 3 | Custom Data Converter | FIXED | Added full PayloadConverter example (msgpack), CompositeDataConverter usage, per-call override, deadlock detection note | temporal-docs |
+| 4 | Composition of Payload Converters | all good | | temporal-docs |
+| 5 | Protobuf Support | all good | | temporal-docs |
+| 6 | Payload Encryption | all good | | temporal-docs |
+| 7 | Search Attributes | all good | | temporal-docs |
+| 8 | Workflow Memo | all good | | temporal-docs |
+| 9 | Best Practices | all good | | temporal-docs |
+
+### Detailed Notes
+
+#### 1. Overview
+**Status:** all good
+**Verified:**
+- `converter.DataConverter` interface for serialization ✓
+- Default JSON conversion ✓
+
+---
+
+#### 2. Default Data Converter
+**Status:** all good
+**Verified:**
+- `CompositeDataConverter` applies converters in order ✓
+
+---
+
+#### 3. Custom Data Converter
+**Status:** FIXED
+
+**Issue 1:** Listed 5 interface methods but actual `converter.DataConverter` has 6 -- was missing `ToStrings`. Fixed.
+
+**Issue 2 (PR #38 feedback):** Section had no substantive content — no example of how to actually implement a custom converter. Rewrote with full working example.
+
+**Fix Applied:**
+- Shows `PayloadConverter` interface (the right abstraction for most users, not the full `DataConverter`)
+- Full msgpack `PayloadConverter` implementation showing all 4 methods (`ToPayload` returning nil for unhandled types, `FromPayload` checking encoding, `ToString` for UI, `Encoding`)
+- `converter.MetadataEncoding` metadata key usage
+- `converter.NewCompositeDataConverter` composition pattern
+- Per-activity override via `workflow.WithDataConverter`
+- `workflow.DataConverterWithoutDeadlockDetection` note for remote-call converters (e.g. KMS)
+
+**Sources:** temporal-docs (pkg.go.dev/go.temporal.io/sdk/converter, docs.temporal.io/develop/go/converters-and-encryption)
+
+---
+
+#### 4. Composition of Payload Converters
+**Status:** all good
+**Verified:**
+- Payload converter composition pattern ✓
+
+---
+
+#### 5. Protobuf Support
+**Status:** all good
+**Verified:**
+- Protobuf as first-class supported format ✓
+
+---
+
+#### 6. Payload Encryption
+**Status:** all good
+**Verified:**
+- `converter.PayloadCodec` interface ✓
+- `Encode`/`Decode` methods ✓
+
+---
+
+#### 7. Search Attributes
+**Status:** all good
+**Verified:**
+- Search attribute APIs ✓
+
+---
+
+#### 8. Workflow Memo
+**Status:** all good
+**Verified:**
+- Memo APIs ✓
+
+---
+
+#### 9. Best Practices
+**Status:** all good
+**Verified:**
+- All best practices valid ✓
+
 ---
 

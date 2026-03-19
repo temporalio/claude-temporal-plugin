@@ -208,3 +208,69 @@ All sections verified correct against temporal-docs. Workflow.getLogger(), Micro
 
 ---
 
+
+## Go
+
+**File:** `references/go/observability.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Overview | all good | | temporal-docs |
+| 2 | Logging / Replay-Aware Logging | all good | | temporal-docs |
+| 3 | Customizing the Logger | all good | | temporal-docs |
+| 4 | Metrics | all good | | temporal-docs |
+| 5 | Search Attributes (Visibility) | all good | | temporal-docs |
+| 6 | Best Practices | all good | | temporal-docs |
+
+### Detailed Notes
+
+#### 1. Overview
+**Status:** all good
+**Verified:**
+- `workflow.GetLogger` and `activity.GetLogger` APIs ✓
+- Tally library with Prometheus export ✓
+- OpenTelemetry/OpenTracing/Datadog tracing ✓
+
+---
+
+#### 2. Logging / Replay-Aware Logging
+**Status:** all good
+**Verified:**
+- `workflow.GetLogger(ctx)` for replay-safe workflow logging ✓
+- `activity.GetLogger(ctx)` for activity logging ✓
+
+---
+
+#### 3. Customizing the Logger
+**Status:** all good
+**Verified:**
+- `log.NewStructuredLogger` API ✓
+- Custom logger via `client.Options` ✓
+
+---
+
+#### 4. Metrics
+**Status:** all good
+**Verified:**
+- `sdktally.NewMetricsHandler` API ✓
+- `client.Options{MetricsHandler}` configuration ✓
+- Prometheus export via Tally ✓
+
+---
+
+#### 5. Search Attributes (Visibility)
+**Status:** all good
+**Verified:**
+- Search attribute reference ✓
+
+---
+
+#### 6. Best Practices
+**Status:** all good
+**Verified:**
+- All best practices valid ✓
+
+---
+
