@@ -28,21 +28,19 @@
 | Python | ✓ reference | 7 sections |
 | TypeScript | ✓ aligned | 4 sections (removed duplicates) |
 | Ruby | — | Not started |
-| Go | — | Not started |
+| Go | ✓ aligned | 4 sections — Schedules, Async Completion, Worker Tuning, Sessions |
 
 ## Status
 
-**Sections needing review (empty cells):**
-- Go column: all empty — Go files not yet created
-- Ruby column: all TODO — Ruby files not yet created
-
 **Intentionally missing (`—`):**
 - Core column: advanced features are implementation-specific
-- Sandbox Customization: Python-specific; Ruby covers in determinism-protection.md
+- Sandbox Customization: Python-specific; Ruby/Go have no sandbox
 - Gevent Compatibility Warning: Python-specific
-- Workflow Init Decorator: Python-specific (`@workflow.init`); Ruby uses `initialize` method naturally
+- Workflow Init Decorator: Python-specific (`@workflow.init`); Ruby uses `initialize` naturally; Go N/A
 - Sinks: TS-specific feature
-- Workflow Failure Exception Types: Python has `workflow_failure_exception_types`; Ruby has similar `workflow_failure_exception_type` class method — should include
+- Workflow Failure Exception Types: Python has `workflow_failure_exception_types`; Ruby has similar `workflow_failure_exception_type` class method — should include; Go: Python-specific
+- Sessions: Go-specific (not in Python/TS/Ruby)
+- Interceptors: Decided not to include for any language (all SDKs have them, but too advanced for current scope)
 
 **Ruby notes:**
 - Schedules: `Temporalio::Client::ScheduleHandle` — same API pattern as other SDKs
@@ -51,12 +49,21 @@
 - Workflow Failure Exception Types: `workflow_failure_exception_type` on workflow class or `workflow_failure_exception_types` on worker
 - Activity Concurrency and Executors: Ruby-specific — `Temporalio::Worker::ActivityExecutor::ThreadPool`, fiber-based execution, `max_concurrent_activities`
 - Rails Integration: Ruby-specific — ActiveRecord concerns, lazy/eager loading, Zeitwerk compatibility
-- These last two are Ruby-specific features not present in Python/TS
 
-**Order alignment:** N/A — Files have different structures by design (language-specific advanced features)
+**Go notes:**
+- Schedules: `client.ScheduleClient` — same concept as Python/TS
+- Async Activity Completion: `activity.GetInfo(ctx).TaskToken` + `client.CompleteActivity` / `client.CompleteActivityByID`
+- Worker Tuning: `worker.Options` — `MaxConcurrentActivityExecutionSize`, `MaxConcurrentWorkflowTaskExecutionSize`, `MaxConcurrentActivityTaskPollers`
+- Sessions: Go-specific feature — `workflow.CreateSession(ctx, options)` pins activities to a specific worker. Useful for file processing where activities need local state.
 
-**Style alignment:** ✅ Complete (Python/TypeScript)
+**Sections needing review (empty cells):**
+- Ruby column: all TODO — Ruby reference files not yet created
+
+**Order alignment:** N/A — Files have different structures by design
+
+**Style alignment:** ✅ Complete (Python, TypeScript, Go)
 - Python: 7 sections (Schedules, Async Activity Completion, Sandbox Customization, Gevent Warning, Worker Tuning, Workflow Init, Failure Exception Types)
 - TypeScript: 4 sections (Schedules, Async Activity Completion, Worker Tuning, Sinks)
-- Ruby: ~6 sections (Schedules, Async Activity Completion, Worker Tuning, Failure Exception Types, Activity Concurrency/Executors, Rails Integration)
+- Go: 4 sections (Schedules, Async Completion, Worker Tuning, Sessions)
+- Ruby: ~6 sections planned (Schedules, Async Activity Completion, Worker Tuning, Failure Exception Types, Activity Concurrency/Executors, Rails Integration)
 - Removed duplicates from TS (Continue-as-New, Workflow Updates, CancellationScope Patterns, Nexus Operations, Activity Cancellation, Best Practices — all covered elsewhere)

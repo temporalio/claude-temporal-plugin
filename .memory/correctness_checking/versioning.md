@@ -290,3 +290,54 @@ Correctness verification for `references/{language}/versioning.md`.
 
 ---
 
+
+## Go
+
+**File:** `references/go/versioning.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | GetVersion API | all good | | temporal-docs |
+| 2 | Workflow Type Versioning | all good | | temporal-docs |
+| 3 | Worker Versioning | all good | | temporal-docs |
+| 4 | Best Practices | all good | | temporal-docs |
+
+### Detailed Notes
+
+#### 1. GetVersion API
+**Status:** all good
+**Verified:**
+- `workflow.GetVersion(ctx, "changeID", workflow.DefaultVersion, maxSupported)` API ✓
+- `workflow.DefaultVersion` constant ✓
+- Three-step lifecycle (version with both paths, deprecate, remove) ✓
+
+---
+
+#### 2. Workflow Type Versioning
+**Status:** all good
+**Verified:**
+- V2 workflow function pattern ✓
+- Worker registration of both versions ✓
+
+---
+
+#### 3. Worker Versioning
+**Status:** all good
+**Verified:**
+- `worker.DeploymentOptions` struct ✓
+- `worker.WorkerDeploymentVersion` with `DeploymentName` and `BuildId` fields ✓
+- `UseVersioning` field ✓
+- `DefaultVersioningBehavior` field ✓
+- `workflow.VersioningBehaviorPinned` / `workflow.VersioningBehaviorAutoUpgrade` constants ✓
+
+---
+
+#### 4. Best Practices
+**Status:** all good
+**Verified:**
+- All best practices valid ✓
+
+---
+

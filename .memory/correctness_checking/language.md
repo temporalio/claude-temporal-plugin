@@ -262,3 +262,75 @@ This appears twice in ruby.md (worker.rb and execute_workflow.rb examples).
 
 ---
 
+
+## Go
+
+**File:** `references/go/go.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Overview | all good | | temporal-docs |
+| 2 | Quick Start | all good | | temporal-docs |
+| 3 | Key Concepts | all good | | temporal-docs |
+| 4 | File Organization Best Practice | all good | | temporal-docs |
+| 5 | Common Pitfalls | all good | | temporal-docs |
+| 6 | Writing Tests | all good | | temporal-docs |
+| 7 | Additional Resources | all good | | temporal-docs |
+
+### Detailed Notes
+
+#### 1. Overview
+**Status:** all good
+**Verified:**
+- No runtime sandbox, developer-convention-based determinism ✓
+- `workflowcheck` static analysis tool mentioned ✓
+
+---
+
+#### 2. Quick Start
+**Status:** all good
+**Verified:**
+- `go.temporal.io/sdk` dependency ✓
+- Workflow, activity, worker, client code examples ✓
+
+---
+
+#### 3. Key Concepts
+**Status:** all good
+**Verified:**
+- Workflow as exported Go function ✓
+- Activity definition pattern ✓
+- Worker setup with `worker.New` ✓
+
+---
+
+#### 4. File Organization Best Practice
+**Status:** all good
+**Verified:**
+- Recommended directory structure ✓
+
+---
+
+#### 5. Common Pitfalls
+**Status:** all good
+**Verified:**
+- Determinism pitfalls listed accurately ✓
+
+---
+
+#### 6. Writing Tests
+**Status:** all good
+**Verified:**
+- Reference to testing.md path ✓
+
+---
+
+#### 7. Additional Resources
+**Status:** all good
+**Verified:**
+- Reference file paths listed correctly ✓
+
+---
+
