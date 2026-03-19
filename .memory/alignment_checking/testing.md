@@ -41,4 +41,4 @@
 
 **Order alignment:** ✅ Aligned — Go sections match Python/TypeScript order
 
-**Style alignment:** ✅ Complete (Python, TypeScript)
+**Style alignment:** ✅ Complete (Python, TypeScript, Go)

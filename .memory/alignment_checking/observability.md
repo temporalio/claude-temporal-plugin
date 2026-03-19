@@ -37,4 +37,4 @@
 
 **Order alignment:** ✓ Aligned — Go# monotonically increases
 
-**Style alignment:** ✅ Complete (Python, TypeScript)
+**Style alignment:** ✅ Complete (Python, TypeScript, Go)
