@@ -1,6 +1,6 @@
 ---
 name: edit-plugin-skills
-description: This skill should be used when the user asks to "edit a skill", "update reference files", "fix a reference", "check alignment", "check correctness", "verify code examples", "update tracking", "add a new language", "edit plugin content", "modify skill references", "resume correctness verification", "check tracking status", "run alignment checks", or mentions working on files inside plugins/ or tracking/ directories.
+description: This skill should be used when the user asks to "edit a skill", "update reference files", "fix a reference", "check alignment", "check correctness", "verify code examples", "update tracking", "add a new language", "edit plugin content", "modify skill references", "resume correctness verification", "check tracking status", "memory files", "run alignment checks", or mentions working on files inside plugins/ or .memory/ directories.
 version: 0.1.0
 ---
 
@@ -8,7 +8,7 @@ version: 0.1.0
 
 ## Overview
 
-This repository contains plugin skills with reference files organized by topic and language. Edits to these files must be tracked through two systems: **alignment checking** (structure and style) and **correctness checking** (factual accuracy). The tracking documents in `tracking/` serve as shared state between sessions and agents.
+This repository contains plugin skills with reference files organized by topic and language. Edits to these files must be tracked through two systems: **alignment checking** (structure and style) and **correctness checking** (factual accuracy). The tracking/memory documents in `.memory/` serve as shared state between sessions and agents.
 
 ## Repository Structure
 
@@ -21,7 +21,7 @@ plugins/<plugin-name>/skills/<skill-name>/
     ├── typescript/    # TypeScript-specific code and guidance
     └── go/            # Go-specific (future)
 
-tracking/
+.memory/
 ├── alignment_checking/   # Structure and style tracking
 │   ├── README.md
 │   └── <topic>.md        # One file per reference topic
@@ -41,23 +41,23 @@ Determine the scope of the change:
 - Whether the change affects structure, content, or both
 - Which languages are impacted
 
-### Step 2: Read Current Tracking State
+### Step 2: Read Current Memory State
 
-Before making edits, read the relevant tracking files to understand current state:
-- `tracking/alignment_checking/<topic>.md` for structure/style status
-- `tracking/correctness_checking/<topic>.md` for verification status
+Before making edits, read the relevant memory files to understand current state:
+- `.memory/alignment_checking/<topic>.md` for structure/style status
+- `.memory/correctness_checking/<topic>.md` for verification status
 
-For alignment work, also read `tracking/alignment_checking/README.md` for the style target and legends. For correctness work, read `tracking/correctness_checking/README.md` for the verification workflow and status values.
+For alignment work, also read `.memory/alignment_checking/README.md` for the style target and legends. For correctness work, read `.memory/correctness_checking/README.md` for the verification workflow and status values.
 
-See `references/tracking-formats.md` for detailed table formats and field descriptions.
+See `references/memory-formats.md` for detailed table formats and field descriptions.
 
 ### Step 3: Make the Edit
 
-Edit the reference file(s) in `plugins/`. Complete all changes before updating tracking.
+Edit the reference file(s) in `plugins/`. Complete all changes before updating memory.
 
-### Step 4: Update Tracking Documents
+### Step 4: Update Memory Documents
 
-After completing edits, update the relevant tracking documents. Refer to the protocol table below.
+After completing edits, update the relevant memory documents. Refer to the protocol table below.
 
 | Situation | Update |
 |-----------|--------|
@@ -72,10 +72,10 @@ After completing edits, update the relevant tracking documents. Refer to the pro
 
 ### Step 5: Verify No Staleness
 
-Tracking docs must reflect **current state**, not pending work.
+Memory docs must reflect **current state**, not pending work.
 
 **Do:**
-- Complete the work first, then update the tracking doc
+- Complete the work first, then update the memory doc
 - Update inventory tables directly (change `✓` to `—` when removing a section)
 - Summarize completed changes in the Style Alignment section
 
@@ -100,36 +100,36 @@ Tracking docs must reflect **current state**, not pending work.
 When verifying factual accuracy of code examples and statements:
 
 1. Read the section from the reference file
-2. Query documentation sources using MCP tools (see `references/tracking-formats.md` for tool names and library IDs)
+2. Query documentation sources using MCP tools (see `references/memory-formats.md` for tool names and library IDs)
 3. Compare code examples against official docs
 4. Apply fixes to source file if needed
-5. Update tracking table: Status, Fix Applied, Sources columns
+5. Update memory table: Status, Fix Applied, Sources columns
 6. Update Detailed Notes with verification details
 
-See `references/tracking-formats.md` for status values and detailed table format.
+See `references/memory-formats.md` for status values and detailed table format.
 
-**To resume correctness work:** Check the summary table in `tracking/correctness_checking/README.md`, then find the first `unchecked` or `needs fixes` section.
+**To resume correctness work:** Check the summary table in `.memory/correctness_checking/README.md`, then find the first `unchecked` or `needs fixes` section.
 
 ## Alignment Checking
 
 **Style target:** Python is the reference style (code-first, minimal prose). All languages should match.
 
 When checking or adjusting alignment:
-1. Read the Section Inventory table in `tracking/alignment_checking/<topic>.md`
+1. Read the Section Inventory table in `.memory/alignment_checking/<topic>.md`
 2. Verify sections exist where expected (`✓`), are intentionally missing (`—`), or need review
 3. Check section ordering numbers (`Py#` / `TS#` / `Go#`) increase monotonically
 4. Review Style Compliance status per language
 
-See `references/tracking-formats.md` for the complete legend and table format.
+See `references/memory-formats.md` for the complete legend and table format.
 
 ## Adding a New Language
 
 When adding a new language (e.g., Go):
 1. Create `references/<language>/` directory with language-specific files
-2. Update alignment tracking: add column to Section Inventory tables in each `tracking/alignment_checking/<topic>.md`
-3. Update correctness tracking: add `## {Language}` section to each `tracking/correctness_checking/<topic>.md`
+2. Update alignment memory: add column to Section Inventory tables in each `.memory/alignment_checking/<topic>.md`
+3. Update correctness memory: add `## {Language}` section to each `.memory/correctness_checking/<topic>.md`
 4. Update summary tables in both README files
 
 ## References
 
-- **`references/tracking-formats.md`** — Detailed format specifications for alignment and correctness tracking tables
+- **`references/memory-formats.md`** — Detailed format specifications for alignment and correctness memory tables

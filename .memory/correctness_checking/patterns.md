@@ -20,7 +20,7 @@ Correctness verification for `references/{language}/patterns.md`.
 | 8 | Handles to External Workflows | all good | | context7 sdk-typescript |
 | 9 | Parallel Execution | all good | | context7 sdk-typescript |
 | 10 | Continue-as-New | all good | | context7 sdk-typescript |
-| 11 | Saga Pattern | all good | Added idempotency note, BEFORE comments, `log` import during alignment | temporal-docs, samples-typescript, edu-102-typescript |
+| 11 | Saga Pattern | FIXED | Wrap compensations in CancellationScope.nonCancellable(); move registration before activity call | temporal-docs |
 | 12 | Cancellation Scopes | all good | | context7 sdk-typescript, temporal-docs |
 | 13 | Triggers (Promise-like Signals) | all good | | temporal-docs api reference |
 | 14 | Wait Condition with Timeout | all good | | context7 sdk-typescript, temporal-docs |
@@ -172,21 +172,19 @@ setDefaultQueryHandler((queryName: string, ...args: any[]) => {
 ---
 
 #### 11. Saga Pattern
-**Status:** all good
+**Status:** FIXED
 
 **Verified:**
 - Array of compensation functions pattern ✓
-- Try/catch with compensations in reverse order ✓
-- Official samples-typescript/saga uses same pattern ✓
 - No built-in Saga class in TS SDK (unlike Java), manual implementation correct ✓
+- Idempotency note ✓
+- Replay-safe logging `import { log } from '@temporalio/workflow'` ✓
 
-**Alignment changes verified:**
-- **Idempotency note**: "Compensation activities should be idempotent" ✓
-  - temporal-docs blog: "you, the programmer, need to make sure each Temporal Activity is *idempotent*"
-- **BEFORE comments**: "Save compensation BEFORE calling the activity" ✓
-  - All official samples show `saga.addCompensation()` BEFORE activity execution
-  - Reason: if activity crashes mid-execution but completed its side effect, compensation must still run
-- **Replay-safe logging**: `import { log } from '@temporalio/workflow'` ✓
+**Issues fixed:**
+- **Compensations must run in `CancellationScope.nonCancellable()`**: When the workflow is cancelled, any new activity scheduled in the root scope throws `CancelledFailure` immediately before starting. Official docs: "Cleanup logic must be in a nonCancellable scope — If we'd run cleanup outside of a nonCancellable scope it would've been cancelled before being started because the Workflow's root scope is cancelled." (docs.temporal.io/develop/typescript/cancellation#external-cancellation-example)
+- **Compensation registration order was wrong**: Compensations were pushed *after* calling the activity. Must be registered *before* the activity call.
+
+**Fix applied:** Wrapped compensation loop in `CancellationScope.nonCancellable(async () => { ... })` and moved `compensations.push(...)` before each activity call.
   - docs.temporal.io: "This logger is replay-aware and will omit log messages on workflow replay"
   - edu-102-typescript: "import `log` from `@temporalio/workflow` to access the Workflow Logger"
 
@@ -327,7 +325,7 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 | 8 | Parallel Execution | needs fixes | | context7 sdk-python, sdk source |
 | 9 | Deterministic Alternatives to asyncio | needs fixes | | context7 sdk-python, sdk source |
 | 10 | Continue-as-New | needs fixes | | context7 sdk-python, temporal-docs |
-| 11 | Saga Pattern | needs fixes | | temporal-docs |
+| 11 | Saga Pattern | FIXED | Wrap compensations in asyncio.shield(); existing registration order was already correct | temporal-docs |
 | 12 | Cancellation Handling | needs fixes | | context7 sdk-python |
 | 13 | Wait Condition with Timeout | all good | | context7 sdk-python |
 | 14 | Waiting for All Handlers to Finish | FIXED | Added context about non-async handler preference | SDK team feedback, context7 sdk-python |
@@ -448,15 +446,20 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 ---
 
 #### 11. Saga Pattern
-**Status:** needs fixes
+**Status:** FIXED
 
-**Issues:**
+**Verified:**
 - Compensation list pattern correct ✓
 - `reversed(compensations)` for LIFO correct ✓
 - "Save compensation BEFORE running activity" correct and well-explained ✓
 - Idempotent compensation naming convention correct ✓
-- **Missing:** `ship_order` activity has no compensation registered
-- Should either add compensation or explain why shipping is terminal action
+
+**Issues fixed:**
+- **Compensations must run under `asyncio.shield()`**: When the workflow is cancelled, Python propagates `CancelledError` into the coroutine. Activities scheduled in the `except` block without shielding will also receive cancellation and may not run. Official Temporal blog (compensating-actions-part-of-a-complete-breakfast-with-sagas) uses `asyncio.shield(asyncio.ensure_future(...))` with comment "Ensure the compensations run in the face of cancellation."
+
+**Fix applied:** Wrapped compensation loop in `await asyncio.shield(asyncio.ensure_future(run_compensations()))`.
+
+**Still outstanding:** `ship_order` has no compensation registered — minor, acceptable if shipping is treated as a terminal action.
 
 ---
 

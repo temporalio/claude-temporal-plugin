@@ -2,24 +2,22 @@
 
 ## Section Inventory
 
-| Section | Core | Python | Py# | TypeScript | TS# | Go | Go# |
-|---------|------|--------|-----|------------|-----|-----|-----|
-| Schedules | — | ✓ | 1 | ✓ | 1 | ✓ | 1 |
-| Async Activity Completion | — | ✓ | 2 | ✓ | 2 | ✓ | 2 |
-| Sandbox Customization | — | ✓ | 3 | — | — | — | — |
-| Gevent Compatibility Warning | — | ✓ | 4 | — | — | — | — |
-| Worker Tuning | — | ✓ | 5 | ✓ | 3 | ✓ | 3 |
-| Workflow Init Decorator | — | ✓ | 6 | — | — | — | — |
-| Workflow Failure Exception Types | — | ✓ | 7 | — | — | — | — |
-| Sessions | — | — | — | — | — | ✓ | 4 |
-| Interceptors | — | — | — | — | — | — | — |
-| Continue-as-New | — | — | — | — | — | — | — |
-| Workflow Updates | — | — | — | — | — | — | — |
-| Nexus Operations | — | — | — | — | — | — | — |
-| Activity Cancellation and Heartbeating | — | — | — | — | — | — | — |
-| Sinks | — | — | — | ✓ | 4 | — | — |
-| CancellationScope Patterns | — | — | — | — | — | — | — |
-| Best Practices | — | — | — | — | — | — | — |
+| Section | Core | Python | Py# | TypeScript | TS# | Go |
+|---------|------|--------|-----|------------|-----|-----|
+| Schedules | — | ✓ | 1 | ✓ | 1 | |
+| Async Activity Completion | — | ✓ | 2 | ✓ | 2 | |
+| Sandbox Customization | — | ✓ | 3 | — | — | |
+| Gevent Compatibility Warning | — | ✓ | 4 | — | — | |
+| Worker Tuning | — | ✓ | 5 | ✓ | 3 | |
+| Workflow Init Decorator | — | ✓ | 6 | — | — | |
+| Workflow Failure Exception Types | — | ✓ | 7 | — | — | |
+| Continue-as-New | — | — | — | — | — | |
+| Workflow Updates | — | — | — | — | — | |
+| Nexus Operations | — | — | — | — | — | |
+| Activity Cancellation and Heartbeating | — | — | — | — | — | |
+| Sinks | — | — | — | ✓ | 4 | |
+| CancellationScope Patterns | — | — | — | — | — | |
+| Best Practices | — | — | — | — | — | |
 
 ## Style Compliance
 
