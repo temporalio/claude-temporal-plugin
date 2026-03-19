@@ -28,9 +28,11 @@ Python is the reference style (code-first, minimal prose). All languages should 
 
 ## Implementation Status
 
-✅ **PHP CONTENT COMPLETE** (2026-03-16)
+**Python/TypeScript:** ✅ COMPLETE (2026-02-25) — All TODO/DEL/BUG items implemented.
 
-All 11 PHP reference files created. PHP columns present in all tracking files. Correctness verification pending.
+**Go:** ✅ COMPLETE (2026-03-17) — All Go reference files created and aligned.
+
+**PHP:** ✅ CONTENT COMPLETE (2026-03-16) — All 11 PHP reference files created. PHP columns present in all tracking files. Correctness verification pending.
 
 ## Files
 

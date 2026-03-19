@@ -275,10 +275,10 @@ Correctness verification for `references/{language}/data-handling.md`.
 **Status:** needs verification
 
 **Issues:**
-- **`PayloadConverter` interface name could not be fully verified** -- the reference uses `implements PayloadConverter` but the actual interface may be `PayloadConverterInterface`. Context7 docs do not include custom PayloadConverter examples for PHP SDK.
-- Method signatures (`getEncodingType()`, `toPayload()`, `fromPayload()`) are plausible but could not be confirmed against source.
-- `DataConverter` constructor taking multiple converters is plausible but unverified.
-- `WorkflowClient::create()` with `dataConverter:` named parameter is plausible.
+- **`PayloadConverter` interface name could not be fully verified** — the actual interface may be `PayloadConverterInterface`
+- Method signatures (`getEncodingType()`, `toPayload()`, `fromPayload()`) are plausible but could not be confirmed
+- `DataConverter` constructor taking multiple converters is plausible but unverified
+- `WorkflowClient::create()` with `dataConverter:` named parameter is plausible
 
 **Note:** Unable to verify custom data converter PHP-specific API due to limited documentation availability.
 
@@ -288,34 +288,23 @@ Correctness verification for `references/{language}/data-handling.md`.
 **Status:** needs verification
 
 **Issues:**
-- **`PayloadCodecInterface` name could not be fully verified** -- the reference uses `implements PayloadCodecInterface` which is plausible but unconfirmed.
-- `encode(array $payloads): array` and `decode(array $payloads): array` signatures are plausible.
-- `DataConverter::createDefault()->withCodec(...)` pattern is plausible but unverified.
+- **`PayloadCodecInterface` name could not be fully verified** — plausible but unconfirmed
+- `encode(array $payloads): array` and `decode(array $payloads): array` signatures are plausible
+- `DataConverter::createDefault()->withCodec(...)` pattern is plausible but unverified
 
 **Note:** Unable to verify PayloadCodec PHP-specific API due to limited documentation availability.
 
 ---
 
 #### 5. Search Attributes
-**Status:** needs fixes
+**Status:** FIXED
 
-**Issues:**
-- **Wrong import path for `SearchAttributeKey`:**
-  - Reference uses: `use Temporal\Common\SearchAttributeKey;`
-  - Correct (per Context7): `use Temporal\Common\SearchAttributes\SearchAttributeKey;`
-  - The class lives in the `SearchAttributes` sub-namespace
-- **Wrong method on `TypedSearchAttributes` for setting initial values:**
-  - Reference uses: `TypedSearchAttributes::empty()->withValue($key, $value)`
-  - Correct (per Context7): `TypedSearchAttributes::new()->withSearchAttribute($key, $value)`
-  - Factory method is `new()` not `empty()`
-  - Setter method is `withSearchAttribute()` not `withValue()`
-- **Wrong method for upserting search attributes inside workflow:**
-  - Reference uses: `SearchAttributeKey::forKeyword('OrderStatus')->withValue('completed')`
-  - Correct (per Context7): `SearchAttributeKey::forKeyword('OrderStatus')->valueSet('completed')`
-  - Method is `valueSet()` not `withValue()`
-- The `Workflow::upsertTypedSearchAttributes()` call itself is correct (takes variadic search attribute updates)
-- `SearchAttributeKey::forKeyword()` factory method is correct
-- `$client->listWorkflowExecutions()` query API appears correct
+**Issues fixed:**
+- Wrong import path: `Temporal\Common\SearchAttributeKey` → `Temporal\Common\SearchAttributes\SearchAttributeKey`
+- Wrong factory method: `TypedSearchAttributes::empty()` → `TypedSearchAttributes::new()`
+- Wrong setter method: `->withValue()` → `->withSearchAttribute()`
+- Wrong upsert method: `->withValue('completed')` → `->valueSet('completed')`
+- `Workflow::upsertTypedSearchAttributes()` and `SearchAttributeKey::forKeyword()` are correct ✓
 
 ---
 
@@ -323,8 +312,8 @@ Correctness verification for `references/{language}/data-handling.md`.
 **Status:** needs verification
 
 **Issues:**
-- `WorkflowOptions::new()->withMemo([...])` for setting memo at start is plausible but not verified in Context7 docs
-- **`Workflow::upsertMemo()` could not be verified** -- Context7 does not include examples of upserting memo in PHP SDK. This method may or may not exist.
+- `WorkflowOptions::new()->withMemo([...])` is plausible but not verified in Context7 docs
+- **`Workflow::upsertMemo()` could not be verified** — this method may or may not exist
 
 **Note:** Unable to verify memo PHP-specific API due to limited documentation availability.
 
@@ -338,6 +327,97 @@ Correctness verification for `references/{language}/data-handling.md`.
 - `#[ReturnType]` recommendation is correct
 - PayloadCodec for encryption recommendation is correct
 - Typed Search Attributes recommendation is correct
+
+---
+
+
+## Go
+
+**File:** `references/go/data-handling.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Overview | all good | | temporal-docs |
+| 2 | Default Data Converter | all good | | temporal-docs |
+| 3 | Custom Data Converter | FIXED | Added full PayloadConverter example (msgpack), CompositeDataConverter usage, per-call override, deadlock detection note | temporal-docs |
+| 4 | Composition of Payload Converters | all good | | temporal-docs |
+| 5 | Protobuf Support | all good | | temporal-docs |
+| 6 | Payload Encryption | all good | | temporal-docs |
+| 7 | Search Attributes | all good | | temporal-docs |
+| 8 | Workflow Memo | all good | | temporal-docs |
+| 9 | Best Practices | all good | | temporal-docs |
+
+### Detailed Notes
+
+#### 1. Overview
+**Status:** all good
+**Verified:**
+- `converter.DataConverter` interface for serialization ✓
+- Default JSON conversion ✓
+
+---
+
+#### 2. Default Data Converter
+**Status:** all good
+**Verified:**
+- `CompositeDataConverter` applies converters in order ✓
+
+---
+
+#### 3. Custom Data Converter
+**Status:** FIXED
+
+**Fix Applied:**
+- Shows `PayloadConverter` interface with full msgpack implementation
+- `converter.MetadataEncoding` metadata key usage
+- `converter.NewCompositeDataConverter` composition pattern
+- Per-activity override via `workflow.WithDataConverter`
+- `workflow.DataConverterWithoutDeadlockDetection` note for remote-call converters (e.g. KMS)
+
+---
+
+#### 4. Composition of Payload Converters
+**Status:** all good
+**Verified:**
+- Payload converter composition pattern ✓
+
+---
+
+#### 5. Protobuf Support
+**Status:** all good
+**Verified:**
+- Protobuf as first-class supported format ✓
+
+---
+
+#### 6. Payload Encryption
+**Status:** all good
+**Verified:**
+- `converter.PayloadCodec` interface ✓
+- `Encode`/`Decode` methods ✓
+
+---
+
+#### 7. Search Attributes
+**Status:** all good
+**Verified:**
+- Search attribute APIs ✓
+
+---
+
+#### 8. Workflow Memo
+**Status:** all good
+**Verified:**
+- Memo APIs ✓
+
+---
+
+#### 9. Best Practices
+**Status:** all good
+**Verified:**
+- All best practices valid ✓
 
 ---
 

@@ -334,14 +334,14 @@ Correctness verification for `references/{language}/versioning.md`.
 **Status:** needs verification
 
 **Issues:**
-- **`WorkerDeploymentOptions` class name could not be fully verified** -- Context7 docs do not include Worker Versioning configuration examples for PHP SDK. The class name `WorkerDeploymentOptions` and methods `withDeploymentName()`, `withBuildId()`, `withUseWorkerVersioning(true)` could not be confirmed against official documentation.
-- The `deploymentOptions` parameter on `$factory->newWorker()` could not be verified. Context7 worker configuration examples show `WorkerOptions` but not `deploymentOptions`.
+- **`WorkerDeploymentOptions` class name could not be fully verified** — Context7 docs do not include Worker Versioning configuration examples for PHP SDK.
+- The `deploymentOptions` parameter on `$factory->newWorker()` could not be verified.
 - Worker Versioning is noted as Public Preview which is correct.
 - Legacy API deprecation timeline (March 2026) is correct.
 - PINNED vs AUTO_UPGRADE conceptual descriptions are correct.
 - CLI commands (`temporal worker deployment set-current-version`, `TemporalWorkerDeploymentVersion` search attribute) are correct.
 
-**Note:** Unable to verify Worker Versioning PHP-specific API due to limited documentation availability. This section should be re-verified when docs tools are available.
+**Note:** Unable to verify Worker Versioning PHP-specific API due to limited documentation availability.
 
 ---
 
@@ -352,6 +352,57 @@ Correctness verification for `references/{language}/versioning.md`.
 - All 5 best practices are valid
 - "Use `yield` on `getVersion()`" is correctly emphasized as PHP-specific
 - Guidance aligns with official documentation patterns
+
+---
+
+
+## Go
+
+**File:** `references/go/versioning.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | GetVersion API | all good | | temporal-docs |
+| 2 | Workflow Type Versioning | all good | | temporal-docs |
+| 3 | Worker Versioning | all good | | temporal-docs |
+| 4 | Best Practices | all good | | temporal-docs |
+
+### Detailed Notes
+
+#### 1. GetVersion API
+**Status:** all good
+**Verified:**
+- `workflow.GetVersion(ctx, "changeID", workflow.DefaultVersion, maxSupported)` API ✓
+- `workflow.DefaultVersion` constant ✓
+- Three-step lifecycle (version with both paths, deprecate, remove) ✓
+
+---
+
+#### 2. Workflow Type Versioning
+**Status:** all good
+**Verified:**
+- V2 workflow function pattern ✓
+- Worker registration of both versions ✓
+
+---
+
+#### 3. Worker Versioning
+**Status:** all good
+**Verified:**
+- `worker.DeploymentOptions` struct ✓
+- `worker.WorkerDeploymentVersion` with `DeploymentName` and `BuildId` fields ✓
+- `UseVersioning` field ✓
+- `DefaultVersioningBehavior` field ✓
+- `workflow.VersioningBehaviorPinned` / `workflow.VersioningBehaviorAutoUpgrade` constants ✓
+
+---
+
+#### 4. Best Practices
+**Status:** all good
+**Verified:**
+- All best practices valid ✓
 
 ---
 

@@ -207,3 +207,76 @@ Correctness verification for `references/{language}/determinism.md`.
 
 ---
 
+
+## Go
+
+**File:** `references/go/determinism.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Overview | all good | | temporal-docs |
+| 2 | Why Determinism Matters: History Replay | all good | | temporal-docs |
+| 3 | SDK Protection | all good | | temporal-docs |
+| 4 | Forbidden Operations | all good | | temporal-docs |
+| 5 | Safe Builtin Alternatives | all good | | temporal-docs |
+| 6 | Testing Replay Compatibility | all good | | temporal-docs |
+| 7 | Best Practices | all good | | temporal-docs |
+
+### Detailed Notes
+
+#### 1. Overview
+**Status:** all good
+**Verified:**
+- No runtime sandbox, developer convention-based determinism ✓
+- `workflowcheck` static analysis tool reference ✓
+
+---
+
+#### 2. Why Determinism Matters: History Replay
+**Status:** all good
+**Verified:**
+- History Replay explanation ✓
+- Reference to `references/core/determinism.md` ✓
+
+---
+
+#### 3. SDK Protection
+**Status:** all good
+**Verified:**
+- No automatic sandbox, limited runtime command-ordering check ✓
+
+---
+
+#### 4. Forbidden Operations
+**Status:** all good
+**Verified:**
+- Native goroutines, channels, time, rand, I/O all listed as forbidden ✓
+
+---
+
+#### 5. Safe Builtin Alternatives
+**Status:** all good
+**Verified:**
+- `workflow.Now`, `workflow.Sleep`, `workflow.SideEffect`, `workflow.Go`, `workflow.NewChannel` ✓
+
+---
+
+#### 6. Testing Replay Compatibility
+**Status:** all good
+**Verified:**
+- `worker.NewWorkflowReplayer` API ✓
+- `ReplayWorkflowHistoryFromJSONFile` API ✓
+
+**Style nit:** Replay testing passes `nil` for logger param (functional but could show logger usage). Not a correctness issue.
+
+---
+
+#### 7. Best Practices
+**Status:** all good
+**Verified:**
+- All best practices valid ✓
+
+---
+

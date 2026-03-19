@@ -1,10 +1,10 @@
-# Tracking Document Formats
+# Tracking/Memory Document Formats
 
-Detailed format specifications for the two tracking systems used in this repository.
+Detailed format specifications for the two memory/tracking systems used in this repository.
 
 ## Alignment Checking
 
-**Location:** `tracking/alignment_checking/`
+**Location:** `.memory/alignment_checking/`
 
 Each file tracks one reference topic (e.g., `patterns.md` tracks all `references/*/patterns.md` files).
 
@@ -45,7 +45,7 @@ Document three things:
 
 ## Correctness Checking
 
-**Location:** `tracking/correctness_checking/`
+**Location:** `.memory/correctness_checking/`
 
 Each file tracks one reference topic, organized by language sections (`## TypeScript`, `## Python`).
 
@@ -97,7 +97,7 @@ Use these MCP tools for verification:
 
 ### Summary Table (README.md)
 
-The `tracking/correctness_checking/README.md` contains a summary table:
+The `.memory/correctness_checking/README.md` contains a summary table:
 
 ```markdown
 | File | TypeScript | Python | Go |

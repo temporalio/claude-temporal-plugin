@@ -250,3 +250,82 @@ Correctness verification for `references/{language}/error-handling.md`.
 
 ---
 
+
+## Go
+
+**File:** `references/go/error-handling.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Overview | all good | | temporal-docs |
+| 2 | Application Errors | all good | | temporal-docs |
+| 3 | Non-Retryable Errors | all good | | temporal-docs |
+| 4 | Handling Activity Errors in Workflows | all good | | temporal-docs |
+| 5 | Retry Configuration | all good | | temporal-docs |
+| 6 | Timeout Configuration | all good | | temporal-docs |
+| 7 | Workflow Failure | all good | | temporal-docs |
+| 8 | Best Practices | all good | | temporal-docs |
+
+### Detailed Notes
+
+#### 1. Overview
+**Status:** all good
+**Verified:**
+- Error return values (not exceptions) pattern ✓
+- `*temporal.ActivityError` wrapping, `errors.As` unwrapping ✓
+
+---
+
+#### 2. Application Errors
+**Status:** all good
+**Verified:**
+- `temporal.NewApplicationError(message, errType, cause, details...)` ✓
+
+---
+
+#### 3. Non-Retryable Errors
+**Status:** all good
+**Verified:**
+- `temporal.NewNonRetryableApplicationError` API ✓
+
+---
+
+#### 4. Handling Activity Errors in Workflows
+**Status:** all good
+**Verified:**
+- `errors.As(err, &appErr)` pattern for unwrapping ✓
+- `appErr.Type()` for error type checking ✓
+
+---
+
+#### 5. Retry Configuration
+**Status:** all good
+**Verified:**
+- `temporal.RetryPolicy` struct fields (`InitialInterval`, `BackoffCoefficient`, `MaximumInterval`, `MaximumAttempts`, `NonRetryableErrorTypes`) ✓
+
+---
+
+#### 6. Timeout Configuration
+**Status:** all good
+**Verified:**
+- `ActivityOptions` timeout fields (`StartToCloseTimeout`, `ScheduleToCloseTimeout`, `HeartbeatTimeout`) ✓
+
+---
+
+#### 7. Workflow Failure
+**Status:** all good
+**Verified:**
+- Returning error from workflow function ✓
+- `temporal.NewApplicationError` usage in workflows ✓
+
+---
+
+#### 8. Best Practices
+**Status:** all good
+**Verified:**
+- All best practices valid ✓
+
+---
+

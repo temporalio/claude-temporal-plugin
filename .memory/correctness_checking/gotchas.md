@@ -331,3 +331,85 @@ Correctness verification for `references/{language}/gotchas.md`.
 
 ---
 
+
+## Go
+
+**File:** `references/go/gotchas.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Goroutines and Concurrency | all good | | temporal-docs |
+| 2 | Non-Deterministic Operations | FIXED | Used `encoded.Get(&r)` pattern for SideEffect | temporal-docs |
+| 3 | Wrong Retry Classification | all good | | temporal-docs |
+| 4 | Cancellation | all good | | temporal-docs |
+| 5 | Heartbeating | all good | | temporal-docs |
+| 6 | Testing | all good | | temporal-docs |
+| 7 | Timers and Sleep | all good | | temporal-docs |
+
+### Detailed Notes
+
+#### 1. Goroutines and Concurrency
+**Status:** all good
+**Verified:**
+- Native `go`, `chan`, `select` flagged as non-deterministic ✓
+- `workflow.Go`, `workflow.NewChannel`, `workflow.NewSelector` as safe alternatives ✓
+
+---
+
+#### 2. Non-Deterministic Operations
+**Status:** FIXED
+
+**Issue:** `workflow.SideEffect` is shown with tuple destructuring `val, _ := workflow.SideEffect(ctx, func(ctx workflow.Context) interface{} { ... })` but `workflow.SideEffect` returns a single `converter.EncodedValue`, not a tuple. Must use `.Get(&variable)` to extract the value. Code as written will not compile.
+
+**Correct pattern:**
+```go
+encodedVal := workflow.SideEffect(ctx, func(ctx workflow.Context) interface{} {
+    return rand.Intn(100)
+})
+var val int
+_ = encodedVal.Get(&val)
+```
+
+---
+
+#### 3. Wrong Retry Classification
+**Status:** all good
+**Verified:**
+- `temporal.NewApplicationError` for retryable errors ✓
+- `temporal.NewNonRetryableApplicationError` for permanent errors ✓
+
+---
+
+#### 4. Cancellation
+**Status:** all good
+**Verified:**
+- `workflow.NewDisconnectedContext` for cleanup ✓
+- Activity cancellation via heartbeat ✓
+
+---
+
+#### 5. Heartbeating
+**Status:** all good
+**Verified:**
+- `activity.RecordHeartbeat` API ✓
+- `HeartbeatTimeout` configuration ✓
+
+---
+
+#### 6. Testing
+**Status:** all good
+**Verified:**
+- Testing patterns referenced correctly ✓
+
+---
+
+#### 7. Timers and Sleep
+**Status:** all good
+**Verified:**
+- `time.Sleep` flagged as non-deterministic ✓
+- `workflow.Sleep` as safe alternative ✓
+
+---
+

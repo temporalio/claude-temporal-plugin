@@ -218,12 +218,12 @@ Correctness verification for `references/{language}/observability.md`.
 **Status:** needs verification
 
 **Issues:**
-- `Workflow::getLogger()` API is plausible and consistent with SDK patterns but could not be directly confirmed in Context7 documentation (no logging-specific examples found)
+- `Workflow::getLogger()` API is plausible but could not be directly confirmed in Context7 documentation
 - PSR-3 logger interface for activities is correct (standard PHP practice)
 - Claim that workflow logger "automatically suppresses duplicate log messages during replay" is plausible but unverified
-- **`WorkerOptions::new()->withEnableLoggingInReplay(true)` could not be verified** -- Context7 WorkerOptions examples show many `with*` methods but `withEnableLoggingInReplay` is not among them. This method may or may not exist.
+- **`WorkerOptions::new()->withEnableLoggingInReplay(true)` could not be verified** — this method may or may not exist
 
-**Note:** Unable to verify logging PHP-specific API due to limited documentation availability. The `withEnableLoggingInReplay()` method should be re-verified.
+**Note:** Unable to verify logging PHP-specific API due to limited documentation availability.
 
 ---
 
@@ -231,7 +231,7 @@ Correctness verification for `references/{language}/observability.md`.
 **Status:** needs verification
 
 **Issues:**
-- **`logger` parameter on `$factory->newWorker()` could not be verified** -- Context7 worker configuration examples show `newWorker(taskQueue, WorkerOptions)` but do not show a `logger:` named parameter. The PHP SDK worker factory may accept a logger elsewhere (e.g., on the factory itself or via DI).
+- **`logger` parameter on `$factory->newWorker()` could not be verified** — worker factory may accept a logger elsewhere (e.g., on the factory itself or via DI)
 - Monolog integration pattern is plausible (Monolog is the standard PSR-3 logger for PHP)
 
 **Note:** Unable to verify custom logger injection point due to limited documentation availability.
@@ -254,6 +254,72 @@ Correctness verification for `references/{language}/observability.md`.
 - Warning against `echo`/`print()` in workflows is correct (output on every replay)
 - PSR-3 loggers in activities recommendation is correct
 - Search Attributes recommendation is correct
+
+---
+
+
+## Go
+
+**File:** `references/go/observability.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Overview | all good | | temporal-docs |
+| 2 | Logging / Replay-Aware Logging | all good | | temporal-docs |
+| 3 | Customizing the Logger | all good | | temporal-docs |
+| 4 | Metrics | all good | | temporal-docs |
+| 5 | Search Attributes (Visibility) | all good | | temporal-docs |
+| 6 | Best Practices | all good | | temporal-docs |
+
+### Detailed Notes
+
+#### 1. Overview
+**Status:** all good
+**Verified:**
+- `workflow.GetLogger` and `activity.GetLogger` APIs ✓
+- Tally library with Prometheus export ✓
+- OpenTelemetry/OpenTracing/Datadog tracing ✓
+
+---
+
+#### 2. Logging / Replay-Aware Logging
+**Status:** all good
+**Verified:**
+- `workflow.GetLogger(ctx)` for replay-safe workflow logging ✓
+- `activity.GetLogger(ctx)` for activity logging ✓
+
+---
+
+#### 3. Customizing the Logger
+**Status:** all good
+**Verified:**
+- `log.NewStructuredLogger` API ✓
+- Custom logger via `client.Options` ✓
+
+---
+
+#### 4. Metrics
+**Status:** all good
+**Verified:**
+- `sdktally.NewMetricsHandler` API ✓
+- `client.Options{MetricsHandler}` configuration ✓
+- Prometheus export via Tally ✓
+
+---
+
+#### 5. Search Attributes (Visibility)
+**Status:** all good
+**Verified:**
+- Search attribute reference ✓
+
+---
+
+#### 6. Best Practices
+**Status:** all good
+**Verified:**
+- All best practices valid ✓
 
 ---
 

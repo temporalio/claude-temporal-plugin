@@ -221,3 +221,50 @@ Correctness verification for `references/{language}/determinism-protection.md`.
 
 ---
 
+
+## Go
+
+**File:** `references/go/determinism-protection.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Overview | all good | | temporal-docs |
+| 2 | workflowcheck Static Analysis | all good | | temporal-docs |
+| 3 | Determinism Rules | all good | | temporal-docs |
+| 4 | Best Practices | all good | | temporal-docs |
+
+### Detailed Notes
+
+#### 1. Overview
+**Status:** all good
+**Verified:**
+- No runtime sandbox, developer convention + optional static analysis ✓
+- Limited runtime command-ordering check mentioned ✓
+
+---
+
+#### 2. workflowcheck Static Analysis
+**Status:** all good
+**Verified:**
+- Tool path `go.temporal.io/sdk/contrib/tools/workflowcheck` ✓
+- Flagged operations list (I/O, goroutines, time, rand, etc.) ✓
+- `//workflowcheck:ignore` annotation syntax ✓
+
+---
+
+#### 3. Determinism Rules
+**Status:** all good
+**Verified:**
+- Rules for workflow code correctness ✓
+
+---
+
+#### 4. Best Practices
+**Status:** all good
+**Verified:**
+- All best practices valid ✓
+
+---
+

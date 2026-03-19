@@ -9,7 +9,7 @@ Track verification of factual statements and code examples in reference files fo
 
 Each file in this directory tracks correctness for a corresponding reference file. Within each file, sections are organized by language (e.g., `## TypeScript`, `## Python`).
 
-**Supported languages:** TypeScript, Python, PHP, Go (future)
+**Supported languages:** TypeScript, Python, PHP, Go
 
 **Adding a new language:** Add a new `## {Language}` section to each relevant file with a Tracking table and Detailed Notes.
 
@@ -17,17 +17,17 @@ Each file in this directory tracks correctness for a corresponding reference fil
 
 | File | TypeScript | Python | PHP | Go |
 |------|------------|--------|-----|-----|
-| patterns.md | ✅ | partial | ✅ | — |
-| testing.md | ✅ | partial | unchecked | — |
-| language.md | ✅ | partial | unchecked | — |
-| versioning.md | ✅ | partial | unchecked | — |
-| advanced-features.md | ✅ | partial | unchecked | — |
-| data-handling.md | ✅ | partial | partial | — |
-| determinism-protection.md | ✅ | partial | unchecked | — |
-| determinism.md | ✅ | partial | unchecked | — |
-| error-handling.md | ✅ | partial | unchecked | — |
-| gotchas.md | ✅ | partial | unchecked | — |
-| observability.md | ✅ | partial | unchecked | — |
+| patterns.md | ✅ | partial | ✅ | ✅ |
+| testing.md | ✅ | partial | unchecked | ✅ |
+| language.md | ✅ | partial | unchecked | ✅ |
+| versioning.md | ✅ | partial | partial | ✅ |
+| advanced-features.md | ✅ | partial | unchecked | ✅ |
+| data-handling.md | ✅ | partial | partial | ✅ |
+| determinism-protection.md | ✅ | partial | unchecked | ✅ |
+| determinism.md | ✅ | partial | unchecked | ✅ |
+| error-handling.md | ✅ | partial | unchecked | ✅ |
+| gotchas.md | ✅ | partial | unchecked | ✅ |
+| observability.md | ✅ | partial | partial | ✅ |
 | ai-patterns.md | — | partial | — | — |
 | sync-vs-async.md | — | ✅ | — | — |
 
@@ -53,7 +53,7 @@ Each file in this directory tracks correctness for a corresponding reference fil
 
 1. Read the section from the reference file
 2. Query documentation sources:
-   - `mcp__context7__query-docs` with `/temporalio/sdk-typescript`, `/temporalio/sdk-python`, or `/temporalio/sdk-php`
+   - `mcp__context7__query-docs` with `/temporalio/sdk-typescript`, `/temporalio/sdk-python`, `/temporalio/sdk-php`, or `/temporalio/sdk-go`
    - `mcp__temporal-docs__search_temporal_knowledge_sources` for conceptual verification
 3. Compare code examples against official docs
 4. Apply fixes to source file if needed
