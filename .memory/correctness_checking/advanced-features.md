@@ -134,3 +134,54 @@ Correctness verification for `references/{language}/advanced-features.md`.
 
 ---
 
+
+## Go
+
+**File:** `references/go/advanced-features.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Schedules | all good | | temporal-docs |
+| 2 | Async Activity Completion | all good | | temporal-docs |
+| 3 | Worker Tuning | all good | | temporal-docs |
+| 4 | Sessions | all good | | temporal-docs |
+
+### Detailed Notes
+
+#### 1. Schedules
+**Status:** all good
+**Verified:**
+- `client.ScheduleClient().Create` API ✓
+- `client.ScheduleOptions` struct ✓
+- `client.ScheduleSpec` configuration ✓
+
+---
+
+#### 2. Async Activity Completion
+**Status:** all good
+**Verified:**
+- `activity.ErrResultPending` to signal async completion ✓
+- `CompleteActivity` / `CompleteActivityByID` for external completion ✓
+
+---
+
+#### 3. Worker Tuning
+**Status:** all good
+**Verified:**
+- Worker tuning options ✓
+
+---
+
+#### 4. Sessions
+**Status:** all good
+**Verified:**
+- `workflow.CreateSession` API ✓
+- `workflow.CompleteSession` API ✓
+- `EnableSessionWorker` worker option ✓
+- `workflow.ErrSessionFailed` sentinel error ✓
+- `workflow.SessionOptions` struct ✓
+
+---
+
