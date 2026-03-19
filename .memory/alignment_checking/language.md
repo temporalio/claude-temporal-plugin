@@ -46,7 +46,7 @@ Tracks alignment for `python.md`, `typescript.md`, `go.md`, etc.
 
 **Order alignment:** ✓ Aligned — All languages have similar structure (Overview, Quick Start, Key Concepts, File Organization, Common Pitfalls, Writing Tests, Additional Resources)
 
-**Style alignment:** ✅ Complete (Python, TypeScript)
+**Style alignment:** ✅ Complete (Python, TypeScript, Go)
 - Removed "How Temporal Works" from TS (now brief "Understanding Replay" referencing core)
 - Added "File Organization Best Practice" to TS
 - Python Quick Demo and TypeScript Quick Start now match (full tutorial with 4 files, run instructions, expected output)

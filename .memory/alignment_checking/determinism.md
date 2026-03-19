@@ -39,7 +39,7 @@
 - Sources of Non-Determinism: Core-only (conceptual categories)
 - Central Concept: Activities: Core-only (conceptual)
 - Forbidden Operations: Language-specific (Core covers in Sources)
-- Safe Builtin Alternatives: Python has table, Go will have table, TS doesn't need (V8 sandbox handles automatically)
+- Safe Builtin Alternatives: Python and Go have tables, TS doesn't need (V8 sandbox handles automatically)
 - Detecting Non-Determinism: Core-only
 - Recovery from Non-Determinism: Core-only
 - Testing Replay Compatibility: Language-specific (Core covers in Detecting)
@@ -50,5 +50,5 @@
 - Core: Deep conceptual content (replay mechanism, commands/events, recovery)
 - Python: Practical focus (forbidden operations, safe alternatives table, sandbox)
 - TypeScript: Practical focus (V8 sandbox, forbidden operations)
-- Go will follow Python pattern: forbidden operations + safe alternatives table + workflowcheck
+- Go follows Python pattern: forbidden operations + safe alternatives table + workflowcheck
 - Good division: Core explains "why", languages explain "how"

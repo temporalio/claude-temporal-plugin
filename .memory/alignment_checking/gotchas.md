@@ -8,7 +8,7 @@
 | Replay Safety / Side Effects & Non-Determinism | ✓ | 2 | — | — | — | — | — | — |
 | Multiple Workers with Different Code | ✓ | 3 | — | — | — | — | — | — |
 | Retry Policies / Failing Activities Too Quickly | ✓ | 4 | — | — | — | — | — | — |
-| Query Handlers / Query Handler Mistakes | ✓ | 5 | — | — | — | — | — | — |
+| Query Handler & Update Validator Mistakes | ✓ | 5 | — | — | — | — | — | — |
 | File Organization | ✓ | 6 | ✓ | 1 | — | — | — | — |
 | Activity Imports | — | — | — | — | ✓ | 1 | — | — |
 | Bundling Issues | — | — | — | — | ✓ | 2 | — | — |
@@ -17,11 +17,11 @@
 | Non-Deterministic Operations | — | — | — | — | — | — | ✓ | 2 |
 | Error Handling | ✓ | 8 | — | — | — | — | — | — |
 | Wrong Retry Classification | ✓ | 8 | ✓ | 3 | ✓ | 3 | ✓ | 3 |
-| Heartbeating | — | — | ✓ | 5 | ✓ | 5 | ✓ | 4 |
-| Cancellation | ✓ | 10 | ✓ | 4 | ✓ | 4 | ✓ | 5 |
+| Heartbeating | — | — | ✓ | 4 | ✓ | 5 | ✓ | 4 |
+| Cancellation | ✓ | 9 | ✓ | 5 | ✓ | 4 | ✓ | 5 |
 | Testing | ✓ | 7 | ✓ | 6 | ✓ | 6 | ✓ | 6 |
 | Timers and Sleep | — | — | ✓ | 7 | ✓ | 7 | ✓ | 7 |
-| Payload Size Limits | ✓ | 9 | — | — | — | — | — | — |
+| Payload Size Limits | ✓ | 10 | — | — | — | — | — | — |
 
 ## Style Compliance
 
@@ -57,7 +57,7 @@
 
 **Order alignment:** N/A — Core has conceptual sections, language files have implementation-specific sections
 
-**Style alignment:** ✅ Complete (Python, TypeScript)
+**Style alignment:** ✅ Complete (Python, TypeScript, Go)
 - Core: 10 conceptual sections with symptoms/fixes
 - TypeScript: 7 sections (Activity Imports, Bundling, Cancellation, Heartbeating, Testing, Timers, Wrong Retry Classification)
 - Python: 7 sections (File Organization, Async vs Sync, Wrong Retry Classification, Cancellation, Heartbeating, Testing, Timers and Sleep)

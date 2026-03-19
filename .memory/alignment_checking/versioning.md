@@ -43,4 +43,4 @@
 
 **Order alignment:** ✓ Aligned — languages focus on code: Patching/GetVersion API, Type Versioning, Worker Versioning, Best Practices
 
-**Style alignment:** ✅ Complete (Python, TypeScript)
+**Style alignment:** ✅ Complete (Python, TypeScript, Go)

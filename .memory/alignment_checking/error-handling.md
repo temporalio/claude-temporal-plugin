@@ -13,7 +13,7 @@
 | Timeout Configuration | — | ✓ | 6 | ✓ | 6 | ✓ | 6 |
 | Workflow Failure | — | ✓ | 7 | ✓ | 7 | ✓ | 7 |
 | Cancellation Handling in Activities | — | — | — | — | — | — | — |
-| Idempotency Patterns | — | — | — | — | — | — | — |
+| Idempotency Patterns | — | — | — | ✓ | 8 | — | — |
 | Best Practices | — | ✓ | 8 | ✓ | 9 | ✓ | 8 |
 
 ## Style Compliance
@@ -41,4 +41,4 @@
 
 **Order alignment:** ✓ Aligned — Go# monotonically increases
 
-**Style alignment:** ✅ Complete (Python, TypeScript)
+**Style alignment:** ✅ Complete (Python, TypeScript, Go)
