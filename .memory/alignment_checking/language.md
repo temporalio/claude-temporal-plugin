@@ -4,18 +4,18 @@ Tracks alignment for `python.md`, `typescript.md`, `go.md`, etc.
 
 ## Section Inventory
 
-| Section | Core | Python | Py# | TypeScript | TS# | Go | Go# |
-|---------|------|--------|-----|------------|-----|-----|-----|
-| Overview | — | ✓ | 1 | ✓ | 1 | ✓ | 1 |
-| How Temporal Works: History Replay | — | — | — | — | — | — | — |
-| Understanding Replay | — | — | — | ✓ | 2 | — | — |
-| Quick Start / Quick Demo | — | ✓ | 2 | ✓ | 3 | ✓ | 2 |
-| Key Concepts | — | ✓ | 3 | ✓ | 4 | ✓ | 3 |
-| File Organization Best Practice | — | ✓ | 4 | ✓ | 5 | ✓ | 4 |
-| Determinism Rules | — | — | — | ✓ | 6 | — | — |
-| Common Pitfalls | — | ✓ | 5 | ✓ | 7 | ✓ | 5 |
-| Writing Tests | — | ✓ | 6 | ✓ | 8 | ✓ | 6 |
-| Additional Resources | — | ✓ | 7 | ✓ | 9 | ✓ | 7 |
+| Section | Core | Python | Py# | TypeScript | TS# | PHP | PHP# | Go | Go# |
+|---------|------|--------|-----|------------|-----|-----|------|----|-----|
+| Overview | — | ✓ | 1 | ✓ | 1 | ✓ | 1 | ✓ | 1 |
+| How Temporal Works: History Replay | — | — | — | — | — | | | — | — |
+| Understanding Replay | — | — | — | ✓ | 2 | — | — | — | — |
+| Quick Start / Quick Demo | — | ✓ | 2 | ✓ | 3 | ✓ | 2 | ✓ | 2 |
+| Key Concepts | — | ✓ | 3 | ✓ | 4 | ✓ | 3 | ✓ | 3 |
+| File Organization Best Practice | — | ✓ | 4 | ✓ | 5 | ✓ | 4 | ✓ | 4 |
+| Determinism Rules | — | — | — | ✓ | 6 | ✓ | 5 | — | — |
+| Common Pitfalls | — | ✓ | 5 | ✓ | 7 | ✓ | 6 | ✓ | 5 |
+| Writing Tests | — | ✓ | 6 | ✓ | 8 | ✓ | 7 | ✓ | 6 |
+| Additional Resources | — | ✓ | 7 | ✓ | 9 | ✓ | 8 | ✓ | 7 |
 
 ## Style Compliance
 
@@ -23,6 +23,7 @@ Tracks alignment for `python.md`, `typescript.md`, `go.md`, etc.
 |----------|--------|-------|
 | Python | ✓ reference | — |
 | TypeScript | ✓ aligned | Has Understanding Replay, Determinism Rules |
+| PHP | ✓ aligned | Has Determinism Rules, RoadRunner-specific file org |
 | Go | ✓ aligned | Function-based (no decorators), workflowcheck, struct activities |
 
 ## Status

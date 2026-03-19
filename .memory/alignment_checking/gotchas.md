@@ -2,26 +2,26 @@
 
 ## Section Inventory
 
-| Section | Core | Core# | Python | Py# | TypeScript | TS# | Go | Go# |
-|---------|------|-------|--------|-----|------------|-----|-----|-----|
-| Idempotency / Non-Idempotent Activities | ✓ | 1 | — | — | — | — | — | — |
-| Replay Safety / Side Effects & Non-Determinism | ✓ | 2 | — | — | — | — | — | — |
-| Multiple Workers with Different Code | ✓ | 3 | — | — | — | — | — | — |
-| Retry Policies / Failing Activities Too Quickly | ✓ | 4 | — | — | — | — | — | — |
-| Query Handlers / Query Handler Mistakes | ✓ | 5 | — | — | — | — | — | — |
-| File Organization | ✓ | 6 | ✓ | 1 | — | — | — | — |
-| Activity Imports | — | — | — | — | ✓ | 1 | — | — |
-| Bundling Issues | — | — | — | — | ✓ | 2 | — | — |
-| Async vs Sync Activities | — | — | ✓ | 2 | — | — | — | — |
-| Goroutines and Concurrency | — | — | — | — | — | — | ✓ | 1 |
-| Non-Deterministic Operations | — | — | — | — | — | — | ✓ | 2 |
-| Error Handling | ✓ | 8 | — | — | — | — | — | — |
-| Wrong Retry Classification | ✓ | 8 | ✓ | 3 | ✓ | 3 | ✓ | 3 |
-| Heartbeating | — | — | ✓ | 5 | ✓ | 5 | ✓ | 4 |
-| Cancellation | ✓ | 10 | ✓ | 4 | ✓ | 4 | ✓ | 5 |
-| Testing | ✓ | 7 | ✓ | 6 | ✓ | 6 | ✓ | 6 |
-| Timers and Sleep | — | — | ✓ | 7 | ✓ | 7 | ✓ | 7 |
-| Payload Size Limits | ✓ | 9 | — | — | — | — | — | — |
+| Section | Core | Core# | Python | Py# | TypeScript | TS# | PHP | PHP# | Go | Go# |
+|---------|------|-------|--------|-----|------------|-----|-----|------|----|-----|
+| Idempotency / Non-Idempotent Activities | ✓ | 1 | — | — | — | — | | | — | — |
+| Replay Safety / Side Effects & Non-Determinism | ✓ | 2 | — | — | — | — | | | — | — |
+| Multiple Workers with Different Code | ✓ | 3 | — | — | — | — | | | — | — |
+| Retry Policies / Failing Activities Too Quickly | ✓ | 4 | — | — | — | — | | | — | — |
+| Query Handlers / Query Handler Mistakes | ✓ | 5 | — | — | — | — | | | — | — |
+| File Organization | ✓ | 6 | ✓ | 1 | — | — | — | — | — | — |
+| Activity Imports | — | — | — | — | ✓ | 1 | — | — | — | — |
+| Bundling Issues | — | — | — | — | ✓ | 2 | — | — | — | — |
+| Async vs Sync Activities | — | — | ✓ | 2 | — | — | — | — | — | — |
+| Goroutines and Concurrency | — | — | — | — | — | — | — | — | ✓ | 1 |
+| Non-Deterministic Operations | — | — | — | — | — | — | — | — | ✓ | 2 |
+| Error Handling | ✓ | 8 | — | — | — | — | | | — | — |
+| Wrong Retry Classification | ✓ | 8 | ✓ | 3 | ✓ | 3 | ✓ | 1 | ✓ | 3 |
+| Heartbeating | — | — | ✓ | 5 | ✓ | 5 | ✓ | 3 | ✓ | 4 |
+| Cancellation | ✓ | 10 | ✓ | 4 | ✓ | 4 | ✓ | 2 | ✓ | 5 |
+| Testing | ✓ | 7 | ✓ | 6 | ✓ | 6 | ✓ | 4 | ✓ | 6 |
+| Timers and Sleep | — | — | ✓ | 7 | ✓ | 7 | ✓ | 5 | ✓ | 7 |
+| Payload Size Limits | ✓ | 9 | — | — | — | — | | | — | — |
 
 ## Style Compliance
 
@@ -30,6 +30,7 @@
 | Core | ✓ reference | Conceptual gotchas |
 | Python | ✓ aligned | Language-specific gotchas |
 | TypeScript | ✓ aligned | Language-specific gotchas |
+| PHP | ✓ aligned | 5 sections (Wrong Retry Classification, Cancellation, Heartbeating, Testing, Timers and Sleep) |
 | Go | ✓ aligned | Language-specific gotchas — goroutines, channels, selectors, map range |
 
 ## Status

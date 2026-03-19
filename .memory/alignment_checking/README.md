@@ -15,6 +15,8 @@ Python is the reference style (code-first, minimal prose). All languages should 
 - `⚠️ needs work` = has style issues to address
 - `—` = not started
 
+**Supported languages:** Python (reference), TypeScript, Go (not started), PHP (all reference files created)
+
 ## Section Inventory Legend
 
 - `✓` = present
@@ -22,13 +24,15 @@ Python is the reference style (code-first, minimal prose). All languages should 
 - `—` = missing, intentional (language doesn't need this)
 - `TODO` = missing, should add
 - `DEL` = present, should remove or merge
-- `Py#` / `TS#` / `Go#` = section order in file (should monotonically increase if order is aligned)
+- `Py#` / `TS#` / `Go#` / `PHP#` = section order in file (should monotonically increase if order is aligned)
 
 ## Implementation Status
 
 **Python/TypeScript:** ✅ COMPLETE (2026-02-25) — All TODO/DEL/BUG items implemented.
 
 **Go:** ✅ COMPLETE (2026-03-17) — All Go reference files created and aligned.
+
+**PHP:** ✅ CONTENT COMPLETE (2026-03-16) — All 11 PHP reference files created. PHP columns present in all tracking files. Correctness verification pending.
 
 ## Files
 

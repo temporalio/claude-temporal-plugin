@@ -2,24 +2,24 @@
 
 ## Section Inventory
 
-| Section | Core | Python | Py# | TypeScript | TS# | Go | Go# |
-|---------|------|--------|-----|------------|-----|-----|-----|
-| Overview | — | ✓ | 1 | ✓ | 1 | ✓ | 1 |
-| How the Sandbox Works | — | ✓ | 2 | — | — | — | — |
-| Import Blocking | — | — | — | ✓ | 2 | — | — |
-| Forbidden Operations | — | ✓ | 3 | — | — | — | — |
-| Function Replacement | — | — | — | ✓ | 3 | — | — |
-| workflowcheck Static Analysis | — | — | — | — | — | ✓ | 2 |
-| Determinism Rules | — | — | — | — | — | ✓ | 3 |
-| Pass-Through Pattern | — | ✓ | 4 | — | — | — | — |
-| Importing Activities | — | ✓ | 5 | — | — | — | — |
-| Disabling the Sandbox | — | ✓ | 6 | — | — | — | — |
-| Customizing Invalid Module Members | — | ✓ | 7 | — | — | — | — |
-| Import Notification Policy | — | ✓ | 8 | — | — | — | — |
-| Disable Lazy sys.modules Passthrough | — | ✓ | 9 | — | — | — | — |
-| File Organization | — | ✓ | 10 | — | — | — | — |
-| Common Issues | — | ✓ | 11 | — | — | — | — |
-| Best Practices | — | ✓ | 12 | — | — | ✓ | 4 |
+| Section | Core | Python | Py# | TypeScript | TS# | PHP | PHP# | Go | Go# |
+|---------|------|--------|-----|------------|-----|-----|------|----|-----|
+| Overview | — | ✓ | 1 | ✓ | 1 | ✓ | 1 | ✓ | 1 |
+| How the Sandbox Works | — | ✓ | 2 | — | — | — | — | — | — |
+| Import Blocking | — | — | — | ✓ | 2 | — | — | — | — |
+| Forbidden Operations | — | ✓ | 3 | — | — | ✓ | 2 | — | — |
+| Function Replacement | — | — | — | ✓ | 3 | — | — | — | — |
+| workflowcheck Static Analysis | — | — | — | — | — | — | — | ✓ | 2 |
+| Determinism Rules | — | — | — | — | — | — | — | ✓ | 3 |
+| Pass-Through Pattern | — | ✓ | 4 | — | — | — | — | — | — |
+| Importing Activities | — | ✓ | 5 | — | — | — | — | — | — |
+| Disabling the Sandbox | — | ✓ | 6 | — | — | — | — | — | — |
+| Customizing Invalid Module Members | — | ✓ | 7 | — | — | — | — | — | — |
+| Import Notification Policy | — | ✓ | 8 | — | — | — | — | — | — |
+| Disable Lazy sys.modules Passthrough | — | ✓ | 9 | — | — | — | — | — | — |
+| File Organization | — | ✓ | 10 | — | — | — | — | — | — |
+| Common Issues | — | ✓ | 11 | — | — | ✓ | 3 | — | — |
+| Best Practices | — | ✓ | 12 | — | — | ✓ | 4 | ✓ | 4 |
 
 ## Style Compliance
 
@@ -27,6 +27,7 @@
 |----------|--------|-------|
 | Python | ✓ reference | Comprehensive (12 sections) |
 | TypeScript | ✓ aligned | Minimal (3 sections) — V8 is automatic |
+| PHP | ✓ aligned | Minimal (4 sections) — no sandbox |
 | Go | ✓ aligned | Minimal (4 sections) — no runtime sandbox, convention + static analysis |
 
 ## Status

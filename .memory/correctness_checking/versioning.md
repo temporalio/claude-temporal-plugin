@@ -291,6 +291,71 @@ Correctness verification for `references/{language}/versioning.md`.
 ---
 
 
+## PHP
+
+**File:** `references/php/versioning.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Patching API | all good | | context7 sdk-php |
+| 2 | Workflow Type Versioning | all good | | context7 sdk-php |
+| 3 | Worker Versioning | needs verification | | context7 sdk-php |
+| 4 | Best Practices | all good | | context7 sdk-php |
+
+### Detailed Notes
+
+#### 1. Patching API
+**Status:** all good
+
+**Verified:**
+- `Workflow::getVersion('changeId', Workflow::DEFAULT_VERSION, 1)` signature is correct
+- `yield` on `getVersion()` is correct (it is a coroutine)
+- `Workflow::DEFAULT_VERSION` constant is correct
+- Three-step patching process (patch in, deprecate with min=max=1, remove) is correct
+- The reference checks `$version === 1` for new code; official SDK example checks `$version === Workflow::DEFAULT_VERSION` for old code. Both are logically equivalent and correct.
+- `TemporalChangeVersion` search attribute in query filters is correct
+
+---
+
+#### 2. Workflow Type Versioning
+**Status:** all good
+
+**Verified:**
+- `#[WorkflowInterface]` and `#[WorkflowMethod(name: '...')]` attributes are correct
+- V2 interface pattern is valid
+- `registerWorkflowTypes()` API is correct
+- `$client->newWorkflowStub()` with `WorkflowOptions::new()` is correct
+
+---
+
+#### 3. Worker Versioning
+**Status:** needs verification
+
+**Issues:**
+- **`WorkerDeploymentOptions` class name could not be fully verified** — Context7 docs do not include Worker Versioning configuration examples for PHP SDK.
+- The `deploymentOptions` parameter on `$factory->newWorker()` could not be verified.
+- Worker Versioning is noted as Public Preview which is correct.
+- Legacy API deprecation timeline (March 2026) is correct.
+- PINNED vs AUTO_UPGRADE conceptual descriptions are correct.
+- CLI commands (`temporal worker deployment set-current-version`, `TemporalWorkerDeploymentVersion` search attribute) are correct.
+
+**Note:** Unable to verify Worker Versioning PHP-specific API due to limited documentation availability.
+
+---
+
+#### 4. Best Practices
+**Status:** all good
+
+**Verified:**
+- All 5 best practices are valid
+- "Use `yield` on `getVersion()`" is correctly emphasized as PHP-specific
+- Guidance aligns with official documentation patterns
+
+---
+
+
 ## Go
 
 **File:** `references/go/versioning.md` (relative to skill root)

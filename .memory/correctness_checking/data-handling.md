@@ -233,6 +233,104 @@ Correctness verification for `references/{language}/data-handling.md`.
 ---
 
 
+## PHP
+
+**File:** `references/php/data-handling.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Overview | all good | | context7 sdk-php |
+| 2 | Default Data Converter | all good | | context7 sdk-php |
+| 3 | Custom Data Converter | needs verification | | context7 sdk-php |
+| 4 | Payload Encryption | needs verification | | context7 sdk-php |
+| 5 | Search Attributes | FIXED | `TypedSearchAttributes::new()->withSearchAttribute()`, `->valueSet()` | context7 sdk-php |
+| 6 | Workflow Memo | needs verification | | context7 sdk-php |
+| 7 | Best Practices | all good | | context7 sdk-php |
+
+### Detailed Notes
+
+#### 1. Overview
+**Status:** all good
+
+**Verified:**
+- Data converter role description is accurate
+- JSON as default format is correct
+
+---
+
+#### 2. Default Data Converter
+**Status:** all good
+
+**Verified:**
+- Supported types (null, scalars, arrays, objects) are correct
+- `#[ReturnType]` attribute usage on workflow interface methods is correct
+- Import `Temporal\Workflow\ReturnType` is consistent with SDK conventions
+- Explanation that generators need `#[ReturnType]` for deserialization is correct
+
+---
+
+#### 3. Custom Data Converter
+**Status:** needs verification
+
+**Issues:**
+- **`PayloadConverter` interface name could not be fully verified** — the actual interface may be `PayloadConverterInterface`
+- Method signatures (`getEncodingType()`, `toPayload()`, `fromPayload()`) are plausible but could not be confirmed
+- `DataConverter` constructor taking multiple converters is plausible but unverified
+- `WorkflowClient::create()` with `dataConverter:` named parameter is plausible
+
+**Note:** Unable to verify custom data converter PHP-specific API due to limited documentation availability.
+
+---
+
+#### 4. Payload Encryption
+**Status:** needs verification
+
+**Issues:**
+- **`PayloadCodecInterface` name could not be fully verified** — plausible but unconfirmed
+- `encode(array $payloads): array` and `decode(array $payloads): array` signatures are plausible
+- `DataConverter::createDefault()->withCodec(...)` pattern is plausible but unverified
+
+**Note:** Unable to verify PayloadCodec PHP-specific API due to limited documentation availability.
+
+---
+
+#### 5. Search Attributes
+**Status:** FIXED
+
+**Issues fixed:**
+- Wrong import path: `Temporal\Common\SearchAttributeKey` → `Temporal\Common\SearchAttributes\SearchAttributeKey`
+- Wrong factory method: `TypedSearchAttributes::empty()` → `TypedSearchAttributes::new()`
+- Wrong setter method: `->withValue()` → `->withSearchAttribute()`
+- Wrong upsert method: `->withValue('completed')` → `->valueSet('completed')`
+- `Workflow::upsertTypedSearchAttributes()` and `SearchAttributeKey::forKeyword()` are correct ✓
+
+---
+
+#### 6. Workflow Memo
+**Status:** needs verification
+
+**Issues:**
+- `WorkflowOptions::new()->withMemo([...])` is plausible but not verified in Context7 docs
+- **`Workflow::upsertMemo()` could not be verified** — this method may or may not exist
+
+**Note:** Unable to verify memo PHP-specific API due to limited documentation availability.
+
+---
+
+#### 7. Best Practices
+**Status:** all good
+
+**Verified:**
+- All 4 best practices are valid
+- `#[ReturnType]` recommendation is correct
+- PayloadCodec for encryption recommendation is correct
+- Typed Search Attributes recommendation is correct
+
+---
+
+
 ## Go
 
 **File:** `references/go/data-handling.md` (relative to skill root)
@@ -271,19 +369,12 @@ Correctness verification for `references/{language}/data-handling.md`.
 #### 3. Custom Data Converter
 **Status:** FIXED
 
-**Issue 1:** Listed 5 interface methods but actual `converter.DataConverter` has 6 -- was missing `ToStrings`. Fixed.
-
-**Issue 2 (PR #38 feedback):** Section had no substantive content — no example of how to actually implement a custom converter. Rewrote with full working example.
-
 **Fix Applied:**
-- Shows `PayloadConverter` interface (the right abstraction for most users, not the full `DataConverter`)
-- Full msgpack `PayloadConverter` implementation showing all 4 methods (`ToPayload` returning nil for unhandled types, `FromPayload` checking encoding, `ToString` for UI, `Encoding`)
+- Shows `PayloadConverter` interface with full msgpack implementation
 - `converter.MetadataEncoding` metadata key usage
 - `converter.NewCompositeDataConverter` composition pattern
 - Per-activity override via `workflow.WithDataConverter`
 - `workflow.DataConverterWithoutDeadlockDetection` note for remote-call converters (e.g. KMS)
-
-**Sources:** temporal-docs (pkg.go.dev/go.temporal.io/sdk/converter, docs.temporal.io/develop/go/converters-and-encryption)
 
 ---
 

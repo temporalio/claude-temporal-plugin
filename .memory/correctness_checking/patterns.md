@@ -553,6 +553,60 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 
 ---
 
+## PHP
+
+**File:** `references/php/patterns.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Signals | all good | | context7 sdk-php |
+| 2 | Dynamic Signal Handlers | FIXED | Changed `array $args` to `ValuesInterface $arguments` | context7 sdk-php, temporal-docs |
+| 3 | Queries | all good | | context7 sdk-php |
+| 4 | Dynamic Query Handlers | FIXED | Changed `array $args` to `ValuesInterface $arguments` | context7 sdk-php, temporal-docs |
+| 5 | Updates | all good | | context7 sdk-php |
+| 6 | Child Workflows | all good | | context7 sdk-php |
+| 7 | Handles to External Workflows | all good | | context7 sdk-php |
+| 8 | Parallel Execution | all good | | context7 sdk-php |
+| 9 | Continue-as-New | FIXED | Added `yield`, fixed signature to `(string $type, array $args)` | context7 sdk-php, temporal-docs |
+| 10 | Saga Pattern | all good | | context7 sdk-php |
+| 11 | Wait Condition with Timeout | all good | | context7 sdk-php |
+| 12 | Waiting for All Handlers to Finish | all good | | temporal-docs |
+| 13 | Activity Heartbeat Details | FIXED | Used `hasHeartbeatDetails()` + typed `getHeartbeatDetails('int')` | context7 sdk-php |
+| 14 | Timers | all good | | context7 sdk-php |
+| 15 | Local Activities | all good | | context7 sdk-php |
+
+### Detailed Notes
+
+#### 2. Dynamic Signal Handlers
+**Status:** FIXED
+**Issue:** Handler parameter was `array $args` — should be `ValuesInterface $arguments` per SDK API
+**Source:** temporal-docs, php.temporal.io API reference
+
+---
+
+#### 4. Dynamic Query Handlers
+**Status:** FIXED
+**Issue:** Same as Dynamic Signal Handlers — parameter type was wrong
+**Source:** temporal-docs, php.temporal.io API reference
+
+---
+
+#### 9. Continue-as-New
+**Status:** FIXED
+**Issue:** `continueAsNew()` requires `(string $type, array $args, ?ContinueAsNewOptions $options)`. Was missing `yield` and passing state directly instead of as `[$state]` array.
+**Source:** context7 sdk-php — shows `Workflow::continueAsNew('WorkflowName', [$args])`
+
+---
+
+#### 13. Activity Heartbeat Details
+**Status:** FIXED
+**Issue:** Used `Activity::getHeartbeatDetails()` as array. Correct API is `Activity::hasHeartbeatDetails()` check + `Activity::getHeartbeatDetails('int')` for typed retrieval.
+**Source:** context7 sdk-php
+
+---
+
 
 ## Go
 
@@ -707,6 +761,4 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 **Verified:**
 - `workflow.ExecuteLocalActivity` API ✓
 - `workflow.LocalActivityOptions` struct ✓
-
----
 

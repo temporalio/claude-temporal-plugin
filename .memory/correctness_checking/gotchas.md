@@ -290,6 +290,48 @@ Correctness verification for `references/{language}/gotchas.md`.
 ---
 
 
+## PHP
+
+**File:** `references/php/gotchas.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Wrong Retry Classification | unchecked | | |
+| 2 | Cancellation | unchecked | | |
+| 3 | Heartbeating | unchecked | | |
+| 4 | Testing | unchecked | | |
+| 5 | Timers and Sleep | unchecked | | |
+
+### Detailed Notes
+
+#### 1. Wrong Retry Classification
+**Status:** unchecked
+
+---
+
+#### 2. Cancellation
+**Status:** unchecked
+
+---
+
+#### 3. Heartbeating
+**Status:** unchecked
+
+---
+
+#### 4. Testing
+**Status:** unchecked
+
+---
+
+#### 5. Timers and Sleep
+**Status:** unchecked
+
+---
+
+
 ## Go
 
 **File:** `references/go/gotchas.md` (relative to skill root)

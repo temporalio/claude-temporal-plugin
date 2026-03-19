@@ -2,17 +2,17 @@
 
 ## Section Inventory
 
-| Section | Core | Python | Py# | TypeScript | TS# | Go | Go# |
-|---------|------|--------|-----|------------|-----|-----|-----|
-| Overview | — | ✓ | 1 | ✓ | 1 | ✓ | 1 |
-| Test Environment Setup | — | ✓ | 2 | ✓ | 2 | ✓ | 2 |
-| Time Skipping | — | — | — | — | — | — | — |
-| Activity Mocking | — | ✓ | 3 | ✓ | 3 | ✓ | 3 |
-| Testing Signals and Queries | — | ✓ | 4 | ✓ | 4 | ✓ | 4 |
-| Testing Failure Cases | — | ✓ | 5 | ✓ | 5 | ✓ | 5 |
-| Replay Testing | — | ✓ | 6 | ✓ | 6 | ✓ | 6 |
-| Activity Testing | — | ✓ | 7 | ✓ | 7 | ✓ | 7 |
-| Best Practices | — | ✓ | 8 | ✓ | 8 | ✓ | 8 |
+| Section | Core | Python | Py# | TypeScript | TS# | PHP | PHP# | Go | Go# |
+|---------|------|--------|-----|------------|-----|-----|------|----|-----|
+| Overview | — | ✓ | 1 | ✓ | 1 | ✓ | 1 | ✓ | 1 |
+| Workflow Test Environment | — | ✓ | 2 | ✓ | 2 | ✓ | 2 | ✓ | 2 |
+| Time Skipping | — | — | — | — | — | | | — | — |
+| Mocking Activities | — | ✓ | 3 | ✓ | 3 | ✓ | 3 | ✓ | 3 |
+| Testing Signals and Queries | — | ✓ | 4 | ✓ | 4 | ✓ | 4 | ✓ | 4 |
+| Testing Failure Cases | — | ✓ | 5 | ✓ | 5 | ✓ | 5 | ✓ | 5 |
+| Workflow Replay Testing | — | ✓ | 6 | ✓ | 6 | ✓ | 6 | ✓ | 6 |
+| Activity Testing | — | ✓ | 7 | ✓ | 7 | ✓ | 7 | ✓ | 7 |
+| Best Practices | — | ✓ | 8 | ✓ | 8 | ✓ | 8 | ✓ | 8 |
 
 ## Style Compliance
 
@@ -20,6 +20,7 @@
 |----------|--------|-------|
 | Python | ✓ reference | — |
 | TypeScript | ✓ aligned | Added failure/activity testing |
+| PHP | ✓ aligned | Matches Python section structure and code-first style |
 | Go | ✓ aligned | testsuite package, testify, mock activities, TestWorkflowEnvironment |
 
 ## Status

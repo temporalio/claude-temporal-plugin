@@ -2,20 +2,20 @@
 
 ## Section Inventory
 
-| Section | Core | Python | Py# | TypeScript | TS# | Go | Go# |
-|---------|------|--------|-----|------------|-----|-----|-----|
-| Overview | — | ✓ | 1 | ✓ | 1 | ✓ | 1 |
-| Default Data Converter | — | ✓ | 2 | ✓ | 2 | ✓ | 2 |
-| Pydantic Integration | — | ✓ | 3 | — | — | — | — |
-| Custom Data Converter | — | ✓ | 4 | ✓ | 3 | ✓ | 3 |
-| Composition of Payload Converters | — | — | — | ✓ | 4 | ✓ | 4 |
-| Protobuf Support | — | — | — | ✓ | 5 | ✓ | 5 |
-| Payload Encryption | — | ✓ | 5 | ✓ | 6 | ✓ | 6 |
-| Search Attributes | — | ✓ | 6 | ✓ | 7 | ✓ | 7 |
-| Workflow Memo | — | ✓ | 7 | ✓ | 8 | ✓ | 8 |
-| Large Payloads | — | — | — | — | — | — | — |
-| Deterministic APIs for Values | — | ✓ | 8 | — | — | — | — |
-| Best Practices | — | ✓ | 9 | ✓ | 9 | ✓ | 9 |
+| Section | Core | Python | Py# | TypeScript | TS# | PHP | PHP# | Go | Go# |
+|---------|------|--------|-----|------------|-----|-----|------|----|-----|
+| Overview | — | ✓ | 1 | ✓ | 1 | ✓ | 1 | ✓ | 1 |
+| Default Data Converter | — | ✓ | 2 | ✓ | 2 | ✓ | 2 | ✓ | 2 |
+| Pydantic Integration | — | ✓ | 3 | — | — | — | — | — | — |
+| Custom Data Conversion | — | ✓ | 4 | ✓ | 3 | ✓ | 3 | ✓ | 3 |
+| Composition of Payload Converters | — | — | — | ✓ | 4 | — | — | ✓ | 4 |
+| Protobuf Support | — | — | — | ✓ | 5 | — | — | ✓ | 5 |
+| Payload Encryption | — | ✓ | 5 | ✓ | 6 | ✓ | 4 | ✓ | 6 |
+| Search Attributes | — | ✓ | 6 | ✓ | 7 | ✓ | 5 | ✓ | 7 |
+| Workflow Memo | — | ✓ | 7 | ✓ | 8 | ✓ | 6 | ✓ | 8 |
+| Large Payloads | — | — | — | — | — | — | — | — | — |
+| Deterministic APIs for Values | — | ✓ | 8 | — | — | — | — | — | — |
+| Best Practices | — | ✓ | 9 | ✓ | 9 | ✓ | 7 | ✓ | 9 |
 
 ## Style Compliance
 
@@ -23,6 +23,7 @@
 |----------|--------|-------|
 | Python | ✓ reference | — |
 | TypeScript | ✓ aligned | — |
+| PHP | ✓ aligned | Matches Python structure; uses #[ReturnType] instead of Pydantic |
 | Go | ✓ aligned | JSON default, protobuf native, converter.CompositeDataConverter |
 
 ## Status
