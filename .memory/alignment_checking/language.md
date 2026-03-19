@@ -4,18 +4,18 @@ Tracks alignment for `python.md`, `typescript.md`, `go.md`, etc.
 
 ## Section Inventory
 
-| Section | Core | Python | Py# | TypeScript | TS# | Go |
-|---------|------|--------|-----|------------|-----|-----|
-| Overview | — | ✓ | 1 | ✓ | 1 | |
-| How Temporal Works: History Replay | — | — | — | — | — | |
-| Understanding Replay | — | — | — | ✓ | 2 | |
-| Quick Start / Quick Demo | — | ✓ | 2 | ✓ | 3 | |
-| Key Concepts | — | ✓ | 3 | ✓ | 4 | |
-| File Organization Best Practice | — | ✓ | 4 | ✓ | 5 | |
-| Determinism Rules | — | — | — | ✓ | 6 | |
-| Common Pitfalls | — | ✓ | 5 | ✓ | 7 | |
-| Writing Tests | — | ✓ | 6 | ✓ | 8 | |
-| Additional Resources | — | ✓ | 7 | ✓ | 9 | |
+| Section | Core | Python | Py# | TypeScript | TS# | Go | Go# |
+|---------|------|--------|-----|------------|-----|-----|-----|
+| Overview | — | ✓ | 1 | ✓ | 1 | ✓ | 1 |
+| How Temporal Works: History Replay | — | — | — | — | — | — | — |
+| Understanding Replay | — | — | — | ✓ | 2 | — | — |
+| Quick Start / Quick Demo | — | ✓ | 2 | ✓ | 3 | ✓ | 2 |
+| Key Concepts | — | ✓ | 3 | ✓ | 4 | ✓ | 3 |
+| File Organization Best Practice | — | ✓ | 4 | ✓ | 5 | ✓ | 4 |
+| Determinism Rules | — | — | — | ✓ | 6 | — | — |
+| Common Pitfalls | — | ✓ | 5 | ✓ | 7 | ✓ | 5 |
+| Writing Tests | — | ✓ | 6 | ✓ | 8 | ✓ | 6 |
+| Additional Resources | — | ✓ | 7 | ✓ | 9 | ✓ | 7 |
 
 ## Style Compliance
 
@@ -23,20 +23,30 @@ Tracks alignment for `python.md`, `typescript.md`, `go.md`, etc.
 |----------|--------|-------|
 | Python | ✓ reference | — |
 | TypeScript | ✓ aligned | Has Understanding Replay, Determinism Rules |
-| Go | — | Not started |
+| Go | ✓ aligned | Function-based (no decorators), workflowcheck, struct activities |
 
 ## Status
 
-**Sections needing review (empty cells):**
-- Go column: all empty — Go files not yet created
+**Section content notes:**
+- Writing Tests: all languages should be a brief link to `references/<lang>/testing.md`, NOT inline code examples
+
+**Go-specific notes:**
+- Go uses exported functions (not decorators) for workflows/activities
+- Activities commonly defined as struct methods for dependency injection
+- Worker setup: `worker.New(client, taskQueue, options)` + `w.RegisterWorkflow` / `w.RegisterActivity`
+- Determinism rules included in Key Concepts subsection (like Python), not separate section
+- Understanding Replay: TS-specific section; Go references core like Python
+- `workflowcheck` static analysis tool mentioned in Key Concepts (Go-specific)
+- File organization: Go uses separate packages (workflows/, activities/, worker/)
 
 **Intentionally missing (`—`):**
 - Core column: no core top-level file (these are language entry points)
-- Determinism Rules — TS has separate section; Python has subsection in Key Concepts
+- Determinism Rules — TS has separate section; Python/Go have subsection in Key Concepts
+- Understanding Replay — TS-specific; Python/Go reference core
 
-**Order alignment:** ✓ Aligned — Both have similar structure (Overview, Quick Start, Key Concepts, File Organization, Common Pitfalls, Writing Tests, Additional Resources)
+**Order alignment:** ✓ Aligned — All languages have similar structure (Overview, Quick Start, Key Concepts, File Organization, Common Pitfalls, Writing Tests, Additional Resources)
 
-**Style alignment:** ✅ Complete
+**Style alignment:** ✅ Complete (Python, TypeScript)
 - Removed "How Temporal Works" from TS (now brief "Understanding Replay" referencing core)
 - Added "File Organization Best Practice" to TS
 - Python Quick Demo and TypeScript Quick Start now match (full tutorial with 4 files, run instructions, expected output)

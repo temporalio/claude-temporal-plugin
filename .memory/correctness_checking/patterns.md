@@ -553,3 +553,160 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 
 ---
 
+
+## Go
+
+**File:** `references/go/patterns.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Signals | all good | | temporal-docs |
+| 2 | Queries | all good | | temporal-docs |
+| 3 | Updates | all good | | temporal-docs |
+| 4 | Child Workflows | all good | | temporal-docs |
+| 5 | Child Workflow Options | all good | | temporal-docs |
+| 6 | Handles to External Workflows | all good | | temporal-docs |
+| 7 | Parallel Execution | all good | | temporal-docs |
+| 8 | Selector Pattern | all good | | temporal-docs |
+| 9 | Continue-as-New | all good | | temporal-docs |
+| 10 | Saga Pattern (Compensations) | all good | | temporal-docs |
+| 11 | Cancellation Handling | all good | | temporal-docs |
+| 12 | Wait Condition with Timeout | all good | | temporal-docs |
+| 13 | Waiting for All Handlers to Finish | all good | | temporal-docs |
+| 14 | Activity Heartbeat Details | all good | | temporal-docs |
+| 15 | Timers | all good | | temporal-docs |
+| 16 | Local Activities | all good | | temporal-docs |
+
+### Detailed Notes
+
+#### 1. Signals
+**Status:** all good
+**Verified:**
+- Channel-based signal reception via `workflow.GetSignalChannel` ✓
+- `channel.Receive(ctx, &value)` pattern ✓
+
+---
+
+#### 2. Queries
+**Status:** all good
+**Verified:**
+- `workflow.SetQueryHandler` API ✓
+- Synchronous handler returning value and error ✓
+
+---
+
+#### 3. Updates
+**Status:** all good
+**Verified:**
+- `workflow.SetUpdateHandler` with optional validator ✓
+- Handler and validator signatures ✓
+
+---
+
+#### 4. Child Workflows
+**Status:** all good
+**Verified:**
+- `workflow.ExecuteChildWorkflow` API ✓
+- Returns Future, `.Get(ctx, &result)` pattern ✓
+
+---
+
+#### 5. Child Workflow Options
+**Status:** all good
+**Verified:**
+- `workflow.ChildWorkflowOptions` struct fields ✓
+- `ParentClosePolicy` values ✓
+
+---
+
+#### 6. Handles to External Workflows
+**Status:** all good
+**Verified:**
+- `workflow.SignalExternalWorkflow` API ✓
+
+---
+
+#### 7. Parallel Execution
+**Status:** all good
+**Verified:**
+- `workflow.Go` for spawning coroutines ✓
+- Selector pattern for parallel coordination ✓
+
+---
+
+#### 8. Selector Pattern
+**Status:** all good
+**Verified:**
+- `workflow.NewSelector` API ✓
+- `AddFuture`, `AddReceive` methods ✓
+- `Select(ctx)` to block until one callback fires ✓
+
+---
+
+#### 9. Continue-as-New
+**Status:** all good
+**Verified:**
+- `workflow.NewContinueAsNewError` API ✓
+- Return the error to trigger continue-as-new ✓
+
+---
+
+#### 10. Saga Pattern (Compensations)
+**Status:** all good
+**Verified:**
+- Compensation slice pattern with LIFO execution ✓
+- Save compensation BEFORE calling activity ✓
+
+---
+
+#### 11. Cancellation Handling
+**Status:** all good
+**Verified:**
+- `workflow.NewDisconnectedContext` for cleanup after cancellation ✓
+- `ctx.Err()` check for cancellation detection ✓
+
+---
+
+#### 12. Wait Condition with Timeout
+**Status:** all good
+**Verified:**
+- Selector with timer future for timeout ✓
+- `workflow.NewTimer` API ✓
+
+---
+
+#### 13. Waiting for All Handlers to Finish
+**Status:** all good
+**Verified:**
+- `workflow.AllHandlersFinished` API ✓
+- `workflow.Await(ctx, workflow.AllHandlersFinished)` pattern ✓
+
+---
+
+#### 14. Activity Heartbeat Details
+**Status:** all good
+**Verified:**
+- `activity.RecordHeartbeat` API ✓
+- `activity.GetHeartbeatDetails` for resume ✓
+- Cancellation delivery via heartbeat ✓
+
+---
+
+#### 15. Timers
+**Status:** all good
+**Verified:**
+- `workflow.Sleep(ctx, duration)` API ✓
+- `workflow.NewTimer(ctx, duration)` for cancellable timers ✓
+
+---
+
+#### 16. Local Activities
+**Status:** all good
+**Verified:**
+- `workflow.ExecuteLocalActivity` API ✓
+- `workflow.LocalActivityOptions` struct ✓
+
+---
+
