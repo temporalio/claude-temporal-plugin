@@ -1,0 +1,8 @@
+[project]
+name = "release-workflow"
+version = "0.1.0"
+description = "Temporal workflow for the temporal-developer skill release pipeline"
+requires-python = ">=3.10"
+dependencies = [
+    "temporalio[testing]>=1.11.0",
+]

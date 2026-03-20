@@ -22,14 +22,17 @@ Both repos use `dev` as the primary working branch. Feature branches branch from
 
 ## Release Workflow
 
-There is no package publishing — merging to `main` IS the release.
+Use the `/release` skill to run the release pipeline. It is implemented as a Temporal workflow (`.claude/skills/release/`) with a CLI client for sending signals at human checkpoints. The `/release` skill has full instructions — do not manually perform these steps.
 
-1. Bump the skill version in the submodule via PR merged to submodule `dev`. Ask the user whether major, minor, or patch (semver). Update both places (must always match):
-   - `plugins/temporal-developer/skills/temporal-developer/SKILL.md` (frontmatter `version:`)
-   - `plugins/temporal-developer/.claude-plugin/plugin.json` (`"version"`)
-2. Merge submodule `dev` → `main`
-3. Bump outer repo's submodule pointer (on outer `dev`) to point to latest submodule `main`
-4. Merge outer `dev` → `main`
+For reference, the release has three stages:
+
+- **Phase 1 (Internal):** Version bump in submodule, update outer repo `dev` (submodule pointer + `plugin.json`). Optional dogfood testing.
+- **Phase 2 (External):** Merge submodule `dev` → `main` (via PR, requires human review), then merge outer `dev` → `main`. Fast-forward `dev` to `main` in both repos afterward.
+- **Codex (after Phase 2):** Sync fork, copy plugin to `temporalio/openai-plugins:temporal`, open/update PR to `openai/plugins`. Can also be run standalone via `--codex-only`.
+
+Version in `SKILL.md` frontmatter and `plugin.json` must always match.
+
+Codex review feedback: content changes go through the full pipeline; `.codex-plugin/`-only changes can use `--codex-only`.
 
 ## sdk-versions.json
 
