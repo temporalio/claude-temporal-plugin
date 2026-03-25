@@ -1,0 +1,9 @@
+# Harbor eval output
+jobs/
+
+# Python
+evals/.venv/
+__pycache__/
+
+# Generated
+evals/dashboard.html
