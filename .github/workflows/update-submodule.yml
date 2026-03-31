@@ -1,0 +1,47 @@
+name: Update submodule pointer
+
+on:
+  repository_dispatch:
+    types: [submodule-updated]
+  workflow_dispatch:
+
+concurrency:
+  group: update-submodule
+  cancel-in-progress: true
+
+jobs:
+  update-submodule:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout dev branch
+        uses: actions/checkout@v4
+        with:
+          ref: dev
+          submodules: true
+          # Use default GITHUB_TOKEN — has push access to the repo
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update submodule to latest dev
+        run: |
+          cd plugins/temporal-developer/skills/temporal-developer
+          git fetch origin dev
+          git checkout origin/dev
+          cd "$GITHUB_WORKSPACE"
+
+      - name: Check for changes
+        id: check
+        run: |
+          if git diff --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit and push
+        if: steps.check.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add plugins/temporal-developer/skills/temporal-developer
+          git commit -m "update submodule to latest dev"
+          git push origin dev
