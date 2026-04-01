@@ -18,8 +18,8 @@
 | Non-Deterministic Operations | — | — | — | — | — | — | — | — | ✓ | 2 |
 | Error Handling | ✓ | 8 | — | — | — | — | — | — | — | — |
 | Wrong Retry Classification | ✓ | 8 | ✓ | 3 | ✓ | 3 | ✓ | 2 | ✓ | 3 |
-| Heartbeating | — | — | ✓ | 5 | ✓ | 5 | ✓ | 4 | ✓ | 4 |
-| Cancellation | ✓ | 10 | ✓ | 4 | ✓ | 4 | ✓ | 3 | ✓ | 5 |
+| Heartbeating | — | — | ✓ | 5 | ✓ | 5 | ✓ | 3 | ✓ | 4 |
+| Cancellation | ✓ | 10 | ✓ | 4 | ✓ | 4 | ✓ | 4 | ✓ | 5 |
 | Testing | ✓ | 7 | ✓ | 6 | ✓ | 6 | ✓ | 5 | ✓ | 6 |
 | Timers and Sleep | — | — | ✓ | 7 | ✓ | 7 | ✓ | 6 | ✓ | 7 |
 | Payload Size Limits | ✓ | 9 | — | — | — | — | — | — | — | — |
