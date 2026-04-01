@@ -9,9 +9,9 @@
 | Sandbox Customization | — | ✓ | 3 | — | — | — | — | — | — |
 | Gevent Compatibility Warning | — | ✓ | 4 | — | — | — | — | — | — |
 | Worker Tuning | — | ✓ | 5 | ✓ | 3 | ✓ | 3 | ✓ | 3 |
-| Workflow Init Decorator | — | ✓ | 6 | — | — | — | — | — | — |
-| Workflow Failure Exception Types | — | ✓ | 7 | — | — | ✓ | 4 | — | — |
-| Dependency Injection | — | — | — | — | — | ✓ | 5 | — | — |
+| Workflow Init Decorator | — | ✓ | 6 | — | — | ✓ | 4 | — | — |
+| Workflow Failure Exception Types | — | ✓ | 7 | — | — | ✓ | 5 | — | — |
+| Dependency Injection | — | — | — | — | — | ✓ | 6 | — | — |
 | Sessions | — | — | — | — | — | — | — | ✓ | 4 |
 | Continue-as-New | — | — | — | — | — | — | — | — | — |
 | Workflow Updates | — | — | — | — | — | — | — | — | — |
@@ -27,7 +27,7 @@
 |----------|--------|-------|
 | Python | ✓ reference | 7 sections |
 | TypeScript | ✓ aligned | 4 sections (removed duplicates) |
-| .NET | ✓ aligned | 5 sections — Schedules, Async Completion, Worker Tuning, Failure Exception Types, DI |
+| .NET | ✓ aligned | 6 sections — Schedules, Async Completion, Worker Tuning, Workflow Init, Failure Exception Types, DI |
 | Go | ✓ aligned | 4 sections — Schedules, Async Completion, Worker Tuning, Sessions |
 
 ## Status
@@ -42,7 +42,7 @@
 - Sandbox Customization: Python-specific; .NET/Go have no sandbox
 - Gevent Compatibility Warning: Python-specific
 - Workflow Init Decorator: Python-specific (@workflow.init)
-- Workflow Failure Exception Types: Python-specific; .NET also has this (see .NET notes)
+- Workflow Failure Exception Types: Python and .NET (see .NET notes)
 - Sinks: TS-specific feature
 - Sessions: Go-specific (not in Python/TS/.NET)
 - Interceptors: Decided not to include for any language (all SDKs have them, but too advanced for current scope)
@@ -50,7 +50,7 @@
 **.NET alignment notes:**
 - Workflow Failure Exception Types: ✓ for .NET — only `ApplicationFailureException` fails a workflow; other exceptions retry the workflow task.
 - Dependency Injection: NEW .NET-specific section — `Temporalio.Extensions.Hosting` package, `AddTemporalClient()`, generic host worker setup, activity DI.
-- .NET gets 5 sections (Schedules, Async Activity Completion, Worker Tuning, Workflow Failure Exception Types, Dependency Injection)
+- .NET gets 6 sections (Schedules, Async Activity Completion, Worker Tuning, Workflow Init, Workflow Failure Exception Types, Dependency Injection)
 
 **Order alignment:** N/A — Files have different structures by design
 
@@ -58,5 +58,5 @@
 - Python: 7 sections (Schedules, Async Activity Completion, Sandbox Customization, Gevent Warning, Worker Tuning, Workflow Init, Failure Exception Types)
 - TypeScript: 4 sections (Schedules, Async Activity Completion, Worker Tuning, Sinks)
 - Go: 4 sections (Schedules, Async Activity Completion, Worker Tuning, Sessions)
-- .NET: 5 sections planned (Schedules, Async Activity Completion, Worker Tuning, Workflow Failure Exception Types, Dependency Injection)
+- .NET: 6 sections (Schedules, Async Activity Completion, Worker Tuning, Workflow Init, Workflow Failure Exception Types, Dependency Injection)
 - Removed duplicates from TS (Continue-as-New, Workflow Updates, CancellationScope Patterns, Nexus Operations, Activity Cancellation, Best Practices — all covered elsewhere)
