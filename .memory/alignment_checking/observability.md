@@ -4,14 +4,14 @@
 
 | Section | Core | Python | Py# | TypeScript | TS# | .NET | DN# | Go | Go# |
 |---------|------|--------|-----|------------|-----|------|-----|----|-----|
-| Overview | — | ✓ | 1 | ✓ | 1 | TODO | 1 | ✓ | 1 |
-| Logging / Replay-Aware Logging | — | ✓ | 2 | ✓ | 2 | TODO | 2 | ✓ | 2 |
-| Customizing the Logger | — | ✓ | 2 | ✓ | 3 | TODO | 3 | ✓ | 3 |
+| Overview | — | ✓ | 1 | ✓ | 1 | ✓ | 1 | ✓ | 1 |
+| Logging / Replay-Aware Logging | — | ✓ | 2 | ✓ | 2 | ✓ | 2 | ✓ | 2 |
+| Customizing the Logger | — | ✓ | 2 | ✓ | 3 | ✓ | 3 | ✓ | 3 |
 | OpenTelemetry Integration | — | — | — | — | — | — | — | — | — |
-| Metrics | — | ✓ | 3 | ✓ | 4 | TODO | 4 | ✓ | 4 |
+| Metrics | — | ✓ | 3 | ✓ | 4 | ✓ | 4 | ✓ | 4 |
 | Search Attributes (Visibility) | — | ✓ | 4 | — | — | — | — | ✓ | 5 |
 | Debugging with Event History | — | — | — | — | — | — | — | — | — |
-| Best Practices | — | ✓ | 5 | ✓ | 5 | TODO | 5 | ✓ | 6 |
+| Best Practices | — | ✓ | 5 | ✓ | 5 | ✓ | 5 | ✓ | 6 |
 
 ## Style Compliance
 
@@ -19,7 +19,7 @@
 |----------|--------|-------|
 | Python | ✓ reference | — |
 | TypeScript | ✓ aligned | Removed verbose sections |
-| .NET | — | Not started |
+| .NET | ✓ aligned | Workflow.Logger, ActivityExecutionContext.Current.Logger, ILoggerFactory, OpenTelemetry metrics |
 | Go | ✓ aligned | workflow.GetLogger, slog integration, Tally/Prometheus metrics |
 
 ## Status

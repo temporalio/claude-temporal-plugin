@@ -4,31 +4,31 @@
 
 | Section | Core | Python | Py# | TypeScript | TS# | .NET | DN# | Go | Go# |
 |---------|------|--------|-----|------------|-----|------|-----|----|-----|
-| Signals | ✓ | ✓ | 1 | ✓ | 1 | TODO | 1 | ✓ | 1 |
-| Dynamic Signal Handlers | — | ✓ | 2 | ✓ | 2 | TODO | 2 | — | — |
-| Queries | ✓ | ✓ | 3 | ✓ | 3 | TODO | 3 | ✓ | 2 |
-| Dynamic Query Handlers | — | ✓ | 4 | ✓ | 4 | TODO | 4 | — | — |
-| Updates | ✓ | ✓ | 5 | ✓ | 5 | TODO | 5 | ✓ | 3 |
-| Child Workflows | ✓ | ✓ | 6 | ✓ | 6 | TODO | 6 | ✓ | 4 |
+| Signals | ✓ | ✓ | 1 | ✓ | 1 | ✓ | 1 | ✓ | 1 |
+| Dynamic Signal Handlers | — | ✓ | 2 | ✓ | 2 | ✓ | 2 | — | — |
+| Queries | ✓ | ✓ | 3 | ✓ | 3 | ✓ | 3 | ✓ | 2 |
+| Dynamic Query Handlers | — | ✓ | 4 | ✓ | 4 | ✓ | 4 | — | — |
+| Updates | ✓ | ✓ | 5 | ✓ | 5 | ✓ | 5 | ✓ | 3 |
+| Child Workflows | ✓ | ✓ | 6 | ✓ | 6 | ✓ | 6 | ✓ | 4 |
 | Child Workflow Options | — | — | — | ✓ | 7 | — | — | ✓ | 4s |
-| Handles to External Workflows | — | ✓ | 7 | ✓ | 8 | TODO | 7 | ✓ | 5 |
-| Parallel Execution | ✓ | ✓ | 8 | ✓ | 9 | TODO | 8 | ✓ | 6 |
+| Handles to External Workflows | — | ✓ | 7 | ✓ | 8 | ✓ | 7 | ✓ | 5 |
+| Parallel Execution | ✓ | ✓ | 8 | ✓ | 9 | ✓ | 8 | ✓ | 6 |
 | Deterministic Asyncio Alternatives | — | ✓ | 9 | — | — | — | — | — | — |
-| Deterministic Task Alternatives | — | — | — | — | — | TODO | 9 | — | — |
+| Deterministic Task Alternatives | — | — | — | — | — | ✓ | 9 | — | — |
 | Selector Pattern | — | — | — | — | — | — | — | ✓ | 7 |
-| Continue-as-New | ✓ | ✓ | 10 | ✓ | 10 | TODO | 10 | ✓ | 8 |
+| Continue-as-New | ✓ | ✓ | 10 | ✓ | 10 | ✓ | 10 | ✓ | 8 |
 | Cancellation Handling (asyncio) | — | ✓ | 12 | — | — | — | — | — | — |
 | Cancellation Scopes | — | — | — | ✓ | 12 | — | — | — | — |
-| Cancellation Handling (CancellationToken) | — | — | — | — | — | TODO | 12 | — | — |
+| Cancellation Handling (CancellationToken) | — | — | — | — | — | ✓ | 12 | — | — |
 | Cancellation Handling | — | — | — | — | — | — | — | ✓ | 9 |
-| Saga Pattern | ✓ | ✓ | 11 | ✓ | 11 | TODO | 11 | ✓ | 10 |
+| Saga Pattern | ✓ | ✓ | 11 | ✓ | 11 | ✓ | 11 | ✓ | 10 |
 | Triggers | — | — | — | ✓ | 13 | — | — | — | — |
-| Wait Condition with Timeout | — | ✓ | 13 | ✓ | 14 | TODO | 13 | ✓ | 11 |
-| Waiting for All Handlers to Finish | — | ✓ | 14 | ✓ | 15 | TODO | 14 | ✓ | 12 |
-| Activity Heartbeat Details | ✓ | ✓ | 15 | ✓ | 16 | TODO | 15 | ✓ | 13 |
-| Timers | ✓ | ✓ | 16 | ✓ | 17 | TODO | 16 | ✓ | 14 |
+| Wait Condition with Timeout | — | ✓ | 13 | ✓ | 14 | ✓ | 13 | ✓ | 11 |
+| Waiting for All Handlers to Finish | — | ✓ | 14 | ✓ | 15 | ✓ | 14 | ✓ | 12 |
+| Activity Heartbeat Details | ✓ | ✓ | 15 | ✓ | 16 | ✓ | 15 | ✓ | 13 |
+| Timers | ✓ | ✓ | 16 | ✓ | 17 | ✓ | 16 | ✓ | 14 |
 | Large Data Handling | ✓ | — | — | — | — | — | — | — | — |
-| Local Activities | ✓ | ✓ | 17 | ✓ | 18 | TODO | 17 | ✓ | 15 |
+| Local Activities | ✓ | ✓ | 17 | ✓ | 18 | ✓ | 17 | ✓ | 15 |
 | Entity Workflow Pattern | ✓ | — | — | — | — | — | — | — | — |
 | Polling Patterns | ✓ | — | — | — | — | — | — | — | — |
 | Idempotency Patterns | ✓ | — | — | — | — | — | — | — | — |
@@ -40,7 +40,7 @@
 |----------|--------|-------|
 | Python | ✓ reference | — |
 | TypeScript | ✓ aligned | Uses `log`, CancellationScope idiom |
-| .NET | — | Not started |
+| .NET | ✓ aligned | Attribute-based handlers, CancellationToken, Workflow.WhenAllAsync/WhenAnyAsync, lambda activity invocations |
 | Go | ✓ aligned | Channel-based signals, SetQueryHandler, SetUpdateHandler, Selector, compensation slice saga |
 
 ## Status
@@ -68,6 +68,14 @@
 - Continue-as-New: Go returns `workflow.NewContinueAsNewError` (error-based, not function call)
 - Cancellation Scopes / Triggers / Deterministic Asyncio: Not applicable to Go → marked `—`
 
+**.NET-specific notes:**
+- Signals/Queries/Updates use `[WorkflowSignal]`, `[WorkflowQuery]`, `[WorkflowUpdate]` attributes
+- Dynamic handlers use `(Dynamic = true)` attribute param with `IRawValue[]` args
+- Cancellation uses standard `CancellationToken` + `TemporalException.IsCanceledException(e)` pattern with detached token for cleanup
+- Deterministic Task Alternatives: .NET-specific section covering `Workflow.WhenAllAsync`, `WhenAnyAsync`, `RunTaskAsync`, `DelayAsync`, `Mutex`, `Semaphore`
+- Parallel Execution uses `Workflow.WhenAllAsync` (not `Task.WhenAll`)
+- Saga uses `List<Func<Task>>` for compensations (idiomatic C#)
+
 **Decided to keep as Core-only:**
 - Large Data Handling: Core conceptual explanation sufficient (language-agnostic pattern)
 - Polling Patterns: Core conceptual explanation sufficient
@@ -84,7 +92,7 @@
 
 **Order alignment:** ✓ Aligned — TS# and Go# monotonically increase
 
-**Style alignment:** ✅ All issues fixed (Python, TypeScript, Go)
+**Style alignment:** ✅ All issues fixed (Python, TypeScript, Go, .NET)
 - ✅ **Queries:** TS now has "Important: must NOT modify state" note
 - ✅ **Updates:** All languages now have "validators must NOT mutate state or block" note
 - ✅ **Saga Pattern:** TS now has idempotency note, comments about saving compensation BEFORE activity

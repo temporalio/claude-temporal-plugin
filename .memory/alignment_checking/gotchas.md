@@ -13,17 +13,17 @@
 | Activity Imports | — | — | — | — | ✓ | 1 | — | — | — | — |
 | Bundling Issues | — | — | — | — | ✓ | 2 | — | — | — | — |
 | Async vs Sync Activities | — | — | ✓ | 2 | — | — | — | — | — | — |
-| .NET Task Determinism | — | — | — | — | — | — | TODO | 1 | — | — |
+| .NET Task Determinism | — | — | — | — | — | — | ✓ | 1 | — | — |
 | Goroutines and Concurrency | — | — | — | — | — | — | — | — | ✓ | 1 |
 | Non-Deterministic Operations | — | — | — | — | — | — | — | — | ✓ | 2 |
 | Error Handling | ✓ | 8 | — | — | — | — | — | — | — | — |
-| Wrong Retry Classification | ✓ | 8 | ✓ | 3 | ✓ | 3 | TODO | 2 | ✓ | 3 |
-| Heartbeating | — | — | ✓ | 5 | ✓ | 5 | TODO | 4 | ✓ | 4 |
-| Cancellation | ✓ | 10 | ✓ | 4 | ✓ | 4 | TODO | 3 | ✓ | 5 |
-| Testing | ✓ | 7 | ✓ | 6 | ✓ | 6 | TODO | 5 | ✓ | 6 |
-| Timers and Sleep | — | — | ✓ | 7 | ✓ | 7 | TODO | 6 | ✓ | 7 |
+| Wrong Retry Classification | ✓ | 8 | ✓ | 3 | ✓ | 3 | ✓ | 2 | ✓ | 3 |
+| Heartbeating | — | — | ✓ | 5 | ✓ | 5 | ✓ | 4 | ✓ | 4 |
+| Cancellation | ✓ | 10 | ✓ | 4 | ✓ | 4 | ✓ | 3 | ✓ | 5 |
+| Testing | ✓ | 7 | ✓ | 6 | ✓ | 6 | ✓ | 5 | ✓ | 6 |
+| Timers and Sleep | — | — | ✓ | 7 | ✓ | 7 | ✓ | 6 | ✓ | 7 |
 | Payload Size Limits | ✓ | 9 | — | — | — | — | — | — | — | — |
-| Dictionary Iteration Order | — | — | — | — | — | — | TODO | 7 | — | — |
+| Dictionary Iteration Order | — | — | — | — | — | — | ✓ | 7 | — | — |
 
 ## Style Compliance
 
@@ -32,7 +32,7 @@
 | Core | ✓ reference | Conceptual gotchas |
 | Python | ✓ aligned | Language-specific gotchas |
 | TypeScript | ✓ aligned | Language-specific gotchas |
-| .NET | — | Not started |
+| .NET | ✓ aligned | Task determinism, Dictionary iteration order, BAD/GOOD code pattern examples |
 | Go | ✓ aligned | Language-specific gotchas — goroutines, channels, selectors, map range |
 
 ## Status

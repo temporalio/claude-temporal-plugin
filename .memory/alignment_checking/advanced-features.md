@@ -4,14 +4,14 @@
 
 | Section | Core | Python | Py# | TypeScript | TS# | .NET | DN# | Go | Go# |
 |---------|------|--------|-----|------------|-----|------|-----|----|-----|
-| Schedules | — | ✓ | 1 | ✓ | 1 | TODO | 1 | ✓ | 1 |
-| Async Activity Completion | — | ✓ | 2 | ✓ | 2 | TODO | 2 | ✓ | 2 |
+| Schedules | — | ✓ | 1 | ✓ | 1 | ✓ | 1 | ✓ | 1 |
+| Async Activity Completion | — | ✓ | 2 | ✓ | 2 | ✓ | 2 | ✓ | 2 |
 | Sandbox Customization | — | ✓ | 3 | — | — | — | — | — | — |
 | Gevent Compatibility Warning | — | ✓ | 4 | — | — | — | — | — | — |
-| Worker Tuning | — | ✓ | 5 | ✓ | 3 | TODO | 3 | ✓ | 3 |
+| Worker Tuning | — | ✓ | 5 | ✓ | 3 | ✓ | 3 | ✓ | 3 |
 | Workflow Init Decorator | — | ✓ | 6 | — | — | — | — | — | — |
-| Workflow Failure Exception Types | — | ✓ | 7 | — | — | TODO | 4 | — | — |
-| Dependency Injection | — | — | — | — | — | TODO | 5 | — | — |
+| Workflow Failure Exception Types | — | ✓ | 7 | — | — | ✓ | 4 | — | — |
+| Dependency Injection | — | — | — | — | — | ✓ | 5 | — | — |
 | Sessions | — | — | — | — | — | — | — | ✓ | 4 |
 | Continue-as-New | — | — | — | — | — | — | — | — | — |
 | Workflow Updates | — | — | — | — | — | — | — | — | — |
@@ -27,7 +27,7 @@
 |----------|--------|-------|
 | Python | ✓ reference | 7 sections |
 | TypeScript | ✓ aligned | 4 sections (removed duplicates) |
-| .NET | — | Not started |
+| .NET | ✓ aligned | 5 sections — Schedules, Async Completion, Worker Tuning, Failure Exception Types, DI |
 | Go | ✓ aligned | 4 sections — Schedules, Async Completion, Worker Tuning, Sessions |
 
 ## Status

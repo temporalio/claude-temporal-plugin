@@ -4,14 +4,14 @@
 
 | Section | Core | Python | Py# | TypeScript | TS# | .NET | DN# | Go | Go# |
 |---------|------|--------|-----|------------|-----|------|-----|----|-----|
-| Overview | — | ✓ | 1 | ✓ | 1 | TODO | 1 | ✓ | 1 |
+| Overview | — | ✓ | 1 | ✓ | 1 | ✓ | 1 | ✓ | 1 |
 | How the Sandbox Works | — | ✓ | 2 | — | — | — | — | — | — |
 | Import Blocking | — | — | — | ✓ | 2 | — | — | — | — |
 | Forbidden Operations | — | ✓ | 3 | — | — | — | — | — | — |
 | Function Replacement | — | — | — | ✓ | 3 | — | — | — | — |
-| Runtime Task Detection | — | — | — | — | — | TODO | 2 | — | — |
-| .NET Task Determinism Rules | — | — | — | — | — | TODO | 3 | — | — |
-| Workflow .editorconfig | — | — | — | — | — | TODO | 4 | — | — |
+| Runtime Task Detection | — | — | — | — | — | ✓ | 2 | — | — |
+| .NET Task Determinism Rules | — | — | — | — | — | ✓ | 3 | — | — |
+| Workflow .editorconfig | — | — | — | — | — | ✓ | 4 | — | — |
 | workflowcheck Static Analysis | — | — | — | — | — | — | — | ✓ | 2 |
 | Determinism Rules | — | — | — | — | — | — | — | ✓ | 3 |
 | Pass-Through Pattern | — | ✓ | 4 | — | — | — | — | — | — |
@@ -22,7 +22,7 @@
 | Disable Lazy sys.modules Passthrough | — | ✓ | 9 | — | — | — | — | — | — |
 | File Organization | — | ✓ | 10 | — | — | — | — | — | — |
 | Common Issues | — | ✓ | 11 | — | — | — | — | — | — |
-| Best Practices | — | ✓ | 12 | — | — | TODO | 5 | ✓ | 4 |
+| Best Practices | — | ✓ | 12 | — | — | ✓ | 5 | ✓ | 4 |
 
 ## Style Compliance
 
@@ -30,7 +30,7 @@
 |----------|--------|-------|
 | Python | ✓ reference | Comprehensive (12 sections) |
 | TypeScript | ✓ aligned | Minimal (3 sections) — V8 is automatic |
-| .NET | — | Not started |
+| .NET | ✓ aligned | Minimal (5 sections) — no sandbox, runtime EventListener + Task rules + .editorconfig |
 | Go | ✓ aligned | Minimal (4 sections) — no runtime sandbox, convention + static analysis |
 
 ## Status

@@ -6,16 +6,16 @@ Tracks alignment for `python.md`, `typescript.md`, `go.md`, etc.
 
 | Section | Core | Python | Py# | TypeScript | TS# | .NET | DN# | Go | Go# |
 |---------|------|--------|-----|------------|-----|------|-----|----|-----|
-| Overview | — | ✓ | 1 | ✓ | 1 | TODO | 1 | ✓ | 1 |
+| Overview | — | ✓ | 1 | ✓ | 1 | ✓ | 1 | ✓ | 1 |
 | How Temporal Works: History Replay | — | — | — | — | — | — | — | — | — |
-| Understanding Replay | — | — | — | ✓ | 2 | TODO | 2 | — | — |
-| Quick Start / Quick Demo | — | ✓ | 2 | ✓ | 3 | TODO | 3 | ✓ | 2 |
-| Key Concepts | — | ✓ | 3 | ✓ | 4 | TODO | 4 | ✓ | 3 |
-| File Organization Best Practice | — | ✓ | 4 | ✓ | 5 | TODO | 5 | ✓ | 4 |
-| Determinism Rules | — | — | — | ✓ | 6 | TODO | 6 | — | — |
-| Common Pitfalls | — | ✓ | 5 | ✓ | 7 | TODO | 7 | ✓ | 5 |
-| Writing Tests | — | ✓ | 6 | ✓ | 8 | TODO | 8 | ✓ | 6 |
-| Additional Resources | — | ✓ | 7 | ✓ | 9 | TODO | 9 | ✓ | 7 |
+| Understanding Replay | — | — | — | ✓ | 2 | ✓ | 2 | — | — |
+| Quick Start / Quick Demo | — | ✓ | 2 | ✓ | 3 | ✓ | 3 | ✓ | 2 |
+| Key Concepts | — | ✓ | 3 | ✓ | 4 | ✓ | 4 | ✓ | 3 |
+| File Organization Best Practice | — | ✓ | 4 | ✓ | 5 | ✓ | 5 | ✓ | 4 |
+| Determinism Rules | — | — | — | ✓ | 6 | ✓ | 6 | — | — |
+| Common Pitfalls | — | ✓ | 5 | ✓ | 7 | ✓ | 7 | ✓ | 5 |
+| Writing Tests | — | ✓ | 6 | ✓ | 8 | ✓ | 8 | ✓ | 6 |
+| Additional Resources | — | ✓ | 7 | ✓ | 9 | ✓ | 9 | ✓ | 7 |
 
 ## Style Compliance
 
@@ -23,7 +23,7 @@ Tracks alignment for `python.md`, `typescript.md`, `go.md`, etc.
 |----------|--------|-------|
 | Python | ✓ reference | — |
 | TypeScript | ✓ aligned | Has Understanding Replay, Determinism Rules |
-| .NET | — | Not started |
+| .NET | ✓ aligned | Has Understanding Replay + Determinism Rules (like TS); NuGet setup, attribute-based API |
 | Go | ✓ aligned | Function-based (no decorators), workflowcheck, struct activities |
 
 ## Status

@@ -4,17 +4,17 @@
 
 | Section | Core | Python | Py# | TypeScript | TS# | .NET | DN# | Go | Go# |
 |---------|------|--------|-----|------------|-----|------|-----|----|-----|
-| Overview | — | ✓ | 1 | ✓ | 1 | TODO | 1 | ✓ | 1 |
-| Application Errors/Failures | — | ✓ | 2 | ✓ | 2 | TODO | 2 | ✓ | 2 |
-| Non-Retryable Errors | — | ✓ | 3 | — | — | TODO | 3 | ✓ | 3 |
+| Overview | — | ✓ | 1 | ✓ | 1 | ✓ | 1 | ✓ | 1 |
+| Application Errors/Failures | — | ✓ | 2 | ✓ | 2 | ✓ | 2 | ✓ | 2 |
+| Non-Retryable Errors | — | ✓ | 3 | — | — | ✓ | 3 | ✓ | 3 |
 | Activity Errors | — | — | — | ✓ | 3 | — | — | — | — |
-| Handling Activity Errors in Workflows | — | ✓ | 4 | ✓ | 4 | TODO | 4 | ✓ | 4 |
-| Retry Configuration | — | ✓ | 5 | ✓ | 5 | TODO | 5 | ✓ | 5 |
-| Timeout Configuration | — | ✓ | 6 | ✓ | 6 | TODO | 6 | ✓ | 6 |
-| Workflow Failure | — | ✓ | 7 | ✓ | 7 | TODO | 7 | ✓ | 7 |
+| Handling Activity Errors in Workflows | — | ✓ | 4 | ✓ | 4 | ✓ | 4 | ✓ | 4 |
+| Retry Configuration | — | ✓ | 5 | ✓ | 5 | ✓ | 5 | ✓ | 5 |
+| Timeout Configuration | — | ✓ | 6 | ✓ | 6 | ✓ | 6 | ✓ | 6 |
+| Workflow Failure | — | ✓ | 7 | ✓ | 7 | ✓ | 7 | ✓ | 7 |
 | Cancellation Handling in Activities | — | — | — | — | — | — | — | — | — |
 | Idempotency Patterns | — | — | — | — | — | — | — | — | — |
-| Best Practices | — | ✓ | 8 | ✓ | 9 | TODO | 8 | ✓ | 8 |
+| Best Practices | — | ✓ | 8 | ✓ | 9 | ✓ | 8 | ✓ | 8 |
 
 ## Style Compliance
 
@@ -22,7 +22,7 @@
 |----------|--------|-------|
 | Python | ✓ reference | — |
 | TypeScript | ✓ aligned | Uses `log`, has retry defaults note |
-| .NET | — | Not started |
+| .NET | ✓ aligned | ApplicationFailureException, ActivityFailureException, nonRetryable param |
 | Go | ✓ aligned | Go-style error handling (errors.As, error returns, no exceptions) |
 
 ## Status

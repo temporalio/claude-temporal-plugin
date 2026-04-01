@@ -30,7 +30,7 @@ Python is the reference style (code-first, minimal prose). All languages should 
 
 **Go:** ✅ COMPLETE (2026-03-17) — All Go reference files created and aligned.
 
-**.NET:** ⏳ IN PROGRESS (2026-03-16) — Alignment tracking docs created with TODO markers.
+**.NET:** ✅ COMPLETE (2026-04-01) — All sections verified present and style-aligned with Python reference.
 
 ## Files
 
