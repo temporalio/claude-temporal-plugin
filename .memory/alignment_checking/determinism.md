@@ -8,13 +8,13 @@
 | Why Determinism Matters | ✓ | 2 | ✓ | 2 | ✓ | 2 | ✓ | 2 | ✓ | 2 |
 | Sources of Non-Determinism | ✓ | 3 | — | — | — | — | — | — | — | — |
 | Central Concept: Activities | ✓ | 4 | — | — | — | — | — | — | — | — |
-| SDK Protection / Sandbox | ✓ | 5 | ✓ | 6 | ✓ | 3 | ✓ | 3 | — | — |
-| Forbidden Operations | — | — | ✓ | 3 | ✓ | 4 | ✓ | 4 | ✓ | 3 |
-| Safe Builtin Alternatives | — | — | ✓ | 4 | — | — | ✓ | 5 | ✓ | 4 |
+| SDK Protection / Sandbox | ✓ | 5 | ✓ | 6 | ✓ | 3 | — | — | — | — |
+| Forbidden Operations | — | — | ✓ | 3 | ✓ | 4 | ✓ | 3 | ✓ | 3 |
+| Safe Builtin Alternatives | — | — | ✓ | 4 | — | — | ✓ | 4 | ✓ | 4 |
 | Detecting Non-Determinism | ✓ | 6 | — | — | — | — | — | — | — | — |
 | Recovery from Non-Determinism | ✓ | 7 | — | — | — | — | — | — | — | — |
-| Testing Replay Compatibility | — | — | ✓ | 5 | ✓ | 5 | ✓ | 6 | ✓ | 5 |
-| Best Practices | ✓ | 8 | ✓ | 7 | ✓ | 6 | ✓ | 7 | ✓ | 6 |
+| Testing Replay Compatibility | — | — | ✓ | 5 | ✓ | 5 | ✓ | 5 | ✓ | 5 |
+| Best Practices | ✓ | 8 | ✓ | 7 | ✓ | 6 | ✓ | 6 | ✓ | 6 |
 
 ## Style Compliance
 
