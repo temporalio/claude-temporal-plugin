@@ -371,3 +371,28 @@ _ = encodedVal.Get(&val)
 
 ---
 
+
+## .NET
+
+**File:** `references/dotnet/gotchas.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | .NET Task Determinism | all good | | SDK README |
+| 2 | Wrong Retry Classification | all good | | — |
+| 3 | Heartbeating | all good | `ActivityExecutionContext.Current.Heartbeat()` confirmed | temporal-docs API |
+| 4 | Cancellation | all good | `CancellationToken.None` for cleanup confirmed | temporal-docs |
+| 5 | Testing | all good | | — |
+| 6 | Timers and Sleep | all good | | SDK README |
+| 7 | Dictionary Iteration Order | all good | | SDK README |
+
+### Detailed Notes
+
+#### 1. .NET Task Determinism
+**Status:** all good
+**Verified:** All BAD/GOOD examples match SDK README `.NET Task Determinism` section exactly. `Workflow.RunTaskAsync`, `Workflow.DelayAsync`, `Workflow.WhenAllAsync`/`WhenAnyAsync`, `Temporalio.Workflows.Mutex`/`Semaphore` confirmed.
+
+---
+

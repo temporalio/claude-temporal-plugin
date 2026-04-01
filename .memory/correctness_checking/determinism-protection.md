@@ -232,3 +232,25 @@ Correctness verification for `references/{language}/determinism-protection.md`.
 
 ---
 
+
+## .NET
+
+**File:** `references/dotnet/determinism-protection.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Overview | all good | | SDK README |
+| 2 | Runtime Task Detection | all good | `InvalidWorkflowOperationException` confirmed | SDK README |
+| 3 | .NET Task Determinism Rules | all good | All rules match SDK README | SDK README |
+| 4 | Best Practices | all good | | — |
+
+### Detailed Notes
+
+#### 2. Runtime Task Detection
+**Status:** all good
+**Verified:** `InvalidWorkflowOperationException` exact class name confirmed. `DisableWorkflowTracingEventListener` property confirmed. EventListener mechanism description matches SDK README.
+
+---
+

@@ -269,3 +269,29 @@ Correctness verification for `references/{language}/error-handling.md`.
 
 ---
 
+
+## .NET
+
+**File:** `references/dotnet/error-handling.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Overview | all good | | — |
+| 2 | Application Failures | all good | `errorType:` param confirmed | temporal-docs API |
+| 3 | Non-Retryable Errors | all good | `nonRetryable:` param confirmed | temporal-docs API |
+| 4 | Handling Activity Errors | all good | `ActivityFailureException` confirmed | temporal-docs API |
+| 5 | Retry Configuration | all good | `MaximumInterval`/`MaximumAttempts`/`NonRetryableErrorTypes` confirmed | temporal-docs, SDK samples |
+| 6 | Timeout Configuration | all good | | temporal-docs |
+| 7 | Workflow Failure | all good | Only `ApplicationFailureException` fails workflow — confirmed | SDK README |
+| 8 | Best Practices | all good | | — |
+
+### Detailed Notes
+
+#### 2-3. Application Failures / Non-Retryable
+**Status:** all good
+**Verified:** `ApplicationFailureException(message, errorType:, nonRetryable:)` constructor — lowercase param names confirmed from API docs. Namespace `Temporalio.Exceptions` confirmed.
+
+---
+

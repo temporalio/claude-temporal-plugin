@@ -330,3 +330,31 @@ Correctness verification for `references/{language}/data-handling.md`.
 
 ---
 
+
+## .NET
+
+**File:** `references/dotnet/data-handling.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Overview | all good | | temporal-docs |
+| 2 | Default Data Converter | all good | | SDK README |
+| 3 | Custom Data Converter | all good | | SDK README |
+| 4 | Protobuf Support | all good | | SDK README |
+| 5 | Payload Encryption | all good | | SDK README |
+| 6 | Search Attributes | FIXED | Changed to `key.ValueSet(value)` style | temporal-docs API |
+| 7 | Workflow Memo | all good | | temporal-docs |
+| 8 | Deterministic APIs for Values | all good | | temporal-docs API |
+| 9 | Best Practices | all good | | — |
+
+### Detailed Notes
+
+#### 6. Search Attributes
+**Status:** FIXED
+**Issue:** Was using static `SearchAttributeUpdate.ValueSet(key, value)`. Changed to preferred `key.ValueSet(value)` instance method style per official docs. Both are valid APIs but docs prefer the instance method.
+**Source:** temporal-docs API, dotnet.temporal.io
+
+---
+

@@ -295,3 +295,31 @@ Correctness verification for `references/{language}/{language}.md` (e.g., typesc
 
 ---
 
+
+## .NET
+
+**File:** `references/dotnet/dotnet.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Overview | all good | | — |
+| 2 | Understanding Replay | all good | | — |
+| 3 | Quick Start | all good | `AddAllActivities`/`AddWorkflow<T>()` verified | SDK samples |
+| 4 | Key Concepts | all good | Added `[WorkflowInit]` guidance | temporal-docs |
+| 5 | File Organization | all good | Updated to `.workflow.cs` convention | SDK README |
+| 6 | Workflow .editorconfig | all good | Copied from SDK README | SDK README |
+| 7 | Determinism Rules | all good | | — |
+| 8 | Common Pitfalls | all good | | — |
+| 9 | Writing Tests | all good | | — |
+| 10 | Additional Resources | all good | | — |
+
+### Detailed Notes
+
+#### 6. Workflow .editorconfig
+**Status:** all good
+**Verified:** Copied directly from SDK README. Rules match exactly: CA1024, CA1822, CA2007, CA2008, CA5394, CS1998, VSTHRD103, VSTHRD105. Scoped to `[*.workflow.cs]`.
+
+---
+

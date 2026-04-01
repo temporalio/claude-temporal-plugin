@@ -185,3 +185,32 @@ Correctness verification for `references/{language}/advanced-features.md`.
 
 ---
 
+
+## .NET
+
+**File:** `references/dotnet/advanced-features.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Schedules | FIXED | Changed `action:`/`spec:` to PascalCase `Action:`/`Spec:` | temporal-docs API |
+| 2 | Async Activity Completion | all good | Added heartbeat guidance during alignment | temporal-docs API |
+| 3 | Worker Tuning | all good | | temporal-docs API |
+| 4 | Workflow Init Attribute | all good | New section added during alignment | temporal-docs, SDK README |
+| 5 | Workflow Failure Exception Types | all good | | SDK README |
+| 6 | Dependency Injection | all good | `AddScopedActivities<T>()` and `AddSingletonActivities<T>()` confirmed | temporal-docs API |
+
+### Detailed Notes
+
+#### 1. Schedules
+**Status:** FIXED
+**Issue:** Constructor used lowercase named params `action:`, `spec:`. C# records use PascalCase: `Action:`, `Spec:`.
+**Source:** `Schedule(ScheduleAction Action, ScheduleSpec Spec)` confirmed at dotnet.temporal.io API docs.
+
+#### 2. Async Activity Completion
+**Status:** all good
+**Verified:** `CompleteAsyncException` is correct class name in `Temporalio.Activities` namespace. `GetAsyncActivityHandle(taskToken)` returns handle with `CompleteAsync`, `FailAsync`, `HeartbeatAsync` methods.
+
+---
+

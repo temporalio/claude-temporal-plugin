@@ -341,3 +341,25 @@ Correctness verification for `references/{language}/versioning.md`.
 
 ---
 
+
+## .NET
+
+**File:** `references/dotnet/versioning.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Patching API | all good | | temporal-docs |
+| 2 | Workflow Type Versioning | all good | | temporal-docs |
+| 3 | Worker Versioning | all good | `WorkerDeploymentOptions`/`UseWorkerVersioning` confirmed | temporal-docs API |
+| 4 | Best Practices | all good | | — |
+
+### Detailed Notes
+
+#### 3. Worker Versioning
+**Status:** all good
+**Verified:** `WorkerDeploymentOptions(DeploymentName:, BuildId:)` and `UseWorkerVersioning = true` confirmed in API docs. `VersioningBehavior.Pinned`/`AutoUpgrade` attribute syntax confirmed.
+
+---
+

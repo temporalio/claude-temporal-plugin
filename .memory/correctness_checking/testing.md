@@ -286,3 +286,29 @@ Correctness verification for `references/{language}/testing.md`.
 
 ---
 
+
+## .NET
+
+**File:** `references/dotnet/testing.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Overview | all good | | temporal-docs |
+| 2 | Test Environment Setup | all good | | SDK README, temporal-docs |
+| 3 | Activity Mocking | all good | | SDK README |
+| 4 | Testing Signals and Queries | all good | | temporal-docs |
+| 5 | Testing Failure Cases | all good | | temporal-docs |
+| 6 | Replay Testing | all good | `WorkflowReplayer`/`WorkflowReplayerOptions` confirmed | temporal-docs API |
+| 7 | Activity Testing | all good | | temporal-docs API |
+| 8 | Best Practices | all good | | — |
+
+### Detailed Notes
+
+#### 6. Replay Testing
+**Status:** all good
+**Verified:** `WorkflowReplayer` class in `Temporalio.Worker` namespace. Constructor takes `WorkflowReplayerOptions`. `ReplayWorkflowAsync(WorkflowHistory.FromJson(...))` matches SDK README exactly.
+
+---
+

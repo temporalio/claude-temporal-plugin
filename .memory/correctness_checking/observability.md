@@ -253,3 +253,28 @@ Correctness verification for `references/{language}/observability.md`.
 
 ---
 
+
+## .NET
+
+**File:** `references/dotnet/observability.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Overview | all good | | — |
+| 2 | Logging | all good | `Workflow.Logger` as `ILogger` confirmed | temporal-docs, SDK README |
+| 3 | Customizing Logger | all good | `LoggerFactory` on client options confirmed | temporal-docs |
+| 4 | Metrics | FIXED | Replaced fabricated `AddTemporalClientInstrumentation()` with correct `TemporalRuntime` Prometheus approach | temporal-docs |
+| 5 | Search Attributes | all good | Cross-reference to data-handling.md | — |
+| 6 | Best Practices | all good | | — |
+
+### Detailed Notes
+
+#### 4. Metrics
+**Status:** FIXED
+**Issue:** Original code used `Sdk.CreateMeterProviderBuilder().AddTemporalClientInstrumentation()` which does NOT exist in the SDK. The .NET SDK uses `TemporalRuntime` with `Prometheus` endpoint for metrics, or `Temporalio.Extensions.DiagnosticSource` for .NET Meter integration.
+**Source:** temporal-docs, SDK README, dotnet.temporal.io API docs
+
+---
+

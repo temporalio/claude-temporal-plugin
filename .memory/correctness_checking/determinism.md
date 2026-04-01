@@ -232,3 +232,27 @@ Correctness verification for `references/{language}/determinism.md`.
 
 ---
 
+
+## .NET
+
+**File:** `references/dotnet/determinism.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Overview | all good | | — |
+| 2 | Why Determinism Matters | all good | | — |
+| 3 | Forbidden Operations | all good | | SDK README |
+| 4 | Safe Builtin Alternatives | all good | All entries verified | temporal-docs API |
+| 5 | Testing Replay Compatibility | all good | | — |
+| 6 | Best Practices | all good | | — |
+
+### Detailed Notes
+
+#### 4. Safe Builtin Alternatives
+**Status:** all good
+**Verified:** `Workflow.UtcNow`, `Workflow.Random`, `Workflow.NewGuid()`, `Workflow.DelayAsync`, `Workflow.RunTaskAsync`, `Workflow.WhenAllAsync`, `Workflow.WhenAnyAsync`, `Temporalio.Workflows.Mutex`, `Temporalio.Workflows.Semaphore` — all confirmed from SDK README and API docs.
+
+---
+

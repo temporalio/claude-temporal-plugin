@@ -710,3 +710,39 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 
 ---
 
+
+## .NET
+
+**File:** `references/dotnet/patterns.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Signals | all good | | temporal-docs API |
+| 2 | Dynamic Signal Handlers | all good | | temporal-docs API |
+| 3 | Queries | all good | | temporal-docs API |
+| 4 | Dynamic Query Handlers | all good | | temporal-docs API |
+| 5 | Updates | all good | Added validator constraints note during alignment | temporal-docs |
+| 6 | Child Workflows | all good | | temporal-docs API |
+| 7 | Handles to External Workflows | all good | | temporal-docs API |
+| 8 | Parallel Execution | all good | | temporal-docs API |
+| 9 | Deterministic Task Alternatives | all good | | SDK README, release notes |
+| 10 | Continue-as-New | all good | | temporal-docs API |
+| 11 | Saga Pattern | all good | | temporal-docs |
+| 12 | Cancellation Handling | FIXED | Updated to `TemporalException.IsCanceledException` + detached CancellationTokenSource | SDK README, temporal-docs |
+| 13 | Wait Condition with Timeout | all good | | temporal-docs API |
+| 14 | Waiting for All Handlers to Finish | all good | | temporal-docs API |
+| 15 | Activity Heartbeat Details | all good | | temporal-docs API |
+| 16 | Timers | all good | | temporal-docs API |
+| 17 | Local Activities | all good | | temporal-docs API |
+
+### Detailed Notes
+
+#### 12. Cancellation Handling
+**Status:** FIXED
+**Issue:** Was using `catch (OperationCanceledException) when (Workflow.CancellationToken.IsCancellationRequested)`. Official pattern uses `catch (Exception e) when (TemporalException.IsCanceledException(e))` with a detached `CancellationTokenSource` for cleanup activities.
+**Source:** SDK README, temporal-docs
+
+---
+

@@ -17,17 +17,17 @@ Each file in this directory tracks correctness for a corresponding reference fil
 
 | File | TypeScript | Python | .NET | Go |
 |------|------------|--------|------|-----|
-| patterns.md | ✅ | partial | — | ✅ |
-| testing.md | ✅ | partial | — | ✅ |
-| language.md | ✅ | partial | — | ✅ |
-| versioning.md | ✅ | partial | — | ✅ |
-| advanced-features.md | ✅ | partial | — | ✅ |
-| data-handling.md | ✅ | partial | — | ✅ |
-| determinism-protection.md | ✅ | partial | — | ✅ |
-| determinism.md | ✅ | partial | — | ✅ |
-| error-handling.md | ✅ | partial | — | ✅ |
-| gotchas.md | ✅ | partial | — | ✅ |
-| observability.md | ✅ | partial | — | ✅ |
+| patterns.md | ✅ | partial | ✅ | ✅ |
+| testing.md | ✅ | partial | ✅ | ✅ |
+| language.md | ✅ | partial | ✅ | ✅ |
+| versioning.md | ✅ | partial | ✅ | ✅ |
+| advanced-features.md | ✅ | partial | ✅ | ✅ |
+| data-handling.md | ✅ | partial | ✅ | ✅ |
+| determinism-protection.md | ✅ | partial | ✅ | ✅ |
+| determinism.md | ✅ | partial | ✅ | ✅ |
+| error-handling.md | ✅ | partial | ✅ | ✅ |
+| gotchas.md | ✅ | partial | ✅ | ✅ |
+| observability.md | ✅ | partial | ✅ | ✅ |
 | ai-patterns.md | — | partial | — | — |
 | sync-vs-async.md | — | ✅ | — | — |
 
