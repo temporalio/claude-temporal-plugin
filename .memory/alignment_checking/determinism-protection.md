@@ -11,7 +11,6 @@
 | Function Replacement | — | — | — | ✓ | 3 | — | — | — | — |
 | Runtime Task Detection | — | — | — | — | — | ✓ | 2 | — | — |
 | .NET Task Determinism Rules | — | — | — | — | — | ✓ | 3 | — | — |
-| Workflow .editorconfig | — | — | — | — | — | ✓ | 4 | — | — |
 | workflowcheck Static Analysis | — | — | — | — | — | — | — | ✓ | 2 |
 | Determinism Rules | — | — | — | — | — | — | — | ✓ | 3 |
 | Pass-Through Pattern | — | ✓ | 4 | — | — | — | — | — | — |
@@ -22,7 +21,7 @@
 | Disable Lazy sys.modules Passthrough | — | ✓ | 9 | — | — | — | — | — | — |
 | File Organization | — | ✓ | 10 | — | — | — | — | — | — |
 | Common Issues | — | ✓ | 11 | — | — | — | — | — | — |
-| Best Practices | — | ✓ | 12 | — | — | ✓ | 5 | ✓ | 4 |
+| Best Practices | — | ✓ | 12 | — | — | ✓ | 4 | ✓ | 4 |
 
 ## Style Compliance
 
@@ -30,7 +29,7 @@
 |----------|--------|-------|
 | Python | ✓ reference | Comprehensive (12 sections) |
 | TypeScript | ✓ aligned | Minimal (3 sections) — V8 is automatic |
-| .NET | ✓ aligned | Minimal (5 sections) — no sandbox, runtime EventListener + Task rules + .editorconfig |
+| .NET | ✓ aligned | Minimal (4 sections) — no sandbox, runtime EventListener + Task rules |
 | Go | ✓ aligned | Minimal (4 sections) — no runtime sandbox, convention + static analysis |
 
 ## Status

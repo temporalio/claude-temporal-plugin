@@ -12,10 +12,11 @@ Tracks alignment for `python.md`, `typescript.md`, `go.md`, etc.
 | Quick Start / Quick Demo | — | ✓ | 2 | ✓ | 3 | ✓ | 3 | ✓ | 2 |
 | Key Concepts | — | ✓ | 3 | ✓ | 4 | ✓ | 4 | ✓ | 3 |
 | File Organization Best Practice | — | ✓ | 4 | ✓ | 5 | ✓ | 5 | ✓ | 4 |
-| Determinism Rules | — | — | — | ✓ | 6 | ✓ | 6 | — | — |
-| Common Pitfalls | — | ✓ | 5 | ✓ | 7 | ✓ | 7 | ✓ | 5 |
-| Writing Tests | — | ✓ | 6 | ✓ | 8 | ✓ | 8 | ✓ | 6 |
-| Additional Resources | — | ✓ | 7 | ✓ | 9 | ✓ | 9 | ✓ | 7 |
+| Workflow .editorconfig | — | — | — | — | — | ✓ | 6 | — | — |
+| Determinism Rules | — | — | — | ✓ | 6 | ✓ | 7 | — | — |
+| Common Pitfalls | — | ✓ | 5 | ✓ | 7 | ✓ | 8 | ✓ | 5 |
+| Writing Tests | — | ✓ | 6 | ✓ | 8 | ✓ | 9 | ✓ | 6 |
+| Additional Resources | — | ✓ | 7 | ✓ | 9 | ✓ | 10 | ✓ | 7 |
 
 ## Style Compliance
 
