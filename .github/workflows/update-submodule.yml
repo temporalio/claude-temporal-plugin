@@ -37,11 +37,19 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Commit and push
+      - name: Create PR and merge
         if: steps.check.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          branch="auto/update-submodule-$(date +%s)"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
           git add plugins/temporal-developer/skills/temporal-developer
           git commit -m "update submodule to latest dev"
-          git push origin dev
+          git push origin "$branch"
+          pr_url=$(gh pr create --base dev --head "$branch" \
+            --title "update submodule to latest dev" \
+            --body "Automated submodule pointer update.")
+          gh pr merge "$pr_url" --squash --auto --delete-branch
