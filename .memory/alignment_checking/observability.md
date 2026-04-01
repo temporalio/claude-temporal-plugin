@@ -9,9 +9,9 @@
 | Customizing the Logger | — | ✓ | 2 | ✓ | 3 | ✓ | 3 | ✓ | 3 |
 | OpenTelemetry Integration | — | — | — | — | — | — | — | — | — |
 | Metrics | — | ✓ | 3 | ✓ | 4 | ✓ | 4 | ✓ | 4 |
-| Search Attributes (Visibility) | — | ✓ | 4 | — | — | — | — | ✓ | 5 |
+| Search Attributes (Visibility) | — | ✓ | 4 | ✓ | 5 | ✓ | 5 | ✓ | 5 |
 | Debugging with Event History | — | — | — | — | — | — | — | — | — |
-| Best Practices | — | ✓ | 5 | ✓ | 5 | ✓ | 5 | ✓ | 6 |
+| Best Practices | — | ✓ | 5 | ✓ | 6 | ✓ | 6 | ✓ | 6 |
 
 ## Style Compliance
 
