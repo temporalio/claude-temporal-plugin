@@ -168,15 +168,41 @@ Correctness verification for `references/{language}/determinism.md`.
 
 | # | Section | Status | Fix Applied | Sources |
 |---|---------|--------|-------------|---------|
-| 1 | Workflow.* APIs | all good | | temporal-docs |
-| 2 | NonDeterministicException | all good | | temporal-docs |
-| 3 | Cooperative Threading Model | all good | | temporal-docs |
-| 4 | Forbidden Operations | all good | | temporal-docs |
-| 5 | Best Practices | all good | | temporal-docs |
+| 1 | Overview | FIXED | Removed verbose Python/TS sandbox comparison | SDK team feedback |
+| 2 | Workflow.* APIs | all good | | temporal-docs |
+| 3 | NonDeterministicException | all good | | temporal-docs |
+| 4 | SDK Protection | FIXED | Toned down tooling claim; tools help but aren't exhaustive | SDK team feedback |
+| 5 | Cooperative Threading Model | all good | | temporal-docs |
+| 6 | Forbidden Operations | all good | | temporal-docs |
+| 7 | Best Practices | all good | | temporal-docs |
 
 ### Detailed Notes
 
-All sections verified correct against temporal-docs. All Workflow.* APIs (Workflow.sleep, Workflow.currentTimeMillis, Workflow.newRandom, etc.) confirmed accurate. NonDeterministicException and cooperative threading model confirmed.
+#### 1. Overview
+**Status:** FIXED
+
+**Fixed:** Removed verbose Python/TS sandbox comparison ("Unlike the Python SDK... or the TypeScript SDK..."), replaced with "(only Python and TypeScript have sandboxing)." Same cleanup applied across all Java and Go files.
+
+---
+
+#### 2–3. Workflow.* APIs, NonDeterministicException
+**Status:** all good
+
+Verified correct against temporal-docs. All Workflow.* APIs (Workflow.sleep, Workflow.currentTimeMillis, Workflow.newRandom, etc.) confirmed accurate.
+
+---
+
+#### 3. SDK Protection
+**Status:** FIXED
+
+**SDK team feedback:** Original text ("Use `temporal-workflowcheck` ... to catch violations at build time, and `WorkflowReplayer` to verify replay compatibility in tests") overstated tool coverage. Agents shouldn't rely solely on tooling to determine a workflow is safe. Updated to say tools "can help uncover some violations, but they are not exhaustive — careful code review and adherence to the rules below remain essential."
+
+---
+
+#### 4–6. Cooperative Threading Model, Forbidden Operations, Best Practices
+**Status:** all good
+
+Verified correct against temporal-docs.
 
 ---
 

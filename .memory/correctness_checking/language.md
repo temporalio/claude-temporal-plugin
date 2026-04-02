@@ -232,14 +232,25 @@ Correctness verification for `references/{language}/{language}.md` (e.g., typesc
 
 | # | Section | Status | Fix Applied | Sources |
 |---|---------|--------|-------------|---------|
-| 1 | Quick Start | all good | | temporal-docs |
-| 2 | Key Concepts | all good | | temporal-docs |
-| 3 | Worker Setup | all good | | temporal-docs |
-| 4 | Activity/Workflow Patterns | all good | | temporal-docs |
+| 1 | Overview | FIXED | Added Java 21+ recommendation; removed verbose Python/TS sandbox comparison | SDK team feedback |
+| 2 | Quick Start | all good | | temporal-docs |
+| 3 | Key Concepts | all good | | temporal-docs |
+| 4 | Worker Setup | all good | | temporal-docs |
+| 5 | Activity/Workflow Patterns | all good | | temporal-docs |
 
 ### Detailed Notes
 
-All sections verified correct against temporal-docs. Quick Start, Key Concepts, Worker Setup, and Activity/Workflow patterns all confirmed accurate.
+#### 1. Overview
+**Status:** FIXED
+
+**SDK team feedback:** "Java 8+ required" was technically true but could lead agents to bootstrap new projects with Java 8. Updated to "Java 8+ required; Java 21+ strongly recommended for virtual thread support."
+
+---
+
+#### 2–5. Quick Start, Key Concepts, Worker Setup, Activity/Workflow Patterns
+**Status:** all good
+
+Verified correct against temporal-docs.
 
 ---
 
