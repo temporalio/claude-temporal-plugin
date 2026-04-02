@@ -233,6 +233,28 @@ Correctness verification for `references/{language}/data-handling.md`.
 ---
 
 
+## Java
+
+**File:** `references/java/data-handling.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Default Data Converter | FIXED | Added missing ProtobufPayloadConverter to chain | temporal-docs |
+| 2 | JacksonJsonPayloadConverter | all good | | temporal-docs |
+| 3 | PayloadCodec | all good | | temporal-docs |
+| 4 | CodecDataConverter | all good | | temporal-docs |
+| 5 | SearchAttributeKey | all good | | temporal-docs |
+| 6 | Large Payloads | all good | | temporal-docs |
+| 7 | Best Practices | all good | | temporal-docs |
+
+### Detailed Notes
+
+#### 1. Default Data Converter
+**Status:** FIXED
+**Verified:** Default Data Converter chain was missing ProtobufPayloadConverter. Fixed to include it. All other sections (JacksonJsonPayloadConverter, PayloadCodec, CodecDataConverter, SearchAttributeKey) confirmed correct.
+
 ## Go
 
 **File:** `references/go/data-handling.md` (relative to skill root)

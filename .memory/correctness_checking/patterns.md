@@ -554,6 +554,41 @@ import { proxyLocalActivities } from '@temporalio/workflow';
 ---
 
 
+## Java
+
+**File:** `references/java/patterns.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Signals | all good | | temporal-docs |
+| 2 | Dynamic Signal Handlers | all good | | temporal-docs |
+| 3 | Queries | FIXED | `ActivityStub` replaced with typed interface | temporal-docs |
+| 4 | Dynamic Query Handlers | all good | | temporal-docs |
+| 5 | Updates | all good | | temporal-docs |
+| 6 | Child Workflows | all good | | temporal-docs |
+| 7 | Child Workflow Options | all good | | temporal-docs |
+| 8 | Handles to External Workflows | all good | | temporal-docs |
+| 9 | Parallel Execution | all good | | temporal-docs |
+| 10 | Continue-as-New | all good | | temporal-docs |
+| 11 | Saga Pattern | all good | | temporal-docs |
+| 12 | Cancellation Scopes | all good | | temporal-docs |
+| 13 | Triggers | all good | | temporal-docs |
+| 14 | Wait Condition with Timeout | all good | | temporal-docs |
+| 15 | Waiting for All Handlers to Finish | all good | | temporal-docs |
+| 16 | Activity Heartbeat Details | all good | | temporal-docs |
+| 17 | Timers | all good | | temporal-docs |
+
+### Detailed Notes
+
+#### 3. Queries
+**Status:** FIXED
+**Verified:** All 17 sections verified against temporal-docs. Only issue found was in the Queries section where `ActivityStub` was used instead of the correct typed interface. Fixed.
+
+---
+
+
 ## Go
 
 **File:** `references/go/patterns.md` (relative to skill root)

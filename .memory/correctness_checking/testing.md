@@ -200,6 +200,27 @@ Correctness verification for `references/{language}/testing.md`.
 ---
 
 
+## Java
+
+**File:** `references/java/testing.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | TestWorkflowExtension | all good | | temporal-docs |
+| 2 | Mockito Pattern | all good | | temporal-docs |
+| 3 | WorkflowReplayer | all good | | temporal-docs |
+| 4 | Activity Testing | all good | | temporal-docs |
+| 5 | Best Practices | all good | | temporal-docs |
+
+### Detailed Notes
+
+All sections verified correct against temporal-docs. TestWorkflowExtension, Mockito pattern, and WorkflowReplayer all confirmed accurate.
+
+---
+
+
 ## Go
 
 **File:** `references/go/testing.md` (relative to skill root)

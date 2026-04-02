@@ -186,6 +186,36 @@ Correctness verification for `references/{language}/determinism-protection.md`.
 ---
 
 
+## Java
+
+**File:** `references/java/determinism-protection.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Overview | FIXED | Removed verbose Python/TS sandbox comparison; now just "(only Python and TypeScript have sandboxing)" | SDK team feedback |
+| 2 | Determinism Responsibility | all good | | temporal-docs |
+| 3 | Forbidden Operations | all good | | temporal-docs |
+| 4 | Best Practices | all good | | temporal-docs |
+
+### Detailed Notes
+
+#### 1. Overview
+**Status:** FIXED
+
+**SDK team feedback:** The detailed cross-SDK comparison ("Unlike the Python SDK (which blocks...) or the TypeScript SDK (which replaces...)") was repeated too many times across files and isn't pertinent here. Simplified to "(only Python and TypeScript have sandboxing)."
+
+---
+
+#### 2–4. Determinism Responsibility, Forbidden Operations, Best Practices
+**Status:** all good
+
+Verified correct against temporal-docs.
+
+---
+
+
 ## Go
 
 **File:** `references/go/determinism-protection.md` (relative to skill root)
@@ -194,7 +224,7 @@ Correctness verification for `references/{language}/determinism-protection.md`.
 
 | # | Section | Status | Fix Applied | Sources |
 |---|---------|--------|-------------|---------|
-| 1 | Overview | all good | | temporal-docs |
+| 1 | Overview | FIXED | Removed verbose Python/TS sandbox comparison; now just "(only Python and TypeScript have sandboxing)" | SDK team feedback |
 | 2 | workflowcheck Static Analysis | all good | | temporal-docs |
 | 3 | Determinism Rules | all good | | temporal-docs |
 | 4 | Best Practices | all good | | temporal-docs |
@@ -202,7 +232,8 @@ Correctness verification for `references/{language}/determinism-protection.md`.
 ### Detailed Notes
 
 #### 1. Overview
-**Status:** all good
+**Status:** FIXED
+**Fixed:** Removed verbose Python/TS sandbox comparison, same as Java fix.
 **Verified:**
 - No runtime sandbox, developer convention + optional static analysis ✓
 - Limited runtime command-ordering check mentioned ✓

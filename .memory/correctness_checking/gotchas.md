@@ -290,6 +290,28 @@ Correctness verification for `references/{language}/gotchas.md`.
 ---
 
 
+## Java
+
+**File:** `references/java/gotchas.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | CancellationScope | all good | | temporal-docs |
+| 2 | CanceledFailure | all good | | temporal-docs |
+| 3 | Activity.getExecutionContext().heartbeat() | all good | | temporal-docs |
+| 4 | Determinism Violations | all good | | temporal-docs |
+| 5 | Wrong Retry Classification | all good | | temporal-docs |
+| 6 | Testing Pitfalls | all good | | temporal-docs |
+
+### Detailed Notes
+
+All 6 sections verified correct against temporal-docs. CancellationScope, CanceledFailure, and Activity.getExecutionContext().heartbeat() all confirmed accurate.
+
+---
+
+
 ## Go
 
 **File:** `references/go/gotchas.md` (relative to skill root)
