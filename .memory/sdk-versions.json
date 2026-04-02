@@ -1,13 +1,17 @@
 {
-  "description": "Tracks the SDK commit SHAs against which the skill's reference files were last verified.",
+  "description": "Tracks the SDK version numbers against which the skill's reference files were last verified.",
   "sdks": {
     "python": {
       "repo": "temporalio/sdk-python",
-      "sha": "5aeaddcdcad70b36363f233c49b0e28d76b6be87"
+      "version": "1.22.0"
     },
     "typescript": {
       "repo": "temporalio/sdk-typescript",
-      "sha": "5ec5666912171137e01a17182d2807234ffd3f5d"
+      "version": "1.14.1"
+    },
+    "go": {
+      "repo": "temporalio/sdk-go",
+      "version": "1.40.0"
     }
   }
 }
