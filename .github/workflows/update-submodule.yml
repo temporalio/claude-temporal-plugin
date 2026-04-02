@@ -5,6 +5,10 @@ on:
     types: [submodule-updated]
   workflow_dispatch:
 
+permissions:
+  contents: write
+  pull-requests: write
+
 concurrency:
   group: update-submodule
   cancel-in-progress: true
