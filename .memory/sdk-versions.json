@@ -12,6 +12,10 @@
     "go": {
       "repo": "temporalio/sdk-go",
       "version": "1.40.0"
+    },
+    "java": {
+      "repo": "temporalio/sdk-java",
+      "version": "1.33.0"
     }
   }
 }
