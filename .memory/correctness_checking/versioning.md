@@ -291,6 +291,28 @@ Correctness verification for `references/{language}/versioning.md`.
 ---
 
 
+## Java
+
+**File:** `references/java/versioning.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | Workflow.getVersion() | all good | | temporal-docs |
+| 2 | DEFAULT_VERSION | all good | | temporal-docs |
+| 3 | WorkerDeploymentOptions | all good | | temporal-docs |
+| 4 | SearchAttributeKey Upsert | all good | | temporal-docs |
+| 5 | Patching Process | all good | | temporal-docs |
+| 6 | Best Practices | all good | | temporal-docs |
+
+### Detailed Notes
+
+All sections verified correct against temporal-docs. Workflow.getVersion(), DEFAULT_VERSION, WorkerDeploymentOptions, and SearchAttributeKey upsert all confirmed accurate.
+
+---
+
+
 ## Go
 
 **File:** `references/go/versioning.md` (relative to skill root)

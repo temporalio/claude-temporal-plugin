@@ -191,6 +191,31 @@ Correctness verification for `references/{language}/error-handling.md`.
 ---
 
 
+## Java
+
+**File:** `references/java/error-handling.md` (relative to skill root)
+
+### Tracking
+
+| # | Section | Status | Fix Applied | Sources |
+|---|---------|--------|-------------|---------|
+| 1 | ApplicationFailure | all good | | temporal-docs |
+| 2 | RetryOptions | all good | | temporal-docs |
+| 3 | ActivityFailure Wrapping | all good | | temporal-docs |
+| 4 | Workflow.wrap() | all good | | temporal-docs |
+| 5 | Non-Retryable Errors | all good | | temporal-docs |
+| 6 | Timeout Configuration | all good | | temporal-docs |
+| 7 | Handling Errors in Workflows | all good | | temporal-docs |
+| 8 | Workflow Failure | all good | | temporal-docs |
+| 9 | Best Practices | all good | | temporal-docs |
+
+### Detailed Notes
+
+All 9 sections verified correct against temporal-docs. ApplicationFailure, RetryOptions, ActivityFailure wrapping, and Workflow.wrap() all confirmed accurate.
+
+---
+
+
 ## Go
 
 **File:** `references/go/error-handling.md` (relative to skill root)
