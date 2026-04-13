@@ -1,38 +1,45 @@
-# Agent Skills Repository
+# Claude Temporal Plugin
 
-This repository contains plugin skills (in `plugins/`) and agent memory documents (in `.memory/`) for coordinating work on reference files.
-
-## Editing Skills and Reference Files
-
-When working on files inside `plugins/` or `.memory/`, use the **edit-plugin-skills** skill — it contains the full workflow for editing reference files, updating memory documents, and avoiding staleness.
+This repository is the Claude Code plugin for Temporal. It packages skill content from the canonical upstream skill repo (`temporalio/skill-temporal-developer`) for distribution via the Claude Code plugin marketplace.
 
 ## Repository Structure
 
-This is a two-repo setup:
-- **Outer repo** (`temporalio/agent-skills`): Plugin wrapper, `.memory/` tracking documents, `sdk-versions.json`, coordination files.
-- **Submodule** (`temporalio/skill-temporal-developer`) at `plugins/temporal-developer/skills/temporal-developer/`: The actual skill content — `SKILL.md` and `references/`.
+```
+claude-temporal-plugin/
+├── .claude-plugin/
+│   ├── plugin.json          ← plugin manifest
+│   └── marketplace.json     ← marketplace entry
+├── skills/
+│   └── temporal-developer/  ← skill content (copied from upstream)
+│       ├── SKILL.md
+│       └── references/
+├── .memory/                 ← alignment/correctness checking docs
+├── test/                    ← integration tests
+├── assets/
+├── CLAUDE.md
+├── LICENSE
+└── README.md
+```
 
-## Branch / Development Workflow
+## Editing Skills and Reference Files
 
-Both repos use `dev` as the primary working branch. Feature branches branch from and merge into `dev`, never directly into `main`.
+When working on files inside `skills/` or `.memory/`, use the **edit-plugin-skills** skill — it contains the full workflow for editing reference files, updating memory documents, and avoiding staleness.
 
-1. Branch from `dev`, do feature work, merge feature branch → `dev` (in the submodule)
-2. Bump outer repo's submodule pointer on outer `dev` to point to latest submodule `dev` (can push directly, PR not necessary)
-3. Dogfood test on `dev`
+## Skill Content
+
+The skill content in `skills/temporal-developer/` is copied from `temporalio/skill-temporal-developer`. It may diverge over time to optimize for Claude Code specifically. When upstream skill changes are significant, they should be reviewed and selectively merged in.
+
+## Related Repos
+
+- **Canonical skill**: `temporalio/skill-temporal-developer`
+- **Cursor plugin**: `temporalio/cursor-temporal-plugin`
+- **Codex plugin**: `temporalio/codex-temporal-plugin`
 
 ## Release Workflow
 
 Use the `/release` skill to run the release pipeline. It is implemented as a Temporal workflow (`.claude/skills/release/`) with a CLI client for sending signals at human checkpoints. The `/release` skill has full instructions — do not manually perform these steps.
 
-For reference, the release has three stages:
-
-- **Phase 1 (Internal):** Version bump in submodule, update outer repo `dev` (submodule pointer + `plugin.json`). Optional dogfood testing.
-- **Phase 2 (External):** Merge submodule `dev` → `main` (via PR, requires human review), then merge outer `dev` → `main`. Fast-forward `dev` to `main` in both repos afterward.
-- **Codex (after Phase 2):** Sync fork, copy plugin to `temporalio/openai-plugins:temporal`, open/update PR to `openai/plugins`. Can also be run standalone via `--codex-only`.
-
 Version in `SKILL.md` frontmatter and `plugin.json` must always match.
-
-Codex review feedback: content changes go through the full pipeline; `.codex-plugin/`-only changes can use `--codex-only`.
 
 ## sdk-versions.json
 
