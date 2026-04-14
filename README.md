@@ -17,7 +17,7 @@ This repository provides a [Claude Code plugin](https://code.claude.com/docs/en/
 5. Select **Enable auto-update** or **Disable auto-update**
 
 **Step 2:** Plugin Installation
-1. Run `/plugin install temporal-developer@temporalio-claude-temporal-plugin`
+1. Run `/plugin install temporal-developer@temporal-marketplace`
 2. Restart Claude Code
 
 ## What's Included
