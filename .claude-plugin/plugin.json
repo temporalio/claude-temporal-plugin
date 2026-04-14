@@ -1,0 +1,24 @@
+{
+  "name": "temporal-developer",
+  "version": "0.2.0",
+  "description": "Comprehensive skill for developing Temporal applications across Python, TypeScript, Go, and Java.",
+  "author": {
+    "name": "Temporal",
+    "url": "https://temporal.io/"
+  },
+  "homepage": "https://temporal.io/",
+  "repository": "https://github.com/temporalio/claude-temporal-plugin",
+  "license": "MIT",
+  "keywords": [
+    "temporal",
+    "workflow",
+    "durable-execution",
+    "python",
+    "typescript",
+    "go",
+    "java",
+    "microservices",
+    "distributed-systems"
+  ],
+  "skills": "./skills/"
+}
