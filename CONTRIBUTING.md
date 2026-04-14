@@ -4,9 +4,9 @@ Thanks for your interest in contributing to the Temporal Developer skill!
 
 ## Where to make changes
 
-All skill content lives in the submodule at `plugins/temporal-developer/skills/temporal-developer/`. This is a separate repo ([temporalio/skill-temporal-developer](https://github.com/temporalio/skill-temporal-developer)) included here as a Git submodule.
+Skill content (the skill definition and reference files) is maintained in the canonical upstream repo: [temporalio/skill-temporal-developer](https://github.com/temporalio/skill-temporal-developer). Changes to skill content should be made there, not in this plugin repo.
 
-**Work within the submodule.** The outer repo (`agent-skills`) contains coordination and tracking files managed by maintainers. Contributors should focus on the submodule, where the skill definition (`SKILL.md`) and reference files (`references/`) live.
+This repo (`claude-temporal-plugin`) packages that content for distribution via the Claude Code plugin marketplace. Changes here should be limited to plugin configuration, marketplace metadata, tests, and Claude Code-specific adaptations.
 
 ## Branching
 
@@ -16,7 +16,16 @@ PRs to `main` will not be accepted — `main` is updated only during releases by
 
 ## Making a PR
 
-1. Fork or clone the submodule repo
+### Skill content (references, SKILL.md)
+
+1. Fork or clone [temporalio/skill-temporal-developer](https://github.com/temporalio/skill-temporal-developer)
+2. Create a feature branch from `dev`
+3. Make your changes
+4. Open a PR targeting `dev`
+
+### Plugin configuration (plugin.json, marketplace.json, tests, docs)
+
+1. Fork or clone this repo
 2. Create a feature branch from `dev`
 3. Make your changes
 4. Open a PR targeting `dev`

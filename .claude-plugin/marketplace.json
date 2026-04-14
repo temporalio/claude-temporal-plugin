@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "temporal-developer",
-      "source": "."
+      "source": "./"
     }
   ]
 }
