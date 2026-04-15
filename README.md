@@ -1,6 +1,6 @@
-# Temporal Developer Plugin for Claude Code
+# Temporal Plugin for Claude Code
 
-This repository provides a [Claude Code plugin](https://code.claude.com/docs/en/plugins) for developing [Temporal](https://temporal.io/) applications.
+This repository provides a [Claude Code plugin](https://code.claude.com/docs/en/plugins) for working with [Temporal](https://temporal.io/) — developing applications, using the CLI, managing server, and working with Temporal Cloud.
 
 > [!WARNING]
 > This plugin is in Public Preview, and will continue to evolve and improve.
@@ -17,7 +17,7 @@ This repository provides a [Claude Code plugin](https://code.claude.com/docs/en/
 5. Select **Enable auto-update** or **Disable auto-update**
 
 **Step 2:** Plugin Installation
-1. Run `/plugin install temporal-developer@temporal-marketplace`
+1. Run `/plugin install temporal@temporal-marketplace`
 2. Restart Claude Code
 
 ## What's Included
