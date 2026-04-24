@@ -8,7 +8,7 @@
   },
   "plugins": [
     {
-      "name": "temporal-developer",
+      "name": "temporal",
       "source": "./"
     }
   ]
