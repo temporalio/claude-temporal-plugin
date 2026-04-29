@@ -18,7 +18,7 @@ This repository provides a [Claude Code plugin](https://code.claude.com/docs/en/
 
 **Step 2:** Plugin Installation
 1. Run `/plugin install temporal@temporal-marketplace`
-2. Restart Claude Code
+2. Run `/reload-plugins` to apply
 
 ## What's Included
 
