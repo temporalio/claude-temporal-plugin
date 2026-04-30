@@ -15,12 +15,14 @@ From inside Claude Code, run:
 
 Then run `/reload-plugins` to activate the plugin in the current session.
 
+*Note:* We recommend enabling automatic updates using the interactive `/plugin` menu 
+
 ### Alternative: interactive install
 
 1. Run `/plugin` to open the plugin manager
 2. Select **Marketplaces**
 3. Choose `temporal-marketplace` from the list
-4. Select **Enable auto-update** or **Disable auto-update**
+4. Select **Enable auto-update** (recommended) or **Disable auto-update**
 5. Install the `temporal` plugin
 6. Run `/reload-plugins`
 
