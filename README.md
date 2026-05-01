@@ -8,17 +8,23 @@ This repository provides a [Claude Code plugin](https://code.claude.com/docs/en/
 
 ## Installation
 
-**Step 1:** Marketplace Installation
+From inside Claude Code, run:
 
-1. Run `/plugin marketplace add temporalio/claude-temporal-plugin`
-2. Run `/plugin` to open the plugin manager
-3. Select **Marketplaces**
-4. Choose `temporal-marketplace` from the list
-5. Select **Enable auto-update** or **Disable auto-update**
+1. `/plugin marketplace add temporalio/claude-temporal-plugin`
+2. `/plugin install temporal@temporal-marketplace`
 
-**Step 2:** Plugin Installation
-1. Run `/plugin install temporal@temporal-marketplace`
-2. Restart Claude Code
+Then run `/reload-plugins` to activate the plugin in the current session.
+
+*Note:* We recommend enabling automatic updates using the interactive `/plugin` menu 
+
+### Alternative: interactive install
+
+1. Run `/plugin` to open the plugin manager
+2. Select **Marketplaces**
+3. Choose `temporal-marketplace` from the list
+4. Select **Enable auto-update** (recommended) or **Disable auto-update**
+5. Install the `temporal` plugin
+6. Run `/reload-plugins`
 
 ## What's Included
 
