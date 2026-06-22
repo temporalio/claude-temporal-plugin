@@ -10,24 +10,13 @@ Benchmarks for measuring the impact of the `temporal-developer` skill on code ge
 ## Quick Start
 
 ```bash
-# Easiest: dev mode (starts Temporal server + worker automatically)
-uv run --project evals eval-run skills --dev-mode
-uv run --project evals eval-run baseline --dev-mode
-```
-
-Or with an external Temporal server:
-
-```bash
-# Terminal 1: Start the Temporal dev server
-temporal server start-dev
-
-# Terminal 2: Start the eval worker
-uv run --project evals eval-worker
-
-# Terminal 3: Run evals
 uv run --project evals eval-run skills    # with skill (before submitting a PR)
 uv run --project evals eval-run baseline  # without skill (when tasks or Harbor change)
 ```
+
+Each invocation drives the `harbor` CLI directly — Harbor handles running the
+tasks, concurrency, repeated attempts, and metrics. There is no server or
+worker to start. Requires `ANTHROPIC_API_KEY` in your environment.
 
 ## Extending Agent Configurations
 
@@ -41,25 +30,23 @@ AGENTS = [
 ]
 ```
 
-Each agent config runs across all datasets in parallel via the Temporal workflow.
+Each agent config runs across all datasets. Each agent's `model` is passed to
+`harbor run` (Harbor parallelizes the tasks within a run).
 
 ## Directory Structure
 
 ```
 evals/
 ├── harbor/                          # Harbor framework (git submodule)
-├── pyproject.toml                   # Python project (temporalio dependency)
+├── pyproject.toml                   # Python project (pyyaml only)
 ├── results.yaml                     # Eval results with skills (keyed by commit SHA)
 ├── baseline.yaml                    # Baseline results without skills (flat array)
-├── temporal_evals/                  # Temporal workflow package
-│   ├── models.py                   # Shared dataclasses
-│   ├── activities/
-│   │   ├── harbor.py              # Harbor job execution activity
-│   │   └── record.py             # Result recording activity
-│   ├── workflows/
-│   │   └── eval_workflow.py       # EvalWorkflow (fans out jobs)
-│   ├── worker.py                   # Worker entry point
-│   └── run_evals.py               # CLI starter (baseline or skills)
+├── temporal_evals/                  # Eval orchestration package
+│   ├── models.py                   # AgentConfig
+│   ├── runner.py                   # Drives the `harbor run` CLI (subprocess)
+│   ├── record.py                   # Extract job results -> results.yaml / baseline.yaml
+│   ├── dashboard.py                # Skill-vs-baseline comparison dashboard
+│   └── run_evals.py               # CLI entry point (baseline or skills)
 ├── datasets/
 │   ├── temporal-python/
 │   │   └── greeting-workflow/       # Python greeting workflow task
@@ -103,7 +90,7 @@ Two result files, both version-controlled:
 **Before submitting a PR:**
 
 ```bash
-uv run --project evals eval-run skills --dev-mode
+uv run --project evals eval-run skills
 # Commit both the skill changes and the updated results.yaml
 ```
 

@@ -1,37 +1,30 @@
-"""Run eval workflows (baseline or with skills).
+"""Run skill evals against the temporal-developer skill.
+
+Conceptually this is just: run the task suites with the skill, run them
+without (baseline), and track the per-task rewards so we can see the delta.
+Harbor does the actual running, parallelism, attempts, and metrics; this
+script only orchestrates the matrix and records results over time.
 
 Usage:
-    uv run --project evals eval-run baseline
-    uv run --project evals eval-run skills
-
-Connection logic:
-    1. If TEMPORAL_ADDRESS is set, connect to it (no local worker).
-    2. Else try localhost:7233 — if reachable, connect and start a local worker.
-    3. Else fall back to an ephemeral in-process Temporal server + worker.
+    uv run --project evals eval-run baseline   # no skill
+    uv run --project evals eval-run skills     # with the temporal-developer skill
 """
 
 import argparse
-import asyncio
-import contextlib
-import os
-import uuid
+from datetime import datetime
+from pathlib import Path
 
-from temporalio.client import Client
-from temporalio.testing import WorkflowEnvironment
-
-from .models import AgentConfig, EvalRunInput
-from .worker import worker
-from .workflows import EvalWorkflow
-
-TASK_QUEUE = "eval-runner"
+from .models import AgentConfig
+from .record import get_existing_results, record_results
+from .runner import run_harbor_job
 
 # ============================================================
-# Agent configurations to evaluate.
-# Add new entries here to extend the eval matrix.
+# Agent configurations to evaluate. Each agent runs across all
+# datasets; `models` is passed to Harbor as a list in one run.
 # ============================================================
 AGENTS = [
     AgentConfig(name="claude-code", model="anthropic/claude-sonnet-4-6"),
-    # AgentConfig(name="claude-code", model="anthropic/claude-opus-4-1"),
+    # AgentConfig(name="claude-code", model="anthropic/claude-opus-4-8"),
     # AgentConfig(name="aider", model="anthropic/claude-sonnet-4-6"),
 ]
 
@@ -41,9 +34,14 @@ DATASETS = [
     "temporal-questions",
 ]
 
+ATTEMPTS = 2      # repeated attempts per task (averaged in record.py)
+CONCURRENCY = 4   # concurrent trials within a single Harbor run
+
+SKILL_PATH = ("plugins", "temporal-developer", "skills", "temporal-developer")
+
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Run eval workflows")
+    parser = argparse.ArgumentParser(description="Run skill evals")
     parser.add_argument(
         "mode",
         choices=["baseline", "skills"],
@@ -52,90 +50,72 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-async def _try_connect(address: str) -> Client | None:
-    """Try to connect to a Temporal server, return None on failure."""
-    try:
-        client = await Client.connect(address)
-        # Verify the connection is live
-        await client.service_client.check_health()
-        return client
-    except Exception:
-        return None
-
-
-@contextlib.asynccontextmanager
-async def _get_client_and_worker():
-    """Resolve a Temporal client (and optionally a worker) based on environment.
-
-    Yields (client, worker_context_manager_or_None).
-    """
-    # 1. Explicit TEMPORAL_ADDRESS — remote server, no local worker
-    temporal_address = os.environ.get("TEMPORAL_ADDRESS")
-    if temporal_address:
-        print(f"Connecting to Temporal at {temporal_address} (from TEMPORAL_ADDRESS)")
-        client = await Client.connect(temporal_address)
-        yield client
-        return
-
-    # 2. Try localhost:7233
-    client = await _try_connect("localhost:7233")
-    if client is not None:
-        print("Connected to Temporal at localhost:7233, starting local worker")
-        async with worker(client):
-            yield client
-        return
-
-    # 3. Fall back to ephemeral in-process server
-    print("No Temporal server found, starting ephemeral in-process server")
-    async with await WorkflowEnvironment.start_local(ui=True, port=7233) as env:
-        async with worker(env.client):
-            yield env.client
-
-
-async def main():
+def main() -> None:
     args = parse_args()
-    repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+    baseline = args.mode == "baseline"
 
-    is_baseline = args.mode == "baseline"
+    repo_root = Path(__file__).resolve().parents[2]
+    evals_root = repo_root / "evals"
+    jobs_dir = str(evals_root / "jobs")
 
-    skills_dir = None
-    if not is_baseline:
-        skills_dir = os.path.join(
-            repo_root, "plugins", "temporal-developer", "skills", "temporal-developer"
-        )
+    skills_dir: str | None = None
+    skills: list[str] = []
+    if not baseline:
+        skills_dir = str(repo_root.joinpath(*SKILL_PATH))
+        skills = [Path(skills_dir).name]
 
-    eval_input = EvalRunInput(
-        agents=AGENTS,
-        datasets=DATASETS,
-        repo_root=repo_root,
-        skills_dir=skills_dir,
-        baseline=is_baseline,
+    existing = get_existing_results(
+        baseline=baseline, evals_root=evals_root, skills=skills
     )
+    timestamp = datetime.now().strftime("%Y-%m-%d__%H-%M-%S")
 
-    workflow_id = f"eval-{args.mode}-{uuid.uuid4().hex[:8]}"
+    results = []
+    skipped = 0
+    for agent in AGENTS:
+        for dataset in DATASETS:
+            model_key = agent.model.replace("/", "-")
+            if (agent.name, model_key, dataset) in existing:
+                print(f"Skipping {agent.name}/{agent.model} on {dataset} — already recorded")
+                skipped += 1
+                continue
 
-    async with _get_client_and_worker() as client:
-        result = await client.execute_workflow(
-            EvalWorkflow.run,
-            eval_input,
-            id=workflow_id,
-            task_queue=TASK_QUEUE,
+            suffix = "__baseline" if baseline else ""
+            job_name = f"{timestamp}__{agent.name}__{dataset}{suffix}"
+            results.append(
+                run_harbor_job(
+                    repo_root=str(repo_root),
+                    agent_name=agent.name,
+                    models=[agent.model],
+                    dataset_path=str(evals_root / "datasets" / dataset),
+                    job_name=job_name,
+                    jobs_dir=jobs_dir,
+                    skills_dir=skills_dir,
+                    attempts=ATTEMPTS,
+                    concurrency=CONCURRENCY,
+                )
+            )
+
+    successful_dirs = [r.job_dir for r in results if r.success]
+    if successful_dirs:
+        msg = record_results(
+            job_dirs=successful_dirs,
+            baseline=baseline,
+            evals_root=evals_root,
+            skills=skills,
         )
+        print(f"\n{msg}")
 
-    # Print summary
-    label = "Baseline" if is_baseline else "Skills"
-    succeeded = sum(1 for r in result.results if r.success)
-    failed = sum(1 for r in result.results if not r.success)
-    print(f"\n=== {label} eval complete: {succeeded} succeeded, {failed} failed ===")
-    if result.record_message:
-        print(result.record_message)
-    for r in result.results:
+    label = "Baseline" if baseline else "Skills"
+    succeeded = sum(1 for r in results if r.success)
+    failed = sum(1 for r in results if not r.success)
+    print(f"\n=== {label} eval complete: {succeeded} succeeded, {failed} failed, {skipped} skipped ===")
+    for r in results:
         status = "OK" if r.success else f"FAIL: {r.error}"
-        print(f"  {r.dataset} ({r.agent_name}/{r.agent_model}): {status}")
+        print(f"  {r.dataset} ({r.agent_name}): {status}")
 
 
-def main_sync():
-    asyncio.run(main())
+def main_sync() -> None:
+    main()
 
 
 if __name__ == "__main__":
