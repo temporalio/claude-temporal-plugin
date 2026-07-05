@@ -1,0 +1,72 @@
+name: Release Claude Plugin
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: "Version bump type"
+        type: choice
+        required: true
+        default: patch
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ssh-key: ${{ secrets.RELEASE_SSH_KEY }}
+
+      - name: Bump plugin version
+        id: bump
+        run: |
+          set -euo pipefail
+          PLUGIN_FILE=".claude-plugin/plugin.json"
+
+          OLD_VERSION=$(jq -r '.version' "$PLUGIN_FILE")
+          if [ -z "$OLD_VERSION" ] || [ "$OLD_VERSION" = "null" ]; then
+            echo "Could not read version from $PLUGIN_FILE" >&2
+            exit 1
+          fi
+
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$OLD_VERSION"
+
+          case "${{ inputs.bump }}" in
+            major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
+            minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
+            patch) PATCH=$((PATCH + 1)) ;;
+          esac
+
+          NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
+
+          tmp=$(mktemp)
+          jq --arg v "$NEW_VERSION" '.version = $v' "$PLUGIN_FILE" > "$tmp"
+          mv "$tmp" "$PLUGIN_FILE"
+
+          echo "old_version=$OLD_VERSION" >> "$GITHUB_OUTPUT"
+          echo "new_version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+          echo "Bumped $OLD_VERSION -> $NEW_VERSION"
+
+      - name: Commit and tag
+        env:
+          NEW_VERSION: ${{ steps.bump.outputs.new_version }}
+          OLD_VERSION: ${{ steps.bump.outputs.old_version }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add .claude-plugin/plugin.json
+          git commit -m "Bump version from ${OLD_VERSION} to ${NEW_VERSION}"
+          git tag "v${NEW_VERSION}"
+
+          git push origin HEAD:main
+          git push origin "v${NEW_VERSION}"
