@@ -2,7 +2,7 @@
 
 For the chosen SDK: clone the **`money-transfer-project-cloud-setup`** branch, install deps, then run the Worker and the starter. **The branch is pre-wired for Cloud — there is no connection edit.**
 
-> **Note:** the clone + deps install are done by `scripts/provision.sh provision-and-scaffold` (PE-68), and the Worker + starter run is done by `scripts/provision.sh run-workflow --sdk <sdk> --dir <repo_path>` (PE-70) — a single synchronous call that starts the Worker, waits until it's polling (Temporal API, not `ps`/`pgrep`), runs the starter, and stops the Worker. The per-SDK repo, task queue, and run commands below are the **source of truth the script encodes** — they are reference, not commands you run by hand.
+> **Note:** the clone + deps install are done by `scripts/provision.sh provision-and-scaffold`, and the Worker + starter run is done by `scripts/provision.sh run-workflow --sdk <sdk> --dir <repo_path>` — a single synchronous call that starts the Worker, waits until it's polling (Temporal API, not `ps`/`pgrep`), runs the starter, and stops the Worker. The per-SDK repo, task queue, and run commands below are the **source of truth the script encodes** — they are reference, not commands you run by hand.
 
 How each branch connects: **all six SDKs load the named `cloud-setup` profile from `temporal.toml`** (env-config), so the key stays in the locked `0600` file — never in source, argv, or shell history. Step 6 writes that profile; nothing else is needed at run time. *(Verify the SDK's env-config symbol against current docs before relying on it.)*
 
@@ -88,7 +88,7 @@ Run: `ruby worker.rb` then `ruby starter.rb`.
 
 ---
 
-## Package managers & minimum versions (PE-75 adaptation)
+## Package managers & minimum versions
 
 `scripts/provision.sh detect-tools --sdk <sdk>` reports which managers are **supported by the sample
 AND installed**, picks a deterministic default (first available in preference order; the lockfile's
