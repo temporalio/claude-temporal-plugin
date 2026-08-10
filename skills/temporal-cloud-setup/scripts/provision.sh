@@ -7,7 +7,7 @@
 #  It is written to work UNCHANGED on every platform (macOS bash 3.2 / BSD
 #  awk included). Do not reformat its punctuation, quoting, regexes, or flags.
 #  If a prerelease flag has genuinely drifted, that is a deliberate human
-#  maintenance edit -- not something an agent does mid-setup. (SKILL.md rule 10.)
+#  maintenance edit -- not something an agent does mid-setup.
 # ===========================================================================
 #
 # WHY THIS EXISTS
@@ -64,6 +64,50 @@ result_kv()    { printf '%s=%s\n' "$1" "$2"; }
 result_close() { printf '=== END ===\n'; }
 
 require_cmd() { command -v "$1" >/dev/null 2>&1; }
+
+# ---- secret redaction (single source of truth) ------------------------------
+# redact  -> filter: read stdin, write a SCRUBBED copy to stdout. Removes the two
+# secret shapes this skill can surface: an `api_key = <value>` / `apikey: <value>`
+# assignment (value replaced with "(redacted)") and any JWT-shaped token (eyJ... ->
+# eyJ...(redacted); API keys are JWTs). Factored out of cmd_create_key /
+# cmd_verify_config so EVERY place that echoes captured CLI stderr uses one scrub —
+# no secret ever reaches stdout, stderr, or a log unredacted. `sed -E` + `{6,}` are
+# already used elsewhere here, so this stays within the macOS bash 3.2 / BSD sed target.
+redact() {
+  sed -E 's/([Aa][Pp][Ii][_-]?[Kk][Ee][Yy][[:space:]]*[=:]).*/\1 (redacted)/g; s/eyJ[A-Za-z0-9._-]{6,}/eyJ...(redacted)/g'
+}
+
+# ---- per-call timeout (single source of truth) ------------------------------
+# run_bounded <secs> <cmd...>  -> run cmd with a per-call wall-clock timeout so a
+# single wedged invocation can't block a polling loop. Prefers `timeout` / `gtimeout`
+# when present (they also bound the whole process group); otherwise a pure-shell
+# watchdog, because macOS ships no `timeout`: background the call, poll up to <secs>
+# in 1s ticks, then TERM (and, as a backstop, KILL) it. `wait` reaps the child in
+# every path (no zombies) and yields the command's REAL exit status when it finished
+# in time; on expiry we return RUN_BOUNDED_TIMEOUT (124, matching GNU `timeout`) so a
+# caller can tell "timed out" apart from "ran and returned non-zero". The caller owns
+# stdout/stderr redirection (it is inherited by the backgrounded command as-is).
+RUN_BOUNDED_TIMEOUT=124
+run_bounded() {
+  local secs="$1"; shift
+  if require_cmd timeout;  then timeout  "$secs" "$@"; return $?; fi
+  if require_cmd gtimeout; then gtimeout "$secs" "$@"; return $?; fi
+  "$@" &
+  local cpid=$! waited=0 rc
+  while kill -0 "$cpid" 2>/dev/null; do
+    if [ "$waited" -ge "$secs" ]; then
+      kill -TERM "$cpid" 2>/dev/null
+      sleep 1
+      kill -KILL "$cpid" 2>/dev/null
+      wait "$cpid" 2>/dev/null
+      return "$RUN_BOUNDED_TIMEOUT"
+    fi
+    sleep 1
+    waited=$(( waited + 1 ))
+  done
+  wait "$cpid"; rc=$?
+  return "$rc"
+}
 
 # ---- config-file location (TEMPORAL_CONFIG_FILE wins, else per-OS default) ---
 
@@ -129,9 +173,9 @@ task_queue_for() {
   esac
 }
 
-# ---- per-(SDK, package-manager) adaptation matrices (PE-75) ------------------
+# ---- per-(SDK, package-manager) adaptation matrices --------------------------
 # Single source of truth for which managers each SDK sample ACTUALLY supports,
-# derived from a Step-0 audit of the money-transfer-project-cloud-setup branches
+# derived from the money-transfer-project-cloud-setup branches
 # (see references/sdk-cloud.md). Only python and ts ship a choice; the rest are
 # single-manager. We never offer a manager the sample can't honor (e.g. poetry on
 # the python sample, which ships no pyproject.toml).
@@ -357,6 +401,25 @@ cmd_preflight() {
   [ -n "${TEMPORAL_NAMESPACE:-}" ] && stray+=("TEMPORAL_NAMESPACE")
   [ -n "${TEMPORAL_API_KEY:-}" ]   && stray+=("TEMPORAL_API_KEY")
 
+  # NB: no up-front internet probe. A coarse HTTPS reachability check can't see the
+  # case that actually bites -- a PARTIAL block where login/whoami work (offline /
+  # loopback) but the gRPC Cloud API is blocked -- and it risks false-positives behind
+  # a captive portal / proxy. The authoritative connectivity gate is the post-login
+  # region pulse in cmd_regions (validates output, not exit code); a fully-offline user
+  # also fails loudly at install-cli / login. So we do NOT gate preflight on the network.
+
+  # Config-dir writable: writing the client-config TOML is OUR op -- no external
+  # tool emits an error for us -- and today it fails LATE, after a billable API key
+  # is minted. A tiny create/write/remove probe catches an unwritable config dir up
+  # front. (The one fs check worth keeping; work-dir/disk checks are left to git/npm/
+  # pip, which already fail loudly on them.)
+  local cfg_dir; cfg_dir="$(dirname "$cfg")"
+  local probe="$cfg_dir/.tcloud-write-probe.$$"
+  if ! ( mkdir -p "$cfg_dir" 2>/dev/null && : > "$probe" 2>/dev/null ); then
+    die config-dir-unwritable "Can't write to the Temporal config directory ($cfg_dir). Fix its permissions, or set TEMPORAL_CONFIG_FILE to a writable path, then re-run -- otherwise the client-config TOML can't be saved after the API key is minted."
+  fi
+  rm -f "$probe" 2>/dev/null
+
   result_open ok
   result_kv os "$os"
   result_kv config_path "$cfg"
@@ -367,7 +430,7 @@ cmd_preflight() {
   result_close
 }
 
-# cmd_detect_tools: PE-75 local-setup adaptation (Pillar 2). For the chosen SDK,
+# cmd_detect_tools: local-setup adaptation. For the chosen SDK,
 # detect which package managers the sample supports AND are installed, pick a
 # deterministic default (first available in preference order), report tool
 # versions, and surface discrepancies (missing runtime/manager, version-too-old)
@@ -436,10 +499,12 @@ cmd_detect_tools() {
 # cloud_cli_present -> 0 iff the unified CLI's `cloud` command GROUP works. `temporal`
 # alone can be the OSS CLI without the cloud group, so test the group, not just the
 # binary. Shared by preflight (cli_installed) and install-cli so the two presence
-# checks never disagree. (`temporal cloud version` isn't a real subcommand — it prints
-# the group's help and exits 0 — but that makes it a fine *presence* probe: it exits
-# non-zero only when `temporal` is absent or has no `cloud` group.)
-cloud_cli_present() { temporal cloud version >/dev/null 2>&1; }
+# checks never disagree. Probe with `temporal cloud --help`: it exits 0 whenever the
+# `cloud` group exists and needs no auth. (Do NOT use `temporal cloud version` — on the
+# prerelease CLI `version` is a top-level flag, not a `cloud` subcommand, so it exits 1
+# even when the CLI is installed; that false negative sent install-cli into a reinstall
+# loop that died with install-verify-failed.)
+cloud_cli_present() { temporal cloud --help >/dev/null 2>&1; }
 
 # cli_version -> the real CLI version line (e.g. "temporal version 1.7.2 (...)").
 # NB: from `temporal --version`, NOT `temporal cloud version` (the latter prints help,
@@ -448,11 +513,48 @@ cli_version() { temporal --version 2>/dev/null | head -n1; }
 
 cmd_install_cli() {
   if cloud_cli_present; then
-    log "Temporal CLI already present — skipping install."
-    result_open skipped
-    result_kv version "$(cli_version)"
-    result_close
-    return
+    # BETA stopgap (PE-79): the prerelease temporal-cloud CLI has no meaningful
+    # version numbers yet, so we can't do a real "is it out of date?" check. For the
+    # beta period we ALWAYS try to pull the latest from the prerelease tap instead of
+    # skipping. Never yank a working install: if we can't update (Homebrew missing,
+    # non-macOS host, or brew errors) we warn and proceed with the CLI that's there.
+    # Replace this with a real version comparison once the CLI ships versions.
+    local up_out up_rc
+    case "$(uname -s)" in
+      Darwin)
+        if require_cmd brew; then
+          log "Temporal CLI present — updating to the latest prerelease..."
+          up_out="$(brew upgrade temporalio/prerelease/temporal-cloud 2>&1)"; up_rc=$?
+          result_open ok
+          # The updated/up-to-date label is best-effort (matched against brew's
+          # unstructured output) and NON-load-bearing: every branch here emits
+          # status=ok and proceeds, so a mislabel never breaks a working install.
+          if [ "$up_rc" -ne 0 ]; then
+            log "brew upgrade failed; keeping the working CLI. Output:"
+            log "$up_out"
+            result_kv update failed
+          elif printf '%s\n' "$up_out" | grep -qi 'upgrading'; then
+            result_kv update updated
+          else
+            result_kv update up-to-date
+          fi
+          result_kv version "$(cli_version)"
+          result_close; return
+        fi
+        log "Temporal CLI present but Homebrew not found — can't auto-update; proceeding with the installed CLI. Install Homebrew (https://brew.sh) or download temporal-cloud from https://github.com/temporalio/cloud-cli/releases/latest to update manually."
+        result_open ok
+        result_kv update skipped
+        result_kv reason brew-missing
+        result_kv version "$(cli_version)"
+        result_close; return ;;
+      *)
+        log "Temporal CLI present on a non-macOS host — no prerelease tap to update from; proceeding with the installed CLI. Update temporal-cloud manually from https://github.com/temporalio/cloud-cli/releases/latest."
+        result_open ok
+        result_kv update skipped
+        result_kv reason unsupported-os
+        result_kv version "$(cli_version)"
+        result_close; return ;;
+    esac
   fi
   case "$(uname -s)" in
     Darwin)
@@ -461,7 +563,7 @@ cmd_install_cli() {
         if brew install temporalio/prerelease/temporal-cloud >&2; then
           # (b) Verify the install actually took, rather than trusting brew's exit.
           if ! cloud_cli_present; then
-            die install-verify-failed "brew reported success but 'temporal cloud version' still fails — check PATH / shell rehash, then re-run."
+            die install-verify-failed "brew reported success but 'temporal cloud --help' still fails — check PATH / shell rehash, then re-run."
           fi
           result_open ok
           result_kv installed_via brew
@@ -492,14 +594,34 @@ cmd_login() {
 }
 
 cmd_regions() {
-  # Re-verify auth cheaply first.
+  # `whoami` is the cheap "are we even signed in" check -- it proves a CREDENTIAL is
+  # PRESENT, nothing more. It runs OFFLINE (cached token, no live API call), so it is
+  # NOT a connectivity signal: never treat a passing whoami as proof the Cloud API is
+  # reachable. The region fetch below is the authoritative connectivity + authz pulse.
   if ! temporal cloud whoami >/dev/null 2>&1; then
     die not-authenticated "Not signed in. Run the login step first."
   fi
+
+  # ---- POST-LOGIN CONNECTIVITY PULSE (the one authoritative "can we actually reach
+  # the Cloud API with these creds" gate) --------------------------------------------
+  # The prerelease CLI returns exit 0 even when the network call fails, so we validate
+  # the OUTPUT, never the exit code (exit-0 hardening -- deliberately narrowed to this
+  # pulse + the preflight probe; downstream steps trust the connection this establishes).
+  # `region list` is non-empty for ANY valid account, so an empty result is an
+  # unambiguous "couldn't reach the API" -- almost always a blocked/partial network
+  # (login + whoami succeed offline; the gRPC API is blocked). We STOP with
+  # cloud-unreachable and do NOT loop on re-auth: re-auth cannot fix a blocked network,
+  # and that misdiagnosis (empty list -> "confirm auth, re-run") is the exact bug this
+  # pulse closes. We reuse this single fetch for the SELECTION step below -- connectivity
+  # is validated HERE, in one place; selection carries no network logic and no extra call.
   log "Listing available Cloud regions..."
-  local list; list="$(temporal cloud region list 2>/dev/null)"
+  local err_file; err_file="$(mktemp "${TMPDIR:-/tmp}/tcloud-regions.XXXXXX")"
+  local list; list="$(temporal cloud region list 2>"$err_file")"
+  local err; err="$(cat "$err_file" 2>/dev/null)"; rm -f "$err_file"
   if [ -z "$list" ]; then
-    die regions-empty "region list returned empty; confirm auth (whoami) and CLI version."
+    # Empty output = failed pulse. Surface any stderr as a hint, but never DEPEND on it:
+    # the exit code lied, and the text may be empty or drift between prerelease builds.
+    die cloud-unreachable "Temporal Cloud returned no regions -- the Cloud API is unreachable with your current session. This is a network/sandbox block, NOT missing auth (login and whoami work offline). Do NOT re-run login. Check outbound network and your sandbox's egress to the Temporal Cloud gRPC API (*.tmprl.cloud), then re-run.${err:+ (CLI stderr: $err)}"
   fi
   # Region guard: flag regions whose CloudProvider renders as UNKNOWN. On some accounts
   # those (e.g. azure-centralus) ACCEPT a namespace create but never provision it (a
@@ -638,13 +760,12 @@ await_active_namespace() {
   done
 }
 
-# cmd_start_namespace: TRUE fire-and-forget (PE-75). Submit the create with --async
+# cmd_start_namespace: TRUE fire-and-forget. Submit the create with --async
 # and return immediately — provisioning runs SERVER-SIDE (no local background job to
 # survive across tool calls, so this works identically on Claude Code/Codex/Cursor).
 # We GENERATE the name (namespace_name_for), so we don't need the create's output;
 # join later with `await-namespace --name <name>`, which reads the handle from
-# `namespace list -o jsonl` (the reason --async was once avoided — its early return
-# lacked the account-id — no longer matters now that we resolve the handle from list).
+# `namespace list -o jsonl`.
 cmd_start_namespace() {
   local sdk="" region=""
   while [ $# -gt 0 ]; do
@@ -742,6 +863,20 @@ cmd_create_namespace() {
   cmd_await_namespace --name "$name"
 }
 
+# key_quota_stderr <file>  -> 0 (true) if the captured stderr reads like an API-key
+# CAP/quota rejection. Broad on the quota words (limit/maximum/quota/exceeded/too
+# many) but ANCHORED to key/apikey in proximity, so an unrelated 'limit' elsewhere
+# in CLI chatter doesn't misfire. Case-insensitive; either word order.
+key_quota_stderr() {
+  grep -qiE '(api[ _-]?key|key)[^\n]*(limit|maximum|quota|exceeded|too many)|(limit|maximum|quota|exceeded|too many)[^\n]*(api[ _-]?key|key)' "$1" 2>/dev/null
+}
+
+# die_key_limit_reached  -> the single, actionable message for the API-key cap.
+# Used by both create-key failure paths (non-zero exit and exit-0-with-error drift).
+die_key_limit_reached() {
+  die key-limit-reached "API-key limit reached for this account — the mint was rejected at the cap, not an auth or output problem. Delete stale keys, then re-run create-key: list them with 'temporal cloud apikey list' and remove old money-transfer-cloud-setup-* keys with 'temporal cloud apikey delete --key-id <id>'."
+}
+
 cmd_create_key() {
   # Unique display name per run: `apikey create-for-me` ERRORS when a key matching the spec
   # (same display name) already exists and --idempotent isn't set — and --idempotent would
@@ -787,7 +922,10 @@ cmd_create_key() {
         --auto-confirm \
         -o json > "$tmp" 2>"$tmperr"; then
     # Show a redacted tail for context — never the token.
-    sed -E 's/eyJ[A-Za-z0-9._-]{6,}/eyJ...(redacted)/g' "$tmperr" 2>/dev/null | tail -n 5 >&2
+    redact < "$tmperr" 2>/dev/null | tail -n 5 >&2
+    # Account at the API-key cap? The mint is rejected at create time with quota
+    # language; surface that as a distinct, actionable code rather than a generic fail.
+    if key_quota_stderr "$tmperr"; then die_key_limit_reached; fi
     die key-create-failed "apikey create-for-me exited non-zero; re-check auth (whoami/login). See the redacted output above."
   fi
   if [ ! -s "$tmp" ] && [ ! -s "$tmperr" ]; then
@@ -822,6 +960,13 @@ cmd_create_key() {
     fi
   fi
   if [ -z "$token" ]; then
+    # Exit-0-with-error drift: some prerelease builds print a cap/quota rejection to
+    # stderr yet still exit 0, so there's no token to capture. Classify that here (we
+    # only reach this with no token) as key-limit-reached rather than manual-key-needed.
+    if key_quota_stderr "$tmperr"; then
+      redact < "$tmperr" 2>/dev/null | tail -n 5 >&2
+      die_key_limit_reached
+    fi
     die manual-key-needed "could not capture the key from the CLI output (checked stdout+stderr, JSON + token pattern) and no terminal to paste into — have the user paste it, then re-run create-key from a context with a terminal."
   fi
 
@@ -903,8 +1048,7 @@ cmd_verify_config() {
   if ! out="$(temporal --profile cloud-setup config list 2>&1)"; then
     die profile-missing "could not read the cloud-setup profile; was create-key run?"
   fi
-  printf '%s\n' "$out" \
-    | sed -E 's/([Aa][Pp][Ii][_-]?[Kk][Ee][Yy][[:space:]]*[=:]).*/\1 (redacted)/g; s/eyJ[A-Za-z0-9._-]{6,}/eyJ...(redacted)/g' >&2
+  printf '%s\n' "$out" | redact >&2
   result_open ok; result_kv profile cloud-setup; result_close
 }
 
@@ -914,19 +1058,81 @@ cmd_verify_config() {
 # `Request unauthorized` and crashes. Poll the cheapest authorized data-plane call
 # (`workflow list`, exit 0 == accepted) until it succeeds, bounded. Foreground,
 # synchronous — no background, no parallelism.
+# await_auth_permanent <file>  -> 0 (true) if the poll's stderr is a HIGH-CONFIDENCE
+# PERMANENT key failure that will NEVER clear by waiting. Deliberately NARROW: it
+# requires a permanent qualifier (expired / invalid / revoked / not found / disabled /
+# malformed) ANCHORED to jwt/key/token/credential context — mirroring key_quota_stderr's
+# proximity anchoring.
+#
+# Anchor set includes `jwt` because the Temporal Cloud API gateway (Envoy) returns the
+# auth failure as a gRPC status whose desc is a JWT-filter message, NOT "api key" text.
+# Real captures against the prerelease CLI (`workflow list`):
+#   * no/empty key   -> `Unauthenticated desc = Jwt is missing`
+#   * bad/wrong key  -> `Unauthenticated desc = Jwt issuer is not configured`
+#   * expired key    -> `Unauthenticated desc = Jwt is expired`   (Envoy default;
+#                       e.g. a ~25h key polled next-day)
+# See references/unified-cli.md. Only `expired` is treated as unambiguously permanent
+# here: a valid key that is merely PROPAGATING has a future exp, so it can never emit
+# "Jwt is expired" — the safety bias holds. A bare transient `Jwt is missing` /
+# `issuer is not configured` / `Request unauthorized` / `permission denied` (which can
+# appear during propagation) must NOT match, so the poll keeps waiting instead of
+# wrong-fast-failing. `expired` stays anchored so a TLS/certificate "expired" (no
+# jwt/key/token context) never masquerades as a key failure.
+await_auth_permanent() {
+  grep -qiE '(jwt|api[ _-]?key|token|credential)[^\n]*(expired|invalid|revoked|not found|disabled|malformed)|(expired|invalid|revoked|malformed)[^\n]*(jwt|api[ _-]?key|token|credential)' "$1" 2>/dev/null
+}
+
 cmd_await_auth() {
-  local max="${AUTH_READY_MAX_SECS:-90}" interval=5 waited=0
+  local max="${AUTH_READY_MAX_SECS:-90}" interval="${AUTH_POLL_INTERVAL_SECS:-5}" waited=0
+  # Per-call timeout so a single wedged `workflow list` can't block the whole loop.
+  # `waited` accrues real wall-clock (poll time + sleep), so a slow/hung endpoint
+  # still honors ~max seconds of total budget rather than max*call_to.
+  local call_to="${AUTH_POLL_CALL_TIMEOUT:-15}"
   log "Waiting for the API key to be accepted before starting the Worker (auth readiness)..."
+  # Capture the poll's stderr (never stdout) to a locked temp file so a permanent auth
+  # failure is diagnosable instead of collapsing into a generic timeout. EXIT trap so
+  # the file is removed on success (return) AND on any die (exit).
+  umask 077
+  local tmperr; tmperr="$(mktemp "${TMPDIR:-/tmp}/tcloud-auth.XXXXXX")"; chmod 600 "$tmperr"
+  # shellcheck disable=SC2064
+  trap "rm -f '$tmperr'" EXIT
+  local last_err="" rc t0 t1
   while :; do
-    if temporal --profile cloud-setup workflow list --limit 1 >/dev/null 2>&1; then
+    : > "$tmperr"
+    # exit 0 == the key is accepted. The poll's own exit code still gates success;
+    # stderr is only ever used to CLASSIFY a failure (and, redacted, to report it).
+    t0="$(date +%s)"
+    run_bounded "$call_to" temporal --profile cloud-setup workflow list --limit 1 >/dev/null 2>"$tmperr"
+    rc=$?
+    if [ "$rc" -eq 0 ]; then
+      rm -f "$tmperr"; trap - EXIT
       result_open ok; result_kv auth_ready true; result_kv waited_secs "$waited"; result_close
       return 0
     fi
+    # Keep the most recent NON-timeout CLI stderr as the diagnostic tail (a per-call
+    # timeout produces no CLI message; don't let it erase the last real one). Redacted
+    # at capture, so nothing secret is ever held or surfaced.
+    if [ "$rc" -ne "$RUN_BOUNDED_TIMEOUT" ] && [ -s "$tmperr" ]; then
+      last_err="$(redact < "$tmperr" | grep -v '^[[:space:]]*$' | tail -n 1)"
+    fi
+    # High-confidence PERMANENT key failure -> fast-fail; a dead/expired/revoked key
+    # will NEVER clear by waiting, so don't spin the full bound. The classifier is
+    # deliberately narrow (see await_auth_permanent): a bare transient `unauthorized`
+    # /`permission denied` during propagation stays transient and keeps polling — a
+    # wrong fast-fail is worse than a bounded wait. NOTE: if a prerelease exited 0 on
+    # an auth *failure* the poll would false-pass above before we get here; that's a
+    # connectivity-pulse concern, handled separately.
+    if [ "$rc" -ne "$RUN_BOUNDED_TIMEOUT" ] && await_auth_permanent "$tmperr"; then
+      die key-expired "API key rejected as expired/invalid — it will not clear by waiting (keys auto-expire in ~25h, so a next-day re-test hits a dead key). Re-run create-key to mint a fresh key (it overwrites the [profile.cloud-setup] block). If you are at the API-key cap, delete stale keys first (temporal cloud apikey list; temporal cloud apikey delete --key-id <id>), then re-run create-key.${last_err:+ (CLI stderr: $last_err)}"
+    fi
     if [ "$waited" -ge "$max" ]; then
-      die auth-timeout "API key still not accepted after ${max}s. A just-minted key/namespace can lag — wait and re-run await-auth; if it never clears, re-run create-key. Do NOT switch endpoints or edit the profile."
+      die auth-timeout "API key still not accepted after ${max}s. A just-minted key/namespace can lag — wait and re-run await-auth; if it never clears, re-run create-key. Do NOT switch endpoints or edit the profile.${last_err:+ (last CLI stderr: $last_err)}"
     fi
     sleep "$interval"
-    waited=$(( waited + interval ))
+    # Accrue real elapsed (poll + sleep) so the ~max budget is wall-clock, not
+    # per-interval: a slow/hung endpoint would otherwise take max*call_to seconds.
+    t1="$(date +%s)"
+    waited=$(( waited + (t1 - t0) ))
   done
 }
 
@@ -1022,7 +1228,7 @@ stop_group() {
   return 0
 }
 
-# cmd_run_workflow: THE single-call worker+starter path (PE-70). The Worker is a
+# cmd_run_workflow: THE single-call worker+starter path. The Worker is a
 # long-running process that must stay alive WHILE the starter triggers a Workflow —
 # but background jobs don't reliably survive across tool calls on Codex/Cursor. So,
 # like provision-and-scaffold, this owns the whole dance inside ONE synchronous call:
@@ -1311,7 +1517,7 @@ install_deps_for() {
   ) || log "  [warn] dependency install reported a problem (continuing; can be retried)"
 }
 
-# cmd_install_deps: standalone manager-parameterized install (PE-75). Lets the
+# cmd_install_deps: standalone manager-parameterized install. Lets the
 # agent install (or re-install) deps with an explicitly chosen/overridden manager.
 # Defaults --manager to the SDK's deterministic default when omitted. Dies with
 # manager-not-found if the chosen manager's binary isn't on PATH (a clear,
@@ -1344,7 +1550,7 @@ cmd_install_deps() {
 }
 
 # cmd_scaffold: set up the app only — clone the cloud-ready sample + install deps,
-# NO namespace work (PE-75). Pairs with start-namespace/await-namespace so the app
+# NO namespace work. Pairs with start-namespace/await-namespace so the app
 # setup is its own gated step that overlaps the server-side namespace provisioning.
 # Validates the manager fail-fast (manager-not-found / unsupported-manager) BEFORE
 # cloning, same as provision-and-scaffold.
@@ -1383,7 +1589,7 @@ cmd_scaffold() {
   result_close
 }
 
-# cmd_provision_and_scaffold: THE single-call parallel path (PE-68). Runs as one
+# cmd_provision_and_scaffold: THE single-call parallel path. Runs as one
 # ordinary SYNCHRONOUS foreground command; internally backgrounds the (synchronous,
 # never --async) namespace create and overlaps it with clone + deps, then `wait`s
 # and joins. Because the background job lives and dies inside this one invocation,
@@ -1513,11 +1719,11 @@ cmd_repair_config() {
   result_close
 }
 
-# emit_gate <heading> [<comment> <command>]...  (PE-75 determinism lever)
+# emit_gate <heading> [<comment> <command>]...  (determinism lever)
 # Prints a READY-TO-RENDER gate block on stdout, AFTER the RESULT block, delimited
 # by `=== GATE ===` / `=== END GATE ===`. The agent renders the text between the
 # markers VERBATIM (then appends the numbered choices) instead of assembling the
-# fenced block from prose rules — which is where the formatting kept breaking
+# fenced block from prose rules — which is error-prone to hand-assemble
 # (dropped fence, comment-only, glued rules). ASCII only; comment goes ABOVE its
 # command (green-comment style). Same idea as pinning the CLI flags: move the exact
 # format into the script so the model only has to print it.
@@ -1540,7 +1746,7 @@ emit_gate() {
   printf '=== END GATE ===\n'
 }
 
-# cmd_preview: PE-75 dry-run. Resolve and PRINT the concrete command(s) a
+# cmd_preview: dry-run. Resolve and PRINT the concrete command(s) a
 # subcommand would run, plus the resolved user-facing parameters, with NO side
 # effects (no clone, no temporal calls, no installs) — this powers the per-command
 # confirm gate and the "Edit" path in SKILL.md. Deterministic and offline: the
@@ -1687,16 +1893,21 @@ cmd_preview() {
         "mint the key + write the cloud-setup profile to temporal.toml (token captured to a 0600 file, never printed)" \
         "temporal cloud apikey create-for-me --display-name money-transfer-cloud-setup --expiry-duration 25h --auto-confirm -o json" ;;
     install-cli)
-      # Presence-aware (read-only): if the CLI is already here, disclose a no-op
-      # so the gate matches what cmd_install_cli will do (skip, no install/update).
-      if temporal cloud version >/dev/null 2>&1; then
+      # Presence-aware (read-only): disclose what cmd_install_cli will do. BETA
+      # stopgap (PE-79): a present CLI is updated to the latest prerelease (not
+      # skipped) while the CLI has no real versions; an absent CLI is installed.
+      if cloud_cli_present; then
+        local uc_cmd uc_note
+        case "$(uname -s)" in
+          Darwin) uc_cmd="brew upgrade temporalio/prerelease/temporal-cloud"; uc_note="update the Temporal CLI to the latest prerelease via Homebrew (adds/updates software)" ;;
+          *)      uc_cmd="# already installed; update temporal-cloud manually from https://github.com/temporalio/cloud-cli/releases/latest"; uc_note="the Temporal CLI is already installed; on this OS, update temporal-cloud manually from the releases page" ;;
+        esac
         result_open ok
         result_kv preview install-cli
         result_kv cli_present true
-        result_kv cmd_1 "# Temporal CLI already installed - this step is skipped (no install, no update)"
+        result_kv cmd_1 "$uc_cmd"
         result_close
-        emit_gate "Temporal CLI already installed - nothing to do" \
-          "the Temporal CLI is already on your machine, so this step is skipped (no install, no update)" "temporal cloud version"
+        emit_gate "Updating the Temporal CLI to the latest" "$uc_note" "$uc_cmd"
       else
         local ic_cmd ic_note
         case "$(uname -s)" in
@@ -1773,12 +1984,12 @@ cmd_preview() {
   esac
 }
 
-# announce_gate <subcommand> [args...]   (PE-75 — deterministic disclosure floor)
+# announce_gate <subcommand> [args...]   (deterministic disclosure floor)
 # Before an effectful subcommand acts, print ITS gate to STDERR so the tool block
 # ALWAYS records what the command runs — even when the agent skips rendering the
-# chat-side gate from §Gate templates (the Cursor "sometimes doesn't disclose"
-# failure). Reuses cmd_preview's single-source gate text, so the disclosure can
-# never drift from the real command; strips the machine markers and frames it as
+# chat-side gate from §Gate templates. Reuses cmd_preview's single-source gate
+# text, so the disclosure can never drift from the real command; strips the
+# machine markers and frames it as
 # plain human disclosure. Never blocks the real work: any preview failure (an arg
 # preview doesn't know, an unsupported sub) is swallowed and the command proceeds.
 # Opt out with TCLOUD_DISCLOSE=0 (the test harness sets this to keep stderr clean).
@@ -1821,10 +2032,10 @@ Usage: provision.sh <command> [args]
 Commands:
   preflight [--sdk S]                       Environment checks + config path + stray TEMPORAL_* vars
   detect-tools --sdk S                      Detect supported+installed package managers, pick a default,
-                                            report versions, surface discrepancies (PE-75 adaptation)
+                                            report versions, surface discrepancies
   preview <subcommand> [args]               Dry-run: print the concrete command(s) a subcommand would run
                                             (no side effects) — powers the per-command confirm/Edit gate
-  install-cli                               Install the prerelease temporal-cloud CLI (skips if present)
+  install-cli                               Install the prerelease temporal-cloud CLI (updates it to latest if already present)
   login                                     temporal cloud login (browser) + whoami
   regions                                   List Cloud regions (raw list to stderr)
   start-namespace --sdk S --region R        Fire-and-forget: submit `namespace create --async` (server-side); emits namespace_name
@@ -1837,7 +2048,7 @@ Commands:
   run-workflow --sdk S --dir D [--demo-failure transient] [--max-secs N]
                                             Single synchronous call: start Worker (bg) -> wait until polling -> run starter -> stop Worker; emits workflow_status, workflow_id, run_id
   clone --sdk S [--dir D]                   Clone the cloud-ready sample for the SDK
-  install-deps --sdk S --dir D [--manager M]  Install sample deps with a chosen/default package manager (PE-75)
+  install-deps --sdk S --dir D [--manager M]  Install sample deps with a chosen/default package manager
   provision-and-scaffold --sdk S --region R [--dir D] [--manager M]
                                             Single synchronous call: namespace create (bg) || clone+deps; emits namespace_handle, address, repo_path, manager
   repair-config                             Strip duplicate/old [profile.cloud-setup] blocks (keeps default)
