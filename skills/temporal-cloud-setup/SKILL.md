@@ -1,7 +1,7 @@
 ---
 name: temporal-cloud-setup
 description: Set up Temporal Cloud and run a sample Workflow on it for the user, doing the work end to end. Use when the user wants to set up Temporal Cloud, get started on Temporal Cloud, install the unified Temporal CLI (prerelease cloud-cli), create a Cloud namespace or API key, clone a money-transfer sample app, write the client config TOML, or connect a local Worker to Temporal Cloud and run a sample Workflow. This is the Cloud setup path, not the local learning path (see temporal-getting-started). Covers Python, TypeScript, Go, Java, .NET, and Ruby SDKs.
-version: 0.7.0
+version: 0.8.1
 disable-model-invocation: true
 ---
 
@@ -12,6 +12,8 @@ disable-model-invocation: true
 You are an operator running the Temporal Cloud setup **for** the user. Do the work; do not turn this into a lecture. Ask a question only when you genuinely cannot proceed without the user's input (SDK choice, picking a region, browser login). Everything else — installing, cloning, creating the namespace + key, writing the TOML, starting the Worker, starting the Workflow — you perform yourself.
 
 This is the **Cloud** path. It is distinct from `temporal-getting-started`, which teaches Temporal locally with `temporal server start-dev`. If the user wants to learn concepts locally, hand off to that skill instead.
+
+**Environment this skill needs — a local shell with outbound network.** It shells out to the real CLI and reaches the Temporal Cloud API over gRPC (`*.tmprl.cloud`). It will **not** work from a sandbox that blocks outbound network. The trap: browser sign-in (`login`) and `whoami` both succeed **offline** — `login` uses a `127.0.0.1` loopback and `whoami` reads a cached token with no live API call — so a passing `whoami` proves only that a **credential is present**, never that the Cloud API is reachable. `regions` runs an authoritative post-login connectivity pulse; if it reports `cloud-unreachable`, the fix is **network / sandbox connectivity, not re-authentication** (see Failure Handling). Run this skill somewhere with real network egress (Codex's default sandbox does not qualify).
 
 ## Output contract — how you drive every step
 
@@ -52,7 +54,7 @@ For many users this is the **first time they ever see Temporal.** It's a guided,
 - **No Skip** — a go-ahead step's choices are only `1. <action> / 2. Chat about this` (every step is required; "Chat about this" never skips it — it answers a question, then re-presents). Don't print a "no skip" note.
 - **Disclose in full.** A bundled subcommand (e.g. `scaffold` = clone + deps) gets **one** gate, but its GATE block shows **all** its commands. Don't unbundle into per-`temporal` gates; don't hide what it runs.
 - **Never edit this skill's files** — invoke `scripts/provision.sh` as shipped; it's pinned to run unchanged on every platform (macOS bash 3.2). Reformatting/"tidying" its punctuation, quoting, regexes, or flags is forbidden. The only file you change on disk is the user's `temporal.toml`, via the script. If a flag has genuinely drifted (script returns `status=error`), stop and report it as a one-line maintenance note — don't fix it mid-run.
-- **Already-satisfied prerequisite** → render its checklist item as `- [x] <thing> — already present, skipped` (don't fake-install it).
+- **Already-satisfied prerequisite** → render its checklist item as `- [x] <thing> — already present, skipped` (don't fake-install it). **Exception: the Temporal CLI.** When the CLI is already present the Install-CLI step *updates* it to the latest (PE-79), so render that step as updated/up-to-date, never "skipped" — see the Install-CLI flow step.
 - **Secret carve-out** (below) overrides disclosure for the API-key token.
 
 </output-contract>
@@ -61,23 +63,23 @@ For many users this is the **first time they ever see Temporal.** It's a guided,
 
 <steps>
 
-The whole run in order. Tiers: **DISCLOSE** = render the gate from its template (§Gate templates) — agent-rendered text, no tool call, never prompts — then run; the user's own permission prompt is the approval; **GO-AHEAD** = render the gate, then append `1. <action> / 2. Chat about this` and wait (only the three deliberate steps); **INPUT** = a numbered question (no script). Each step is one `scripts/provision.sh` subcommand unless noted. "On-error" lists the `error_code`s to map via Failure Handling.
+The whole run in order. Tier legend (full mechanics in the output contract above): **DISCLOSE** = render the gate, then run (the user's permission prompt is the approval); **GO-AHEAD** = render, then append `1. <action> / 2. Chat about this` and wait (only the three deliberate steps); **INPUT** = a numbered question (no script). Each step is one `scripts/provision.sh` subcommand unless noted. "On-error" lists the `error_code`s to map via Failure Handling.
 
 | # | Phase | Step | Tier | Subcommand | Emits | On-error |
 |---|-------|------|------|------------|-------|----------|
 | 1 | 1 | Choose SDK | INPUT | — (numbered list) | sdk | — |
-| 2 | 1 | Preflight | DISCLOSE | `preflight --sdk` | `config_path`,`warnings`,`stray_env` | — |
+| 2 | 1 | Preflight | DISCLOSE | `preflight --sdk` | `config_path`,`warnings`,`stray_env` | `config-dir-unwritable` |
 | 3 | 1 | Detect tools + pick manager | DISCLOSE (+ INPUT if >1 manager) | `detect-tools --sdk` | `default`,`managers`,`discrepancies` | `version-too-old` (advisory) |
-| 4 | 1 | Install CLI | DISCLOSE *(skip if `cli_installed`)* | `install-cli` | `status` (`skipped` if present) | `brew-missing`,`manual-install` |
+| 4 | 1 | Install / update CLI | DISCLOSE | `install-cli` | `status` (`ok`); `update` (`updated`/`up-to-date`/`skipped`/`failed`) | `brew-missing`,`manual-install` |
 | 5 | 1 | Sign in | **GO-AHEAD** | `login` | `identity` | `login-failed`,`not-authenticated` |
-| 6 | 1 | List + pick region | DISCLOSE + INPUT | `regions` | region list | `regions-empty` |
+| 6 | 1 | List + pick region | DISCLOSE + INPUT | `regions` | region list | `cloud-unreachable` |
 | 7 | 2 | Start namespace (async) | DISCLOSE | `start-namespace --sdk --region` | `namespace_name` | `create-rejected` |
 | 8 | 2 | Choose clone dir | INPUT | — (1=default / 2=Edit) | dir | — |
 | 9 | 2 | Scaffold the app | DISCLOSE | `scaffold --sdk [--manager] [--dir]` | `repo_path`,`manager` | `clone-failed`,`unknown-sdk`,`manager-not-found`,`unsupported-manager` |
 | 10 | 2 | Await namespace (join) | DISCLOSE | `await-namespace --name` | `namespace_handle`,`address` | `namespace-timeout`,`namespace-not-provisioning`,`handle-not-found` |
-| 11 | 2 | Create key + save config | DISCLOSE | `create-key --handle --address` | `key_id` (token never printed) | `key-empty`,`no-json-parser`,`manual-key-needed` |
+| 11 | 2 | Create key + save config | DISCLOSE | `create-key --handle --address` | `key_id` (token never printed) | `key-empty`,`key-limit-reached`,`no-json-parser`,`manual-key-needed` |
 | 12 | 2 | Verify config | DISCLOSE | `verify-config` | — | `profile-missing` |
-| 13 | 3 | Await auth | DISCLOSE | `await-auth` | `auth_ready` | `auth-timeout` |
+| 13 | 3 | Await auth | DISCLOSE | `await-auth` | `auth_ready` | `auth-timeout`,`key-expired` |
 | 14 | 3 | Run the Workflow | **GO-AHEAD** | `run-workflow --sdk --dir` | `workflow_status`,`workflow_id`,`run_id` | `worker-unauthorized`,`worker-not-polling`,`worker-start-failed`,`workflow-failed`,`workflow-not-submitted`,`workflow-timeout`,`precompile-failed` |
 | 15 | 4 | Inject failure + recover | **GO-AHEAD** | `run-workflow … --demo-failure transient` | same as 14 | same as 14 |
 
@@ -108,13 +110,13 @@ status=ok            # ok | error | skipped
 === END ===
 ```
 
-Human-readable progress goes to **stderr** (it shows in the expandable tool block — the teaching surface). On `status=error` the block carries `error_code` + `message`: map the code via **Failure Handling** below and fix the cause — **do not improvise an alternate command, switch output formats, or poll.**
+Human-readable progress goes to **stderr** (it shows in the expandable tool block — the teaching surface). On `status=error` the block carries `error_code` + `message` — map it via **Failure Handling** and fix the named cause (never improvise, switch output formats, or poll — as the output contract requires).
 
 The flow steps — subcommand, tier, and error codes — are the **Steps spine table above** (single source of truth). The RESULT keys each emits:
 
-- `preflight` → `os`, `config_path`, `cli_installed` (drives the Install-CLI skip), `warnings`, `stray_env`
+- `preflight` → `os`, `config_path`, `cli_installed` (drives Install-CLI: install if absent, update if present), `warnings`, `stray_env`
 - `detect-tools` → `default`, `managers`, `versions`, `discrepancies`
-- `install-cli` → `status` (`skipped` if present)  ·  `login` → `identity`  ·  `regions` → raw list on stderr (you recommend, user picks)
+- `install-cli` → `status` (`ok`) + `update` (`updated`/`up-to-date`/`skipped`/`failed` when present; `skipped`/`failed` still proceed with the working CLI) + `reason` (`brew-missing`/`unsupported-os`, present only alongside `update=skipped`)  ·  `login` → `identity`  ·  `regions` → raw list on stderr (you recommend, user picks)
 - `start-namespace` → `namespace_name`  ·  `scaffold` → `repo_path`, `manager`  ·  `await-namespace` → `namespace_handle`, `address`
 - `create-key` → `key_id` (token never printed)  ·  `verify-config` → profile names only  ·  `await-auth` → `auth_ready`
 - `run-workflow` → `workflow_status` (`COMPLETED`), `workflow_id`, `run_id`, `task_queue` (add `--demo-failure transient` for Phase 4)
@@ -123,15 +125,15 @@ The flow steps — subcommand, tier, and error codes — are the **Steps spine t
 
 **Utility subcommands are gated exactly like flow steps — disclose before running.** "Not in the main flow" means *don't run them as routine steps*, **not** that they skip disclosure: if you ever invoke one (`install-deps` to switch a manager, `repair-config` to fix a duplicate profile, `clone`, etc.), render its gate first (derive it from the `scaffold`/`install-cmd` shapes in §Gate templates — these utilities have no dedicated template). **And don't improvise them into the flow:** the main steps already cover the work (`scaffold` clones *and* installs dependencies — never add an extra `install-deps` "to confirm deps resolve", and never narrate doing so).
 
-The script is the **single source of truth for CLI flags**, and it is **read-only during a run** (read-only script): invoke it as shipped, never edit it. If it returns `status=error` because a prerelease flag has genuinely drifted, **stop and report that to the user as a one-line maintenance note** — fixing the script is a separate, deliberate task for a human, not something to do mid-setup. The wizard layer (tracker, checklists, checkpoints, the no-narration rules above) is still yours; only the imperative CLI work lives in the script.
+The script is the **single source of truth for CLI flags** and is **read-only during a run** — invoke it as shipped, never edit it; if a prerelease flag has genuinely drifted (`status=error`), stop and report it as a one-line maintenance note (per the output contract), never fix it mid-setup. The wizard layer (tracker, checklists, checkpoints, the no-narration rules above) is still yours; only the imperative CLI work lives in the script.
 
 ## Per-command gate — disclose, then run
 
-This setup runs real commands that **create billable Cloud resources and install software on the user's machine**. Earlier versions ran the whole bundle with no visible disclosure, which felt "too magic." So **before each `provision.sh` command, show what it will do** — render its gate. The user's own tool-permission prompt is where they approve or deny (it shows the same command via your `description`); the skill doesn't stack its own approval on top. The exception is the three **go-ahead** steps (`login`, `run-workflow`, inject-failure), which additionally wait for a go-ahead (`1. <action> / 2. Chat about this`). This is disclosure + a light control, not narration — keep it tight.
+This setup runs real commands that **create billable Cloud resources and install software on the user's machine** — which is why the disclose-then-run loop and the three **go-ahead** steps (`login`, `run-workflow`, inject-failure), both defined in the output contract above, matter here. This section pins the **exact shape** of the gate you render.
 
 **Deterministic backstop (don't rely on it):** every effectful `provision.sh` subcommand now also echoes its own gate to stderr (the tool block) *before* it acts, so the run is self-documenting even if you forget the chat-side gate. This is a safety net — it surfaces bundled with the result, *after* the action — so it never replaces rendering the gate first. Always render the §Gate-template gate, then run. (Disable only for tests via `TCLOUD_DISCLOSE=0`.)
 
-**The gate — render it from the matching template in §Gate templates; never run a script to build it.** Each step has a verbatim template (a plain bold heading, then a fenced ` ```bash ` block with `#` comments above each command); fill **only** its `‹slots›` from their named sources and **print it exactly** — do not reassemble or reformat it (hand-assembling formatting is where it kept breaking: dropped fences, comment-only, glued rules). Rendering is **agent text — zero tool calls**, so disclosure never trips a permission prompt; only the effectful `scripts/provision.sh` run does. For a **disclose** step, render the gate and run. For a **go-ahead** step, append the numbered choices **stacked one per line** and wait. The gate looks like this (a disclose step — render it, then run):
+**The gate — render it from the matching template in §Gate templates; never run a script to build it** (hand-assembling the formatting is error-prone: dropped fences, comment-only, glued rules). Fill **only** its `‹slots›` and print it exactly; rendering is **agent text — zero tool calls**. For a **go-ahead** step, append the numbered choices **stacked one per line** and wait. The gate's shape — a plain bold heading, then a fenced ` ```bash ` block with `#` comments above each command — looks like this (a disclose step — render it, then run):
 
 ````
 **Installing the Temporal CLI**
@@ -182,15 +184,15 @@ cd money-transfer-project-template-python && WORKFLOW_ID=money-transfer-demo pyt
 
 **A few rules these examples encode** (everything else is in the output contract above — don't restate it):
 
-- **A `#` comment above every command — never a comment alone, never a bare command.** The real commands must appear (a reported failure: the run step once showed only `# Worker` / `# starter` with the commands missing). Keep each comment to a few words; it's both a label and a one-line lesson for a newcomer.
+- **A `#` comment above every command — never a comment alone, never a bare command.** The real commands must appear (never just `# Worker` / `# starter` with the commands missing). Keep each comment to a few words; it's both a label and a one-line lesson for a newcomer.
 - **Name material side effects in the relevant comment** — `# … - billable`, `# … (adds software to your machine)`, `# mint key + write the cloud-setup profile to temporal.toml`. The §Gate templates already encode this; render them verbatim.
 - **`create-key` secret carve-out:** its GATE block shows the mint command **without** the token (captured straight into the locked TOML) — render as-is; never a token, never a redacted diff.
 
 ## Gate templates
 
-These are the **verbatim source** for every step's gate. The disclosure is **agent-rendered text — zero tool calls** (no `scripts/preview.sh`, so nothing prompts before the user even sees the command). Only the effectful `scripts/provision.sh <sub>` run prompts.
+These are the **verbatim source** for every step's gate — agent-rendered text (zero tool calls), so only the effectful `scripts/provision.sh <sub>` run ever prompts.
 
-**Hard rule — render the matching template verbatim.** Substitute **only** the `‹slots›`, never add/drop/reorder/reformat lines or fences; keep every static character (headings, `#` comments, the ` ```bash ` fence, spacing) byte-for-byte. Each `‹slot›`'s value comes **only** from its named source in "Filling the slots" below — never from memory, never improvised. The result is exactly what `scripts/preview.sh <sub>` used to print between its `=== GATE ===`…`=== END GATE ===` markers.
+**Hard rule — render the matching template verbatim.** Substitute **only** the `‹slots›`, never add/drop/reorder/reformat lines or fences; keep every static character (headings, `#` comments, the ` ```bash ` fence, spacing) byte-for-byte. Each `‹slot›`'s value comes **only** from its named source in "Filling the slots" below — never from memory, never improvised. The result is exactly what `scripts/provision.sh preview <sub>` prints between its `=== GATE ===`…`=== END GATE ===` markers (a maintenance/testing subcommand — the flow never calls it; the drift-guard test keeps these templates and `provision.sh`'s runtime commands in sync).
 
 ### Filling the slots
 
@@ -266,7 +268,7 @@ Source of truth = `scripts/provision.sh`. Keyed by `‹sdk›` (and `‹manager�
 | dotnet | `dotnet run --project MoneyTransferWorker` | `dotnet run --project MoneyTransferClient` |
 | ruby | `ruby worker.rb` | `ruby starter.rb` |
 
-The scaffold install-comment also varies by where deps land — keep the comment exactly as the template shows for that `‹sdk›`/`‹manager›` (python/ts say "inside the repo"; go/java/dotnet/ruby say "GLOBAL, outside the repo …"). The worked example and templates below carry the right wording per SDK; for non-python SDKs use the install comment from `scripts/preview.sh scaffold --sdk ‹sdk›` if you ever need to re-verify it (maintenance only).
+The scaffold install-comment also varies by where deps land — keep the comment exactly as the template shows for that `‹sdk›`/`‹manager›` (python/ts say "inside the repo"; go/java/dotnet/ruby say "GLOBAL, outside the repo …"). The worked example and templates below carry the right wording per SDK; for non-python SDKs use the install comment from `scripts/provision.sh preview scaffold --sdk ‹sdk›` if you ever need to re-verify it (maintenance only).
 
 ### Templates
 
@@ -278,6 +280,9 @@ The scaffold install-comment also varies by where deps land — keep the comment
 ```bash
 # check git / jq / brew are available (read-only, local)
 command -v git jq brew
+
+# check the Temporal config directory is writable (so temporal.toml can be saved)
+touch "$(dirname "<config_path>")/.probe" && rm -f "$(dirname "<config_path>")/.probe"
 
 # flag any stray TEMPORAL_* env vars that would override your saved config
 env | grep '^TEMPORAL_' || true
@@ -312,11 +317,21 @@ brew install temporalio/prerelease/temporal-cloud
 **Phase 1 — `install-cli` (already installed — render this variant instead when the CLI is present):**
 
 ````
-**Temporal CLI already installed - nothing to do**
+**Updating the Temporal CLI to the latest**
 
 ```bash
-# the Temporal CLI is already on your machine, so this step is skipped (no install, no update)
-temporal cloud version
+# BETA: the prerelease CLI has no real versions yet, so always pull the latest (adds/updates software)
+brew upgrade temporalio/prerelease/temporal-cloud
+```
+````
+
+**Phase 1 — `install-cli` (already installed, non-macOS — render this variant when the CLI is present and you're not on macOS; there's no prerelease tap to upgrade from):**
+
+````
+**Updating the Temporal CLI to the latest**
+
+```bash
+# already installed; update temporal-cloud manually from https://github.com/temporalio/cloud-cli/releases/latest
 ```
 ````
 
@@ -477,10 +492,9 @@ git clone --branch money-transfer-project-cloud-setup --single-branch https://gi
 
 This skill begins when the user invokes it (e.g. `/temporal-cloud-setup`) or asks to set up Temporal Cloud. On start, print the roadmap, then go straight into Phase 1 (whose first step is choosing the SDK). Do **not** narrate.
 
-Print this opening block verbatim — the two ⚠️ notices first (adjacent), then the plan and the profile line:
+Print this opening block verbatim — the ⚠️ notice first, then the plan and the profile line:
 
 ```
-> ⚠️ **Experimental:** this setup skill is experimental and under active development.
 > ⚠️ **Heads-up:** this creates real resources in your Temporal Cloud account — a namespace and an API key — which may incur cost.
 
 **Let's get you set up on Temporal Cloud.** Four phases, end to end.
@@ -505,7 +519,7 @@ This is the **single source of truth for per-phase formatting** — the phase bo
 
 1. **Tracker line** at the top, marker advanced (see below).
 2. **Intent sentence** — one short line on what this phase sets up and why it matters (gloss any Temporal term). No more than one line.
-3. **Step checklist — once, all unchecked** (the phase plan). Then run each step (real tool call with a friendly `description`, or a genuine question) **without re-printing the checklist or tracker between steps**. Render an already-present prerequisite as `[x] … already present, skipped`. **No** `**What this did:**` summary and **no** `↪ Learn more:` link during the run.
+3. **Step checklist — once, all unchecked** (the phase plan). Then run each step (real tool call with a friendly `description`, or a genuine question) **without re-printing the checklist or tracker between steps**. Render an already-present prerequisite as `[x] … already present, skipped` (except the Temporal CLI, which updates when present — render it updated/up-to-date, not "skipped"). **No** `**What this did:**` summary and **no** `↪ Learn more:` link during the run.
 4. **End-of-phase: completed checklist + checkpoint** — print the checklist once more with **every box checked**, show `**Phase N complete ✅**`, and **close that same message** with the numbered checkpoint prompt (its content is detailed in the next section — it belongs to *this* message, it is not a second message). In Codex-style runtimes, this entire block must be the final assistant message of the turn when you pause for the user; do not print it earlier as progress and then repeat or fragment it in the final response. No checkpoint after Phase 4 — go straight to the Ending.
 
 The tracker is just the four phase markers and the phase counter — **no leading label** (don't prefix it with "Setup" or anything before the first marker). Legend: completed = `✅`, current = `🔵`, upcoming = `⚪` (a white dot — same filled-circle style as the blue current dot). **Bold the current step's name** (the one with the blue dot). Reprint it at the top of each phase, advancing one marker:
@@ -556,7 +570,7 @@ Step checklist: `SDK chosen` · `Tools detected` · `CLI installed` · `Signed i
 
 **Step — Choose your SDK** (genuine input, not a checkpoint): present the six as a **numbered list** (numbered list, runtime-agnostic) — Python, Go, TypeScript, Java, .NET, Ruby — and take a typed name/number. This selects which repo is cloned and the language of the local app. Echo the resolved profile line (`Setting up for: macOS · Python SDK`) once answered.
 
-Right after the SDK pick, the **preflight** check (DISCLOSE — render, then run): render its gate from the `preflight` template (§Gate templates), then run `scripts/provision.sh preflight --sdk <sdk>`. Note its `cli_installed` flag — it drives whether the Install-CLI step below runs or is skipped. If its `stray_env` lists any `TEMPORAL_*` vars, tell the user they override the saved profile and ask them to unset them before continuing; surface other `warnings` (e.g. `brew-missing`, `no-json-parser`) only if they block a later step.
+Right after the SDK pick, the **preflight** check (DISCLOSE — render, then run): render its gate from the `preflight` template (§Gate templates), then run `scripts/provision.sh preflight --sdk <sdk>`. Note its `cli_installed` flag — it drives whether the Install-CLI step below installs (absent) or updates the existing CLI (present). If its `stray_env` lists any `TEMPORAL_*` vars, tell the user they override the saved profile and ask them to unset them before continuing; surface other `warnings` (e.g. `brew-missing`, `no-json-parser`) only if they block a later step.
 
 **Step — Detect local tools + choose your package manager** (DISCLOSE — render, then run). Render its gate from the `detect-tools` template (§Gate templates), then run `scripts/provision.sh detect-tools --sdk <sdk>` and read its RESULT. This adapts the setup to the user's machine, and it surfaces tooling problems **early** (here in Phase 1) instead of deep in Phase 2/3.
 
@@ -566,10 +580,10 @@ Right after the SDK pick, the **preflight** check (DISCLOSE — render, then run
   - `tool-missing:<runtime>` / `manager-not-found:<m>` — the runtime or chosen manager isn't installed. Offer another **sample-supported** manager from `managers`, or ask the user to install the tool, then re-run `detect-tools`.
 - The default proposal is **deterministic** — the same machine yields the same default every run; nothing is persisted (no state file).
 
-**Step — Install the unified Temporal CLI** (DISCLOSE — render, then run, *unless already present*). It ships the `temporal cloud` command group (binary `temporal-cloud`). **Branch on preflight's `cli_installed`** (it used the same `temporal cloud` probe the installer does, so it's authoritative — don't re-check by calling `install-cli` just to confirm):
+**Step — Install or update the unified Temporal CLI** (DISCLOSE — render, then run). It ships the `temporal cloud` command group (binary `temporal-cloud`). **Branch on preflight's `cli_installed`** (it used the same `temporal cloud` probe the installer does, so it's authoritative — don't re-check by calling `install-cli` just to confirm):
 
-- **`cli_installed=true` → skip the step entirely.** Render the checklist item as `- [x] Temporal CLI — already present, skipped` and do **not** render the install gate or call `install-cli`. No gate, no tool call — marking it skipped *is* the step (per the "already-satisfied prerequisite" rule). We deliberately do **not** auto-update a working CLI (don't change a working install out from under the user).
-- **`cli_installed=false` → install it.** Render its gate from the `install-cli` template (§Gate templates), then run `scripts/provision.sh install-cli`. It installs via the `temporalio/prerelease` Homebrew tap on macOS, and returns `error_code=brew-missing` / `manual-install` with the fallback URL if it can't — do not auto-install Homebrew; relay the message and wait. (`install-cli` still self-checks presence and emits `status=skipped` as a backstop, but in the normal flow you won't reach it when the CLI is already there.)
+- **`cli_installed=true` → update it to the latest.** Render its gate from the `install-cli` (already-installed) template (§Gate templates), then run `scripts/provision.sh install-cli`. **BETA stopgap:** the prerelease CLI has no meaningful version numbers yet, so instead of a real "is it out of date?" check we always try to pull the latest from the `temporalio/prerelease` Homebrew tap; `install-cli` returns `status=ok` with `update`=`updated`/`up-to-date`. When it can't update — Homebrew missing, or a non-macOS host — it emits `update=skipped` and proceeds with the working CLI rather than failing (never yank a working install). Once the CLI ships real versions this becomes a genuine version check; we no longer skip a present CLI.
+- **`cli_installed=false` → install it.** Render its gate from the `install-cli` (not-installed) template (§Gate templates), then run `scripts/provision.sh install-cli`. It installs via the `temporalio/prerelease` Homebrew tap on macOS, and returns `error_code=brew-missing` / `manual-install` with the fallback URL if it can't — do not auto-install Homebrew; relay the message and wait. (`install-cli` self-checks presence, so if it's actually already there it updates instead of installing.)
 - (No prerelease disclaimer here — the ⚠️ notice at the top of the run already covers that.)
 
 This CLI is separate from any local `temporal server start-dev`. The Cloud path does not start a local server.
@@ -647,9 +661,10 @@ For reference, the per-SDK repo mapping (the script selects the right one):
 
 It returns only the **non-secret** `key_id` and the `config_path` — never the token. Then verify the profile (DISCLOSE — render, then run): render its gate from the `verify-config` template (§Gate templates), then run `scripts/provision.sh verify-config` to confirm the profile loads (it never prints the api_key value).
 
-This is the **secret-handling carve-out** — render the action's label without the token (e.g. `api_key = "eyJ…(captured, not shown)"`); never reprint, log, argv-pass, or commit it.
+This is the **secret-handling carve-out** (§ above): render the action's label without the token; never reprint, log, argv-pass, or commit it.
 
 - On `error_code=key-empty`/`not-authenticated`: an expired login — let the script re-prompt and retry once; don't switch output formats or poll.
+- On `error_code=key-limit-reached`: the account is at its API-key cap — the mint was rejected at create time. Have the user delete stale keys (`temporal cloud apikey list`, then `temporal cloud apikey delete --key-id <id>` on old `money-transfer-cloud-setup-*` keys), then re-run `create-key`. Don't re-run login.
 - On `error_code=no-json-parser`: install `jq` or `python3`, then re-run (the safe capture needs one).
 - On `error_code=manual-key-needed`: automatic capture failed and there was no terminal to paste into. Ask the **user** to paste the one-time key and re-run `create-key` from a context with a terminal — the script reads the paste *hidden*, straight into the locked file. **Never** have the user paste the key into the chat, and never paste it yourself.
 - The secret is shown only once and cannot be retrieved later; if it's truly lost, mint a new key (re-run this step) — don't try to recover the old value.
@@ -684,7 +699,7 @@ The app connects from config and Phase 2 supplied the credentials — this phase
 
 Run two script calls, both using `repo_path` from Phase 2 (the script handles per-SDK run commands and Python venv activation internally — you don't):
 
-1. **Wait for auth** (`await-auth`, DISCLOSE — render, then run): render its gate from the `await-auth` template (§Gate templates), then run `scripts/provision.sh await-auth` and wait for `auth_ready=true`.
+1. **Wait for auth** (`await-auth`, DISCLOSE — render, then run): render its gate from the `await-auth` template (§Gate templates), then run `scripts/provision.sh await-auth` and wait for `auth_ready=true`. On `error_code=key-expired`, the key is permanently rejected (commonly a next-day re-test against a key that auto-expired in ~25h) — re-run `create-key` (see Failure Handling); on `auth-timeout`, read the appended redacted CLI stderr, wait, and re-run.
 2. **Run the Workflow** (`run-workflow --sdk <sdk> --dir <repo_path>`, **GO-AHEAD** — the deliberate moment): render its gate from the `run-workflow` (clean run) template (§Gate templates), append `1. Run it / 2. Chat about this` (on `2`, answer, then re-present), and on `Run it` one synchronous call starts the Worker, waits until it's polling (Temporal's API, not the OS process table), runs the starter, and stops the Worker. Wait for `workflow_status=COMPLETED`; it emits the run's **`workflow_id`** + **`run_id`** (don't run `workflow list` yourself). On `worker-unauthorized`, re-run `await-auth` then `run-workflow` (see Failure Handling).
 3. **Show the success link, then confirm the win.** `run-workflow` already verified `COMPLETED`. Surface the run's **timeline** page on its own bare line (bare URL so the terminal auto-linkifies it — no backticks/fence), using the `workflow_id` and `run_id` from the RESULT block:
 
@@ -774,44 +789,11 @@ The summary above is the payoff — keep it to that one short recap. The only ca
 
 ## Failure Handling
 
-<failure-handling>
-
-Stop and surface the problem (don't silently retry destructive or auth steps), staying in the calm output style — report the problem and fix plainly, without exposing reasoning. The script ops fail loudly with `status=error` + an `error_code`; **fix the cause the code names and re-run the same op — never improvise an alternate command, switch output formats, or poll.** Map the codes:
-
-- **`brew-missing` / `manual-install`** (install-cli) → relay the script's message: install Homebrew from https://brew.sh, or download `temporal-cloud` from the releases page and put it on `PATH`. Do **not** auto-install Homebrew. Re-run install-cli.
-- **`login-failed` / `not-authenticated`** (login, or any later op) → the browser sign-in didn't complete or the session expired. Ask the user to finish/redo the browser login, then re-run the op (create-namespace / create-key re-check auth themselves).
-- **`regions-empty`** → confirm auth (`login`), then re-run `regions`. Don't hand-prefix or guess a region.
-- **`create-rejected`** (start-namespace) → the namespace create was rejected on submit, usually region or name format; re-list regions, have the user pick an exact provider-prefixed value, then re-run `start-namespace`. Attribute this as a **namespace** failure, never as a downstream key error.
-- **`namespace-timeout`** (await-namespace) → the namespace **appeared** (ACTIVATING) but didn't reach **ACTIVE** within the bound (`NS_AWAIT_MAX_SECS`, default 600s). It's provisioning lag, not a misconfig: re-run `await-namespace` (it resumes polling the exact `namespace list --name` filter until the namespace is ACTIVE); raise the bound with `NS_AWAIT_MAX_SECS=N` if needed. Don't switch to `namespace get`/other formats. (Waiting for ACTIVE here is what keeps `create-key`/`await-auth` from connecting to an endpoint that isn't serving yet — the cause of a "no children to pick from" stall.)
-- **`namespace-not-provisioning`** (await-namespace / provision-and-scaffold) → the create was accepted but the namespace **never appeared** in the list within the phantom-grace window (`NS_PHANTOM_GRACE_SECS`, default 75s) — i.e. it's not provisioning at all, vs. just slow. Almost always an **unavailable region** (e.g. `azure-centralus`, whose provider reads `UNKNOWN` — see the region step's `unsupported_regions`). Don't re-run `await-namespace` on the same name; **re-run `start-namespace` with an AWS/GCP region**.
-- **`handle-not-found`** (provision-and-scaffold) → the namespace was created but didn't reach **ACTIVE** within the retry bound (still provisioning). Re-run `provision-and-scaffold` or `await-namespace` to resume the wait. **Never** decode the API-key token or hunt the filesystem/config for the account-id — the exact `namespace list --name` filter is the source.
-- **`clone-failed` / `unknown-sdk`** (scaffold) → the sample clone failed (network/repo) or the SDK has no repo mapping; confirm the SDK + connectivity, then re-run `scaffold`. (Independent of the namespace, which is already provisioning.)
-- **`manager-not-found`** (scaffold / install-deps) → the chosen package manager isn't installed on this machine. Offer an **available** manager from the latest `detect-tools` `managers` list, or ask the user to install the missing one, then re-run with that `--manager`. Caught **before** the clone, so nothing was set up.
-- **`unsupported-manager`** (scaffold / install-deps) → that manager isn't valid for this SDK's sample (e.g. `poetry` for Python, whose sample ships no `pyproject.toml`). Pick one of the supported managers named in the error / `detect-tools` and re-run.
-- **`version-too-old`** (detect-tools `discrepancies`, **advisory**) → not a hard error and never blocks the run. Relay the remediation (upgrade the tool to the noted minimum) but you may proceed — the sample usually still works on the older version.
-- **`no-json-parser`** (create-key) → install `jq` or `python3` (needed to capture the token safely), then re-run create-key.
-- **`key-empty` / `key-create-failed`** (create-key) → almost always an expired login (not an output-format problem); the script re-checks `whoami` — redo the browser login if prompted, then re-run create-key once.
-- **`config-write-failed`** (create-key) → the profile couldn't be written to `temporal.toml` (read-only dir or full disk); the key was minted but not saved. Fix directory permissions / free disk, then re-run create-key (it mints a fresh key and writes a clean profile).
-- **API key lost** (only shown once) → re-run create-key to mint a fresh one (it rewrites the profile); don't try to recover the old value.
-- **`temporal.toml` unparseable / duplicate `[profile.cloud-setup]` blocks** (e.g. from earlier partial runs) → run `scripts/provision.sh repair-config` (strips every `cloud-setup` block via awk, keeps `[profile.default]`, never reads the file into context), then re-run `create-key` to write one fresh profile. **Do not hand-edit, `cat`, or `awk` the file yourself** (the read-only-script rule and the secret carve-out) — `create-key` also strips any existing/duplicate `cloud-setup` blocks before writing, so it self-heals too.
-- **`worker-unauthorized`** (run-workflow) → the Worker hit an auth error before it could poll — the just-minted key isn't accepted yet. Re-run `await-auth` (wait for `auth_ready=true`), then re-run `run-workflow`. Do **not** switch endpoints, re-mint the key, or edit the profile (it's readiness, not config).
-- **`precompile-failed`** (run-workflow) → the Maven/dotnet build step failed before the Worker started. Java and .NET are pre-compiled once so the timing windows cover only Temporal operations. Check the output above; usually a missing Java/Maven/.NET SDK installation or a network issue fetching dependencies on the first build.
-- **`worker-not-polling`** (run-workflow) → the Worker started but never registered as a poller within the bound (`WORKER_READY_MAX_SECS`, default 120s). Usually deps weren't installed or the Worker process crashed early. Confirm `scaffold` finished and `--dir` is the real `repo_path`, then re-run; raise the bound with `WORKER_READY_MAX_SECS=N` if needed. The script prints the Worker log tail to help.
-- **`worker-start-failed`** (run-workflow) → the Worker process exited before polling (missing deps/venv, wrong dir, or a sample-app error in the log tail). Confirm deps installed and `--dir` is correct, then re-run.
-- **`workflow-failed`** (run-workflow) → the starter exited non-zero / the Workflow didn't reach `COMPLETED`. Read the printed log tail: if it's an auth error, run `await-auth` and retry; otherwise surface the sample-app error. (Expected `FAILED` for the manual `DEMO_FAILURE=permanent` variant is **not** run through `run-workflow`.)
-- **`workflow-not-submitted`** (run-workflow) → the starter exited **0 but never submitted a Workflow** within the settle window (`NOWF_SETTLE_SECS`, default 15s). Some sample clients catch their own connect/start error and still exit 0 (the .NET starter does this), so a clean exit code can hide a failed start. Read the printed log tail — it's almost always an auth/connection error: run `await-auth` (wait for `auth_ready=true`) and re-run `run-workflow`; if the profile points at a namespace that isn't ACTIVE, re-check `await-namespace` first.
-- **`workflow-timeout`** (run-workflow) → the starter didn't finish within `--max-secs` (default 180s). The Cloud workflow is automatically terminated on timeout so it doesn't stay Running with no worker. If it still fires, raise with `--max-secs N` and re-run.
-- **`Request unauthorized` / `Unavailable` on the first connect (right after setup)** → almost always **post-provision readiness**, not a misconfig: the just-created namespace + key need a moment to become connectable, and the parallel flow shortens that gap. **Wait ~10–15s and retry the connect, up to ~3 times.** Do **not** switch the address to a regional endpoint, re-mint the key, or rewrite the profile. The namespace endpoint (`<handle>.tmprl.cloud:7233`) is the correct, Temporal-recommended endpoint for API keys (temporalio/documentation#4733); regional is **not** the fix. If it still fails after retries, that's a Temporal Cloud issue to escalate — not a reason to change the skill's endpoint.
-- **`auth-timeout`** (await-auth) → the new API key still isn't accepted after the bound (`AUTH_READY_MAX_SECS`, default 90s). It's propagation, not config: wait longer and re-run `await-auth`; if it never clears, re-run `create-key` to mint a fresh key. Don't switch endpoints or edit the profile.
-- **TLS / auth errors at connect** → confirm the profile's `[profile.cloud-setup.tls]` has `disabled = false` (TLS on), the address is the **namespace endpoint** (`<handle>.tmprl.cloud:7233`), and the `api_key` is set; re-run `verify-config`. (`create-key` now writes `disabled = false` explicitly.)
-- **`temporal cloud …` commands suddenly fail auth (after deleting/expiring the key)** → a profile carrying an `api_key` overrides the login session. Remove the `[profile.cloud-setup]` block, or pass `--disable-config-file`. The setup always lives in the **named** `cloud-setup` profile (never `default`), so management commands keep using the login session.
-
-</failure-handling>
+On `status=error`, map the `error_code` via **`references/failure-handling.md`** and fix the exact cause it names — never improvise an alternate command, switch output formats, or poll. Read that file only when an error fires (progressive disclosure); the Steps spine's On-error column indexes which codes each step can emit.
 
 ## Files
 
 - `scripts/provision.sh` — **the deterministic executor.** Owns preflight / **detect-tools** / **preview** / install / login / regions / namespace-create / **install-deps (manager-parameterized)** / key-mint+config-write / verify / await-auth / **run-workflow (Worker + starter)** / clone / repair-config / cleanup-info. Invoke it and parse its `=== RESULT ===` block (see "Execution model" above); it is the single source of truth for the pinned CLI flags, the per-SDK run commands, **and the per-(SDK,manager) install matrix + minimum-version table**. Pure bash, portable across Claude Code, Codex, and Cursor. **Read-only during a run — invoke it, never edit it (read-only script).**
-- `scripts/preview.sh` — **read-only disclosure shim, maintenance/testing only.** A ~3-line forwarder to `provision.sh preview <args>`. The flow no longer calls it: gates are **agent-rendered from §Gate templates** (zero tool calls, so disclosure never prompts on any host). Kept so `provision.sh preview` output stays verifiable (the drift-guard test binds the templates to it). Side-effect-free; never edit it.
-- `scripts/tests/run-tests.sh` — offline, stubbed tests for the adaptation work (detection defaults, side-effect-free preview, per-manager install, version discrepancies, ASCII RESULT, no secrets). Dev-only; run under `/bin/bash` (3.2). Not part of a setup run.
 - `references/unified-cli.md` — background on the prerelease CLI and the client-config TOML: `login`/`whoami`, `region list`, `namespace create`, `apikey create-for-me`, file locations, and the auth-override gotcha. The script encodes these; read the reference when a flag drifts and you need to update the script.
 - `references/sdk-cloud.md` — per-SDK table: repo + cloud branch, task-queue name, how each connects (`cloud-setup` profile), and worker/starter run commands. No connection edits — the branch is pre-wired.
+- `references/failure-handling.md` — the `error_code` → remediation map. Read it **only when a subcommand returns `status=error`** (progressive disclosure — the happy path never opens it); the Failure Handling section above is a one-line pointer to it, and the Steps spine's On-error column is the index.
