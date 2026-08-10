@@ -163,3 +163,39 @@ https://cloud.temporal.io/namespaces/<namespace-handle>/workflows/<workflow-id>/
 ```
 
 The bare list URL (`…/workflows`) is a fallback only — surface the run-specific URL when you have the Workflow ID + Run ID (from the starter output or `workflow describe -o json`). `<namespace-handle>` is the namespace's full handle from `namespace create` — `<name>.<account-id>`, e.g. `quickstartai-go-20260617-143205.fmrip`.
+## Auth-failure stderr wording (await-auth / workflow list)
+
+`temporal --profile cloud-setup workflow list` is the auth-readiness poll. On failure
+the Cloud API gateway (Envoy) returns a gRPC status whose `desc` is a **JWT-filter**
+message — the wording is **JWT-anchored, never "api key"-anchored**. Captured against
+the prerelease CLI:
+
+| Condition | Exact stderr | Classification |
+|---|---|---|
+| Empty / missing key | `Error: failed reaching server: rpc error: code = Unauthenticated desc = Jwt is missing` | **transient** (can occur mid-propagation) |
+| Bad / wrong-issuer key | `Error: failed reaching server: rpc error: code = Unauthenticated desc = Jwt issuer is not configured` | **transient** |
+| Expired key | `Error: failed reaching server: rpc error: code = Unauthenticated desc = Jwt is expired` | **permanent → `key-expired` fast-fail** |
+| mTLS-only namespace (wrong endpoint) | `Error: failed reaching server: connection error: desc = "error reading server preface: remote error: tls: certificate required"` | **transient** (TLS layer, not auth) |
+
+Why only `expired` fast-fails: a valid key that is merely *propagating* has a **future
+`exp`**, so it can never emit `Jwt is expired` — matching `expired` (anchored to
+jwt/key/token) is safe against wrong-fast-failing a key that just needs a moment. The
+other descs are ambiguous (can appear during propagation), so they stay transient and
+resolve as `auth-timeout` with the redacted stderr line attached. This is the source of
+truth for `await_auth_permanent()` in `scripts/provision.sh`.
+
+> Note: `Jwt is missing` / `issuer is not configured` and the mTLS/TLS error were
+> captured live. `Jwt is expired` is the standard Envoy JWT-filter default and the
+> expected wording for a real expired key; it was not captured live (the prerelease
+> `apikey create-for-me` emits the one-time secret only to a TTY, so a short-expiry
+> key couldn't be minted+polled non-interactively). If a live capture ever differs,
+> update the table and `await_auth_permanent()` together.
+
+## API-key mint output drift (create-key)
+
+The prerelease `apikey create-for-me -o json` does **not** put the one-time secret on
+redirectable stdout: with stdout+stderr redirected (non-TTY) it returns **empty output
+with exit 0** and, in that mode, may not persist a key at all. The secret is emitted to
+the controlling **TTY** / as human text. This is why `cmd_create_key` captures BOTH
+streams, falls back to a JWT-pattern scrape, and finally to a hidden `/dev/tty` paste —
+and why the offline `key-empty` scenario (empty both streams, exit 0) is faithful.
