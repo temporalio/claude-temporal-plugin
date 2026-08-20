@@ -2,7 +2,9 @@
 
 ## Overview
 
-The Python SDK provides comprehensive observability through logging, metrics, tracing, and visibility (Search Attributes).
+The Python SDK provides comprehensive observability through logging, metrics, tracing (OpenTelemetry), and visibility (Search Attributes).
+
+These pillars are complementary: **logging** (below) captures discrete events, **metrics** capture aggregate worker health, **tracing** stitches a single request across Client/Workflow/Activity/Nexus boundaries, and **Search Attributes** make executions queryable.
 
 ## Logging
 
@@ -94,6 +96,10 @@ Runtime.set_default(runtime, error_if_already_set=True)
 - `temporal_activity_execution_latency` - Activity execution time
 - `temporal_workflow_task_replay_latency` - Replay duration
 
+## Distributed Tracing (OpenTelemetry)
+
+See `references/python/integrations/opentelemetry.md`.
+
 ## Search Attributes (Visibility)
 
 See the Search Attributes section of `references/python/data-handling.md`
@@ -104,3 +110,4 @@ See the Search Attributes section of `references/python/data-handling.md`
 2. Don't use print() in workflows - it will produce duplicate output on replay
 3. Configure metrics for production monitoring
 4. Use Search Attributes for business-level visibility
+5. Use the `OpenTelemetryPlugin` for distributed tracing across Client/Workflow/Activity/Nexus boundaries.

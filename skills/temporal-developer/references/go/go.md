@@ -9,7 +9,7 @@ The Temporal Go SDK (`go.temporal.io/sdk`) provides a strongly-typed, idiomatic 
 **Add Dependency:** In your Go module, add the Temporal SDK:
 
 ```bash
-go get go.temporal.io/sdk
+go get go.temporal.io/sdk go.temporal.io/sdk/contrib/envconfig
 ```
 
 **workflows/greeting.go** - Workflow definition:
@@ -67,11 +67,12 @@ import (
 	"yourmodule/workflows"
 
 	"go.temporal.io/sdk/client"
+	"go.temporal.io/sdk/contrib/envconfig"
 	"go.temporal.io/sdk/worker"
 )
 
 func main() {
-	c, err := client.Dial(client.Options{})
+	c, err := client.Dial(envconfig.MustLoadDefaultClientOptions())
 	if err != nil {
 		log.Fatalln("Unable to create client", err)
 	}
@@ -107,10 +108,11 @@ import (
 
 	"github.com/google/uuid"
 	"go.temporal.io/sdk/client"
+	"go.temporal.io/sdk/contrib/envconfig"
 )
 
 func main() {
-	c, err := client.Dial(client.Options{})
+	c, err := client.Dial(envconfig.MustLoadDefaultClientOptions())
 	if err != nil {
 		log.Fatalln("Unable to create client", err)
 	}
@@ -157,7 +159,7 @@ func main() {
 
 ### Worker Setup
 
-- Create client with `client.Dial(client.Options{})`
+- Load file- and environment-based connection settings with `envconfig.MustLoadDefaultClientOptions()`, then pass them to `client.Dial`
 - Create worker with `worker.New(c, "task-queue", worker.Options{})`
 - Register workflows and activities
 - Run with `w.Run(worker.InterruptCh())`
@@ -252,3 +254,4 @@ See `references/go/testing.md` for info on writing tests.
 - **`references/go/data-handling.md`** - Data converters, payload codecs, encryption
 - **`references/go/versioning.md`** - Patching API (`workflow.GetVersion`), Worker Versioning
 - **`references/go/determinism-protection.md`** - Information on **`workflowcheck`** tool to help statically check for determinism issues.
+- **`references/go/standalone-activities.md`** - Standalone Activities (Public Preview): run an Activity directly from a Client without a Workflow; see also `references/core/standalone-activities.md` for cross-SDK concepts.

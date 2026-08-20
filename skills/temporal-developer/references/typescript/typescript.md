@@ -15,7 +15,7 @@ Temporal workflows are durable through history replay. For details on how this w
 **Add Dependencies:** Install the Temporal SDK packages (use the package manager appropriate for your project):
 
 ```bash
-npm install @temporalio/client @temporalio/worker @temporalio/workflow @temporalio/activity
+npm install @temporalio/client @temporalio/worker @temporalio/workflow @temporalio/activity @temporalio/envconfig
 ```
 
 Note: if you are working in production, it is strongly advised to use ~ version constraints, i.e. `npm install ... --save-prefix='~'` if using NPM.
@@ -46,11 +46,16 @@ export async function greetingWorkflow(name: string): Promise<string> {
 **worker.ts** - Worker setup (registers activity and workflow, runs indefinitely and processes tasks):
 
 ```typescript
-import { Worker } from '@temporalio/worker';
+import { NativeConnection, Worker } from '@temporalio/worker';
+import { loadClientConnectConfig } from '@temporalio/envconfig';
 import * as activities from './activities';
 
 async function run() {
+  const config = loadClientConnectConfig();
+  const connection = await NativeConnection.connect(config.connectionOptions);
   const worker = await Worker.create({
+    connection,
+    namespace: config.namespace,
     workflowsPath: require.resolve('./workflows'), // For production, use workflowBundle instead
     activities,
     taskQueue: 'greeting-queue',
@@ -68,12 +73,15 @@ run().catch(console.error);
 **client.ts** - Start a workflow execution:
 
 ```typescript
-import { Client } from '@temporalio/client';
+import { Client, Connection } from '@temporalio/client';
+import { loadClientConnectConfig } from '@temporalio/envconfig';
 import { greetingWorkflow } from './workflows';
 import { v4 as uuid } from 'uuid';
 
 async function run() {
-  const client = new Client();
+  const config = loadClientConnectConfig();
+  const connection = await Connection.connect(config.connectionOptions);
+  const client = new Client({ connection, namespace: config.namespace });
 
   const result = await client.workflow.execute(greetingWorkflow, {
     workflowId: uuid(),
@@ -105,6 +113,8 @@ run().catch(console.error);
 
 ### Worker Setup
 
+- Load connection settings with `loadClientConnectConfig()` and pass them to `NativeConnection.connect()`
+- Pass `namespace: config.namespace` to `Worker.create()` - `NativeConnection` carries no namespace, and the Worker defaults to `default` without it
 - Use `Worker.create()` with `workflowsPath` (dev) or `workflowBundle` (production) - see `references/typescript/gotchas.md`
 - Import activities directly (not via proxy)
 
@@ -181,4 +191,5 @@ See `references/typescript/testing.md` for info on writing tests.
 - **`references/typescript/advanced-features.md`** - Schedules, worker tuning, and more
 - **`references/typescript/data-handling.md`** - Data converters, payload encryption, etc.
 - **`references/typescript/versioning.md`** - Patching API, workflow type versioning, Worker Versioning
+- **`references/typescript/standalone-activities.md`** - Standalone Activities: run an Activity directly from a Client without a Workflow (Public Preview). Concept overview at `references/core/standalone-activities.md`.
 - **`references/typescript/determinism-protection.md`** - V8 sandbox and bundling

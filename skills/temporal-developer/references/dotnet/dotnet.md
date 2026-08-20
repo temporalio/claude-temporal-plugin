@@ -55,9 +55,19 @@ public class GreetingWorkflow
 
 ```csharp
 using Temporalio.Client;
+using Temporalio.Common.EnvConfig;
 using Temporalio.Worker;
 
-var client = await TemporalClient.ConnectAsync(new("localhost:7233"));
+var connectOptions = ClientEnvConfig.LoadClientConnectOptions();
+connectOptions.TargetHost ??= "localhost:7233";
+var client = await TemporalClient.ConnectAsync(connectOptions);
+
+using var tokenSource = new CancellationTokenSource();
+Console.CancelKeyPress += (_, eventArgs) =>
+{
+    tokenSource.Cancel();
+    eventArgs.Cancel = true;
+};
 
 using var worker = new TemporalWorker(
     client,
@@ -65,7 +75,7 @@ using var worker = new TemporalWorker(
         .AddWorkflow<GreetingWorkflow>()
         .AddAllActivities(new MyActivities()));
 
-await worker.ExecuteAsync();
+await worker.ExecuteAsync(tokenSource.Token);
 ```
 
 **Start the dev server:** Start `temporal server start-dev` in the background.
@@ -76,8 +86,11 @@ await worker.ExecuteAsync();
 
 ```csharp
 using Temporalio.Client;
+using Temporalio.Common.EnvConfig;
 
-var client = await TemporalClient.ConnectAsync(new("localhost:7233"));
+var connectOptions = ClientEnvConfig.LoadClientConnectOptions();
+connectOptions.TargetHost ??= "localhost:7233";
+var client = await TemporalClient.ConnectAsync(connectOptions);
 
 var result = await client.ExecuteWorkflowAsync(
     (GreetingWorkflow wf) => wf.RunAsync("my name"),
@@ -107,7 +120,7 @@ Console.WriteLine($"Result: {result}");
 
 ### Worker Setup
 
-- Connect client, create `TemporalWorker` with workflows and activities
+- Load connection settings with `ClientEnvConfig.LoadClientConnectOptions()`, connect the client, and create `TemporalWorker` with workflows and activities
 - Use `AddWorkflow<T>()` and `AddAllActivities(instance)` or `AddActivity(method)`
 
 ### Determinism
@@ -199,4 +212,5 @@ See `references/dotnet/testing.md` for info on writing tests.
 - **`references/dotnet/advanced-features.md`** — Schedules, worker tuning, dependency injection
 - **`references/dotnet/data-handling.md`** — Data converters, payload encryption, etc.
 - **`references/dotnet/versioning.md`** — Patching API, workflow type versioning, Worker Versioning
+- **`references/dotnet/standalone-activities.md`** — Standalone Activities: run an Activity directly from a Client without a Workflow (Public Preview). Concept overview at `references/core/standalone-activities.md`.
 - **`references/dotnet/determinism-protection.md`** — Runtime task detection, .NET Task determinism rules
