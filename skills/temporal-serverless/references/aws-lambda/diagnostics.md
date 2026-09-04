@@ -123,6 +123,12 @@ Common errors include: <!-- docs/troubleshooting/serverless-workers.mdx:136 -->
 - **TLS errors**: The TLS certificate or key is missing, expired, or does not match the Namespace. <!-- docs/troubleshooting/serverless-workers.mdx:142 -->
 - **Authentication errors**: The API key is invalid or does not have access to the Namespace. <!-- docs/troubleshooting/serverless-workers.mdx:143 -->
 
+### Language-specific signatures
+
+**No application logs at all, but the Worker clearly ran.** SDK-specific logging configuration can suppress application logs even when the Worker is healthy. Diagnose invocation health from Lambda's runtime markers (`INIT_START`/`START`/`END`/`REPORT`) and CloudWatch metrics.
+
+For the exact logging cause and fix, see the selected SDK reference.
+
 ### Check for Lambda timeout
 
 If the Lambda function reaches its configured timeout before the Worker finishes processing, AWS terminates the invocation. <!-- docs/troubleshooting/serverless-workers.mdx:147-148 -->
