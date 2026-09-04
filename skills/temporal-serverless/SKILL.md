@@ -1,8 +1,11 @@
 ---
 name: temporal-serverless
-description: 'Deploy and operate Temporal Workers on serverless compute (AWS Lambda) driven by the Worker Controller Instance (WCI). Use when the user mentions: "serverless worker", "Temporal serverless", "Worker Controller Instance", "WCI", "deploy Temporal worker on Lambda", "Lambda packaging", "Lambda timeout", "WCI inspection", "CloudFormation Temporal".'
-version: 0.6.0
-disable-model-invocation: true
+description: 'Deploy and operate Temporal Workers on serverless compute (AWS Lambda)
+  driven by the Worker Controller Instance (WCI). Use when the user mentions: "serverless
+  worker", "Temporal serverless", "Worker Controller Instance", "WCI", "deploy Temporal
+  worker on Lambda", "Lambda packaging", "Lambda timeout", "WCI inspection", "CloudFormation
+  Temporal".'
+version: 0.6.1
 ---
 
 # Skill: temporal-serverless
@@ -20,7 +23,15 @@ This skill helps users deploy and operate Temporal Workers on serverless compute
 
 Only a provider marked Supported is covered. If a request names another, say it is not supported and stop; do not adapt a supported provider's material to it. **Never let the provider be an unstated assumption:** when the request does not name one, it is confirmed in the step 1 questions, not silently defaulted.
 
-Every supported provider's directory carries the same layout — `setup.md`, `iam.md`, `versioning.md`, `diagnostics.md`, `observability.md`, `self-hosted.md`. Paths below are written `references/<provider>/…`; substitute the directory from the table. Provider-specific commands, templates, permissions, and defaults live there — this file stays at the workflow level. When a step needs concrete commands, go to the reference file named at the end of that step.
+Every supported provider's directory carries the same shared layout — `setup.md`, `iam.md`, `versioning.md`, `diagnostics.md`, `observability.md`, `self-hosted.md` — plus one `sdk-<language>.md` file for each supported SDK. Paths below are written `references/<provider>/…`; substitute the directory from the table. Provider-specific commands, templates, permissions, SDK APIs, and defaults live there — this file stays at the workflow level. When a step needs concrete commands or SDK details, go to the reference file named at the end of that step.
+
+| SDK language | AWS Lambda reference |
+|---|---|
+| Go | `references/aws-lambda/sdk-go.md` |
+| Python | `references/aws-lambda/sdk-python.md` |
+| TypeScript | `references/aws-lambda/sdk-typescript.md` |
+| Java | `references/aws-lambda/sdk-java.md` |
+| .NET | `references/aws-lambda/sdk-dotnet.md` |
 
 **Public Preview is not GA.** The APIs are still evolving and may change: pin SDK and CLI versions for anything long-lived, and read the installed package's actual API surface rather than writing from memory.
 
@@ -84,7 +95,7 @@ Where the harness has a todo list, use it *in addition to* the printed checklist
 
 **A step is complete when its verification passed — not when its command exited zero.** Several commands in this workflow exit clean having done nothing: the traffic-shifting and key-revocation commands no-op when their confirmation prompt goes unanswered, and providers return from create and update calls while the resource is still settling. Check an item off against state you read back, not against an exit code. When a step's verification fails, say which step you are on and what it is blocked on rather than moving down the list.
 
-1. **Scope the task.** Identify the SDK language (Go, Python, or TypeScript), the deployment target (Temporal Cloud or self-hosted — self-hosted has its own server prerequisites), the compute provider, and whether this is a new setup, a configuration change, or troubleshooting. Confirm the deployment target is compatible with the chosen provider — see "A Namespace on the target cloud provider is required" under Provider-neutral principles. Ensure a Temporal client/CLI is available and authenticated to the target. Each changes the specifics. → `references/concepts.md` for what the user is building; `references/<provider>/setup.md` for the compatibility and client-setup details.
+1. **Scope the task.** Identify the SDK language (Go, Python, TypeScript, Java, or .NET), the deployment target (Temporal Cloud or self-hosted — self-hosted has its own server prerequisites), the compute provider, and whether this is a new setup, a configuration change, or troubleshooting. Confirm the deployment target is compatible with the chosen provider — see "A Namespace on the target cloud provider is required" under Provider-neutral principles. Ensure a Temporal client/CLI is available and authenticated to the target. Each changes the specifics. → `references/concepts.md` for what the user is building; `references/<provider>/setup.md` for the compatibility and client-setup details.
 
    **Put the compute provider in that batch of questions as a confirmable default, not a free choice.** Pre-select the supported provider from the table above and carry its support status in the option's description. The user confirms rather than chooses, so it costs no extra turn, but the provider is never something they were assumed into. Skip the question only when the request already names a provider. Do not restate any of this in a paragraph before the questions; the option description is where it belongs.
 
@@ -133,9 +144,9 @@ Where the harness has a todo list, use it *in addition to* the printed checklist
 
    **Before the first account-mutating command, list what you are about to create — with final names — and get approval.** Name the target account and region, then every resource: compute unit, execution role, infrastructure stack, log group, deployment name, and Task Queue. Say plainly that they are live and billable. This is the mirror of the inventory in step 8, and it is worth more here than there: it makes the naming prefix concrete while changing it is still free, and the deployment name, build ID, and Task Queue become expensive to change once step 3 compiles them into the Worker. Skip it only when nothing will be created — a troubleshooting or inspection task.
 
-3. **Author the Worker.** *Install the SDK's serverless Worker package before writing any code* — it is often shipped separately from the main SDK, with its own version line, so having the base SDK installed does not mean it is importable. Then read the installed package's actual API surface and write against that; these are Public Preview APIs that drift between versions, and generating code from memory costs a build cycle. Every Workflow must declare a versioning behavior (`Pinned` or `AutoUpgrade`), per-Workflow or as a Worker-level default — code without it fails at runtime. → `references/sdk-configuration.md` (package, install, entry point, tuned defaults) and `references/<provider>/setup.md` (install commands, API-inspection recipes, handler shape).
+3. **Author the Worker.** *Install the SDK's serverless Worker package before writing any code* — it is usually shipped separately from the main SDK — sometimes on its own version line, sometimes in lockstep with it, and in one SDK not separately at all — so having the base SDK installed does not mean it is importable. Then read the installed package's actual API surface and write against that; these are Public Preview APIs that drift between versions, and generating code from memory costs a build cycle. Entry-point names are not consistent between SDKs, so inspect first rather than pattern-matching from another language. Every Workflow must declare a versioning behavior (`Pinned` or `AutoUpgrade`), per-Workflow or as a Worker-level default — code without it fails at runtime. → `references/<provider>/sdk-<language>.md` (package, install, API inspection, entry point, handler shape, versioning behavior, tuned defaults).
 
-4. **Package and deploy the compute unit.** Build and package per SDK, deploy the compute unit, and set the invocation deadline high enough for the Worker to start, connect, register the Task Queue, and shut down gracefully. Match the build's target architecture to the deployed compute unit's — a mismatch fails only at invocation time, not at build time. After a create or update, wait for the compute unit to reach a ready state before the next step; providers return from these calls while the unit is still settling. → `references/<provider>/setup.md`.
+4. **Package and deploy the compute unit.** Build and package per SDK, deploy the compute unit, and set the invocation deadline high enough for the Worker to start, connect, register the Task Queue, and shut down gracefully. Match the build's target architecture to the deployed compute unit's — a mismatch fails only at invocation time, not at build time. After a create or update, wait for the compute unit to reach a ready state before the next step; providers return from these calls while the unit is still settling. → `references/<provider>/sdk-<language>.md` (build, packaging, runtime, handler, architecture, and SDK-specific deployment values) and `references/<provider>/setup.md` (shared deployment lifecycle).
 
 5. **Grant Temporal permission to invoke the Worker.** Configure the compute provider's access so Temporal can invoke and inspect the Worker. This access is separate from the compute unit's own execution role — do not confuse the two. Two things to get right before you create anything: (a) this grant is **shared, account-wide infrastructure** that a previous deployment may already have created — look for an existing one and extend it to cover your new Worker rather than creating a parallel copy, and never delete or repurpose one you did not create without asking; (b) scope the grant so that *future* immutable builds are covered, not just today's — a grant pinned to one build breaks the next release in a way that surfaces later as an unrelated-looking invocation failure. → `references/<provider>/iam.md`.
 
@@ -184,7 +195,7 @@ Surface these early — they apply regardless of compute provider:
 - **Deployment name and build ID must match exactly** between the Worker code and the Worker Deployment Version. A mismatch causes an invocation loop (Temporal invokes → Worker polls with the wrong version → Task not processed → invoke again). Signature: rapid repeated invocations with no Workflow progress.
 - **Set the invocation deadline high enough.** Providers often default to a very short timeout. If the first invocation times out before the Worker registers the Task Queue, the binding is never created and the Worker is never invoked again. → `references/<provider>/setup.md` for the exact default.
 - **Use an immutable, versioned build per Build ID in production.** Pointing the provider at a mutable "latest" target lets code change under in-flight Workflows and cause non-determinism errors, even for Pinned Workflows. Keep a 1-to-1 mapping between each Build ID and one immutable build. → `references/<provider>/versioning.md`.
-- **Tune the timeout triple together for long-running Activities:** (1) worker stop timeout > longest Activity runtime, (2) shutdown deadline buffer > worker stop timeout + shutdown hook time, (3) invocation deadline > longest Activity runtime + shutdown deadline buffer. Raising one alone does not help. If the longest Activity exceeds half the maximum invocation deadline, recommend Activity Heartbeats. → `references/concepts.md`, `references/sdk-configuration.md`.
+- **Tune the timeout triple together for long-running Activities:** (1) worker stop timeout > longest Activity runtime, (2) shutdown deadline buffer > worker stop timeout + shutdown hook time, (3) invocation deadline > longest Activity runtime + shutdown deadline buffer. Raising one alone does not help. If the longest Activity exceeds half the maximum invocation deadline, recommend Activity Heartbeats. → `references/concepts.md`, `references/<provider>/sdk-<language>.md`.
 - **Eager Activities are always disabled** — serverless invocations don't maintain persistent connections. Don't suggest them as an optimization.
 - **Activities are bounded by the invocation limit** (minus the shutdown deadline buffer); Workflow duration is unbounded and can span many invocations. Flag Activities that approach the provider's limit early. → `references/concepts.md`.
 - **Mixed serverless + long-lived Workers on one Task Queue:** do not enable dynamic scaling on the long-lived Workers — the two groups can't coordinate scaling and will cause unnecessary invocations.
@@ -215,14 +226,18 @@ Most questions need 2–3 reference files.
 | User intent | Reference file(s) |
 |---|---|
 | What is a Serverless Worker / the WCI? How do invocation and autoscaling work? What are the constraints? Serverless vs long-lived Workers? | `references/concepts.md` |
-| Deploy a Serverless Worker (happy path): write code, package, deploy, register + set-current version, verify, tear down. | `references/<provider>/setup.md` (+ `references/concepts.md`) |
+| Deploy a Serverless Worker (happy path): write code, package, deploy, register + set-current version, verify, tear down. | `references/<provider>/setup.md` + the selected `references/<provider>/sdk-<language>.md` (+ `references/concepts.md`) |
 | Operator permissions and preflight; execution role vs Temporal invocation role; CloudFormation (Cloud + self-hosted). | `references/<provider>/iam.md` |
 | Update or redeploy; version the build, use a qualified ARN, roll back. | `references/<provider>/versioning.md` (+ `references/concepts.md`) |
 | Self-hosted server enablement (dynamic config, WCI, server AWS credentials). | `references/<provider>/self-hosted.md` (+ `references/<provider>/iam.md`) |
-| SDK-specific options and tuned defaults, which package to install and how it is distributed, imports, versioning-behavior configuration, connection config (TOML, env vars). Reduce cold start / pre-bundle Workflow code. | `references/sdk-configuration.md` |
-| Add OpenTelemetry observability, collector config, tracing. | `references/<provider>/observability.md` |
-| Worker not invoked, Workflows not progressing, inspect the WCI. | `references/<provider>/diagnostics.md` (+ `references/concepts.md`) |
-| Long-running Activities and timeout relationships. Isolate Activities from resource exhaustion. | `references/concepts.md` (+ `references/sdk-configuration.md`) |
+| Go SDK-specific options and tuned defaults, package and import, API inspection, handler, build and packaging, runtime and deployment values, versioning-behavior configuration, connection config, OpenTelemetry integration. | `references/<provider>/sdk-go.md` |
+| Python SDK-specific options and tuned defaults, package and import, API inspection, handler, build and packaging, runtime and deployment values, versioning-behavior configuration, connection config, OpenTelemetry integration, diagnostic signatures. | `references/<provider>/sdk-python.md` |
+| TypeScript SDK-specific options and tuned defaults, package and import, API inspection, handler, build and packaging, runtime and deployment values, versioning-behavior configuration, connection config, pre-bundled Workflow code, OpenTelemetry integration. | `references/<provider>/sdk-typescript.md` |
+| Java SDK-specific options and tuned defaults, artifact and imports, API inspection, handler, build and packaging, runtime and deployment values, versioning-behavior configuration, connection config, OpenTelemetry integration, logging and diagnostic signatures. | `references/<provider>/sdk-java.md` |
+| .NET SDK-specific options and tuned defaults, package and imports, API inspection, handler, RID-specific publish and packaging, runtime and deployment values, versioning-behavior configuration, connection config and `SSL_CERT_FILE`, OpenTelemetry integration, logging and diagnostic signatures. | `references/<provider>/sdk-dotnet.md` |
+| Add OpenTelemetry observability, Collector config, X-Ray, and IAM. | `references/<provider>/observability.md` + the selected `references/<provider>/sdk-<language>.md` |
+| Worker not invoked, Workflows not progressing, inspect the WCI. | `references/<provider>/diagnostics.md` + the selected `references/<provider>/sdk-<language>.md` (+ `references/concepts.md`) |
+| Long-running Activities and timeout relationships. Isolate Activities from resource exhaustion. | `references/concepts.md` (+ the selected `references/<provider>/sdk-<language>.md`) |
 
 ## Out of Scope
 

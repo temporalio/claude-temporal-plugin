@@ -16,13 +16,10 @@ This is the end-to-end golden path: connect, write the Worker, package and deplo
 - Every Workflow must declare a versioning behavior, or the Worker must set a default versioning behavior. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:42-43 -->
 - An AWS account with permissions to create and invoke Lambda functions and create IAM roles. For the exact operator actions and a preflight check, see `iam.md`. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:44 -->
 - The AWS-specific steps require the `aws` CLI installed and configured with your AWS credentials. You may also use the AWS Console or the AWS SDKs. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:45-46 -->
-- The Go SDK, Python SDK, or TypeScript SDK, depending on your language. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:48-49 -->
+- The Go SDK, Python SDK, TypeScript SDK, Java SDK, or .NET SDK, depending on your language. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:48-49 -->
 - The `temporal` CLI, authenticated to the target Temporal Service — Steps 4–6 and the CLI troubleshooting paths use it. See "Temporal CLI and Cloud connection" below.
 
-Sample projects:
-- Go: [Go Lambda Worker sample](https://github.com/temporalio/samples-go/tree/main/lambda-worker) <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:54 -->
-- Python: [Python Lambda Worker sample](https://github.com/temporalio/samples-python/tree/main/lambda_worker) <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:55 -->
-- TypeScript: [TypeScript Lambda Worker sample](https://github.com/temporalio/samples-typescript/tree/main/lambda-worker) <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:56 -->
+The selected SDK reference links its maintained sample project.
 
 ## Temporal CLI and Cloud connection
 
@@ -118,215 +115,25 @@ Do not proceed to Steps 4–6 on the assumption auth will work — re-run this c
 
 The Worker handles the per-invocation lifecycle: connecting to Temporal, polling for tasks, and gracefully shutting down before the invocation deadline. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:62-63 -->
 
-### Install the serverless Worker package first
+Load the reference for the selected SDK alongside this shared deployment guide:
 
-**The serverless Worker package is not always part of the main SDK.** Install it explicitly before writing code — do not assume an `import` resolves just because the base SDK is present. Scaffolding a project and discovering only at build time that the package lives in its own module means backing out and redoing the module setup.
+| SDK | Reference |
+|---|---|
+| Go | `sdk-go.md` |
+| Python | `sdk-python.md` |
+| TypeScript | `sdk-typescript.md` |
+| Java | `sdk-java.md` |
+| .NET | `sdk-dotnet.md` |
 
-| SDK | Install | Packaging |
-|---|---|---|
-| Go | `go get go.temporal.io/sdk/contrib/aws/lambdaworker` | **Separate Go module** from `go.temporal.io/sdk`, with its own version line (`v0.1.1` at the time of writing). It is *not* pulled in by the main SDK — `go get` it directly, then `go mod tidy`. |
-| Python | `pip install temporalio` | `temporalio.contrib.aws.lambda_worker` ships inside the main `temporalio` package. Use `temporalio[lambda-worker-otel]` to add OpenTelemetry. |
-| TypeScript | `npm install @temporalio/lambda-worker` | Separate npm package from `@temporalio/worker`, versioned independently. |
+Complete the selected SDK reference before continuing.
 
-### Verify the installed API before generating code
-
-These are Public Preview APIs and signatures drift between versions. Read the real surface of the version you just installed rather than writing from memory — a wrong field name costs a build cycle:
-
-```bash
-# Go — list the exported API of the installed module version
-go doc go.temporal.io/sdk/contrib/aws/lambdaworker
-go doc go.temporal.io/sdk/contrib/aws/lambdaworker.Options
-
-# Python
-python -c "import temporalio.contrib.aws.lambda_worker as m; help(m.LambdaWorkerConfig)"
-
-# TypeScript — check the installed version, then read its type declarations
-npm ls @temporalio/lambda-worker
-```
-
-Specifics worth confirming this way, because they differ by SDK and are easy to get wrong from memory:
-
-- **Where the Task Queue lives.** In Go it is a direct field on the options object (`opts.TaskQueue`). In Python it goes through the worker-config mapping (`config.worker_config["task_queue"]`), and in TypeScript through worker options (`config.workerOptions.taskQueue`). Do not carry one shape over to another language.
-- **Where registration happens.** In Go the `Register*` methods hang off the same options object; Python and TypeScript pass Workflow and Activity collections into the worker config.
 - **You do not construct a client.** Connection details (address, namespace, API key) load automatically from the process environment, so `TEMPORAL_*` variables set on the function flow straight through with no client code. In a Lambda that means the `--environment` block at deploy time: no config file is bundled unless you put one there, and the operator's own CLI configuration never reaches the function (see "Operator CLI config does not reach the function" below).
-- **Worker Versioning is always on.** The run-worker entry point enables it, so the only remaining decision is `Pinned` vs `AutoUpgrade` per Workflow (or a Worker-level default).
-
-**Fastest path:** start from the language sample linked in Prerequisites — it has a working Worker, Workflow, and Activity already wired together. The handler examples below import the Workflow and Activity from separate modules (`my_workflows`, `my_activities`). When writing from scratch, create those modules with at least one registered Workflow (declaring a versioning behavior) and one Activity, and name the entry-point file to match the `--handler` you deploy (for example, `lambda_function.py` → `--handler lambda_function.lambda_handler`).
-
-### Go
-
-Use the Go SDK's `lambdaworker` package. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:68 -->
-
-```go
-package main
-
-import (
-    lambdaworker "go.temporal.io/sdk/contrib/aws/lambdaworker"
-    "go.temporal.io/sdk/worker"
-    "go.temporal.io/sdk/workflow"
-)
-
-func main() {
-    lambdaworker.RunWorker(worker.WorkerDeploymentVersion{
-        DeploymentName: "my-app",
-        BuildID:        "build-1",
-    }, func(opts *lambdaworker.Options) error {
-        opts.TaskQueue = "my-task-queue"
-
-        opts.RegisterWorkflowWithOptions(MyWorkflow, workflow.RegisterOptions{
-            VersioningBehavior: workflow.VersioningBehaviorPinned,
-        })
-        opts.RegisterActivity(MyActivity)
-
-        return nil
-    })
-}
-```
-<!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:70-94 -->
-
-Versioning behavior: set per-Workflow at registration time with `workflow.VersioningBehaviorPinned` or `workflow.VersioningBehaviorAutoUpgrade`, or set a Worker-level default with `DefaultVersioningBehavior` in `DeploymentOptions`. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:96-98 -->
-
-### Python
-
-Use the Python SDK's `lambda_worker` contrib package. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:106 -->
-
-```python
-from temporalio.common import WorkerDeploymentVersion
-from temporalio.contrib.aws.lambda_worker import LambdaWorkerConfig, run_worker
-
-from my_workflows import MyWorkflow
-from my_activities import my_activity
-
-
-def configure(config: LambdaWorkerConfig) -> None:
-    config.worker_config["task_queue"] = "my-task-queue"
-    config.worker_config["workflows"] = [MyWorkflow]
-    config.worker_config["activities"] = [my_activity]
-
-
-lambda_handler = run_worker(
-    WorkerDeploymentVersion(
-        deployment_name="my-app",
-        build_id="build-1",
-    ),
-    configure,
-)
-```
-<!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:108-129 -->
-
-Versioning behavior: set per-Workflow in the `@workflow.defn` decorator with `VersioningBehavior.PINNED` or `VersioningBehavior.AUTO_UPGRADE`, or set a Worker-level default with `default_versioning_behavior` in the worker config. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:131-133 -->
-
-```python
-from temporalio import workflow
-from temporalio.common import VersioningBehavior
-
-
-@workflow.defn(versioning_behavior=VersioningBehavior.PINNED)
-class MyWorkflow:
-    @workflow.run
-    async def run(self, input: str) -> str:
-        ...
-```
-<!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:135-145 -->
-
-### TypeScript
-
-Use the `@temporalio/lambda-worker` package. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:153 -->
-
-```typescript
-import { runWorker } from '@temporalio/lambda-worker';
-import * as activities from './activities';
-
-export const handler = runWorker({ deploymentName: 'my-app', buildId: 'build-1' }, (config) => {
-  config.workerOptions.taskQueue = 'my-task-queue';
-  config.workerOptions.workflowBundle = {
-    codePath: require.resolve('./workflow-bundle.js'),
-  };
-  config.workerOptions.activities = activities;
-  config.workerOptions.workerDeploymentOptions!.defaultVersioningBehavior = 'PINNED';
-});
-```
-<!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:155-167 -->
-
-Use `workflowBundle` with pre-bundled code instead of `workflowsPath` to avoid webpack bundling overhead on Lambda cold starts. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:169-170 -->
-
-Versioning behavior: set per-Workflow with `setWorkflowOptions` in the Workflow file, or set a default for all Workflows with `defaultVersioningBehavior` in the configure callback. Values are `'AUTO_UPGRADE'` or `'PINNED'`. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:172-174 -->
 
 ## Step 2: Deploy Lambda function
 
 ### Build and package
 
-#### Go
-
-Cross-compile for Lambda's Linux runtime: <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:191 -->
-
-```bash
-GOOS=linux GOARCH=amd64 go build -tags lambda.norpc -o bootstrap ./worker
-```
-<!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:194 -->
-
-Package the binary into a zip file: <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:197 -->
-
-```bash
-zip function.zip bootstrap
-```
-<!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:200 -->
-
-**Add `CGO_ENABLED=0`, and match the architecture you deploy.** The `provided.al2023` runtime expects a self-contained binary; building with cgo enabled links against host libraries that may not resolve inside the runtime. Set `CGO_ENABLED=0` for a statically linked binary, and keep `GOARCH` consistent with the function's `--architectures` (`amd64` ↔ `x86_64`, `arm64` ↔ `arm64`). Also adjust the trailing package path to your layout — `.` when `main` is in the repo root, `./worker` when it is in a `worker/` subdirectory. A reusable script:
-
-```bash
-#!/usr/bin/env bash
-set -euo pipefail
-go vet ./...     # catches a missing import before the cross-compile
-CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags lambda.norpc -o bootstrap .
-zip -q function.zip bootstrap
-file bootstrap   # expect: ELF 64-bit ... statically linked
-```
-
-Run `go vet` (or a plain `go build ./...`) before the packaging build. The three-package import block above — `lambdaworker`, `worker` for `WorkerDeploymentVersion`, and `workflow` for the versioning-behavior constants — is easy to write short by one entry, and catching that locally is faster than discovering it in the cross-compile step.
-
-An architecture mismatch surfaces only at invocation time as an `Runtime.InvalidEntrypoint`/exec-format error, not at build or package time — the same failure class as the Python wheel mismatch below.
-
-A typical Go Worker zip lands around 10–15 MB, well under the 50 MB direct-upload limit.
-
-#### Python
-
-Install dependencies into a local directory for packaging, using `--platform` for Linux-compatible binaries: <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:206-207 -->
-
-```bash
-pip install --target ./package --platform manylinux2014_x86_64 --only-binary=:all: temporalio
-```
-<!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:210 -->
-
-**Pin the download to the Lambda runtime's Python version and architecture, not your local interpreter's.** If they differ (e.g. local `3.14` vs the function's `python3.13`), add `--python-version 3.13` alongside `--only-binary=:all:` so pip fetches runtime-matching wheels, and keep `--platform` (`manylinux2014_x86_64` for `x86_64`, `manylinux2014_aarch64` for `arm64`) consistent with the function's `--architectures`. Mismatches surface as import errors only at invocation time, not at package time.
-
-To include OpenTelemetry support, install `temporalio[lambda-worker-otel]` instead. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:213-214 -->
-
-Package dependencies and application code: <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:216 -->
-
-```bash
-cd package && zip -r ../function.zip . && cd ..
-zip function.zip lambda_function.py my_workflows.py my_activities.py
-```
-<!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:218-220 -->
-
-#### TypeScript
-
-Build the Workflow bundle and compile the project: <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:226 -->
-
-```bash
-npx ts-node src/scripts/build-workflow-bundle.ts
-npx tsc
-```
-<!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:229-230 -->
-
-Install production dependencies and package everything: <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:233 -->
-
-```bash
-npm install --omit=dev
-zip -r function.zip lib/ node_modules/ workflow-bundle.js
-```
-<!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:236-237 -->
+See the selected SDK reference's **Build and package** section.
 
 ### Deploy the Lambda function
 
@@ -357,59 +164,7 @@ rm /tmp/lambda-env.json
 
 This is still a plaintext env var on the function — acceptable for a development walkthrough only, and only if you say so explicitly. See "Environment variables" below for the production pattern.
 
-#### Go
-
-```bash
-aws lambda create-function \
-  --function-name my-temporal-worker \
-  --runtime provided.al2023 \
-  --handler bootstrap \
-  --role <EXECUTION_ROLE_ARN> \
-  --zip-file fileb://function.zip \
-  --timeout 600 \
-  --memory-size 256 \
-  --environment '{"Variables":{"HOME":"/tmp","TEMPORAL_ADDRESS":"<your-temporal-address>:7233","TEMPORAL_NAMESPACE":"<your-namespace>","TEMPORAL_API_KEY":"<your-api-key>"}}'
-```
-<!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:250-260 -->
-
-- `--runtime`: `provided.al2023` for custom Go binaries. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:265 -->
-- `--handler`: `bootstrap` when using the `provided.al2023` custom runtime. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:266 -->
-
-#### Python
-
-```bash
-aws lambda create-function \
-  --function-name my-temporal-worker \
-  --runtime python3.13 \
-  --handler lambda_function.lambda_handler \
-  --role <EXECUTION_ROLE_ARN> \
-  --zip-file fileb://function.zip \
-  --timeout 600 \
-  --memory-size 256 \
-  --environment '{"Variables":{"TEMPORAL_ADDRESS":"<your-temporal-address>:7233","TEMPORAL_NAMESPACE":"<your-namespace>","TEMPORAL_API_KEY":"<your-api-key>"}}'
-```
-<!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:271-281 -->
-
-- `--runtime`: `python3.13` (or another supported Python version). <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:286 -->
-- `--handler`: `lambda_function.lambda_handler` (entry point in `module.function` format, must point to the handler returned by `run_worker`). <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:287 -->
-
-#### TypeScript
-
-```bash
-aws lambda create-function \
-  --function-name my-temporal-worker \
-  --runtime nodejs22.x \
-  --handler lib/index.handler \
-  --role <EXECUTION_ROLE_ARN> \
-  --zip-file fileb://function.zip \
-  --timeout 600 \
-  --memory-size 256 \
-  --environment '{"Variables":{"HOME":"/tmp","TEMPORAL_ADDRESS":"<your-temporal-address>:7233","TEMPORAL_NAMESPACE":"<your-namespace>","TEMPORAL_API_KEY":"<your-api-key>"}}'
-```
-<!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:292-302 -->
-
-- `--runtime`: `nodejs22.x` (or another supported Node.js version, 20+). <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:307 -->
-- `--handler`: `lib/index.handler` (entry point in `module.export` format, must point to the handler exported by `runWorker`). <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:308 -->
+Run the selected SDK reference's deployment command before continuing.
 
 ### Wait for the function to become Active
 
@@ -439,13 +194,20 @@ aws lambda get-function --function-name my-temporal-worker \
 
 **Caution:** AWS Lambda functions default to a 3-second timeout, which is too short for the Worker to start, connect to Temporal, and register the Task Queue. If the first invocation times out before the Worker polls, the Task Queue binding is never created and the Lambda is never invoked again. Always set `--timeout` high enough for the Worker to start, process Tasks, and shut down gracefully. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:328-337 -->
 
+Set it from three constraints:
+
+1. **> cold start + connect + Task Queue registration.** The binding requirement, and what rules out the 3s default.
+2. **> longest Activity + shutdown deadline buffer.** An Activity still running when the Worker drains is abandoned and retried.
+3. **Beyond those, pure cost.** Longer: fewer invocations and cold starts, warmer sticky cache, room for longer Activities. Shorter: a smaller idle tail — when work stops the Worker polls on until its deadline, so the waste is one deadline's worth.
+
+Lambda bills **GB-seconds** — allocated memory × billed duration, however idle the Worker was.
+
 ### Environment variables
 
 <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:321-326 -->
 
 | Variable | Description |
 |---|---|
-| `HOME` | Set to `/tmp` in the Go and TypeScript examples above. Lambda's filesystem is read-only outside `/tmp`, so anything the runtime or config loader resolves relative to the home directory needs a writable target. The docs omit it from the Python example; including it there is harmless. |
 | `TEMPORAL_ADDRESS` | Temporal frontend address (e.g., `<namespace>.<account>.tmprl.cloud:7233`). |
 | `TEMPORAL_NAMESPACE` | Temporal Namespace. For Temporal Cloud, the fully-qualified `<namespace_id>.<account_id>`, not the bare name. |
 | `TEMPORAL_TASK_QUEUE` | Task Queue name. Overrides the value set in code. |
@@ -456,8 +218,6 @@ aws lambda get-function --function-name my-temporal-worker \
 The serverless Worker packages read environment variables and configuration files automatically at startup. For the full list of supported environment variables, config file format, and profiles, see the Environment configuration docs (`/develop/environment-configuration`). <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:339-341 -->
 
 Sensitive values like TLS keys and API keys should be encrypted at rest. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:343-344 -->
-
-The `--environment` examples above pass `TEMPORAL_API_KEY` inline for brevity — **that is acceptable for development only.** For production, store the API key (or TLS private key) in AWS Secrets Manager or SSM Parameter Store, grant the *execution* role `secretsmanager:GetSecretValue` (or `ssm:GetParameter`), and load it at cold start before the Worker initializes — for example, at module scope in the handler file, fetch the secret and set `os.environ["TEMPORAL_API_KEY"]` so the serverless Worker package reads it at startup. Do not commit key values into the `--environment` block for production functions.
 
 For updating the function code and publishing immutable versions, see `versioning.md`.
 
