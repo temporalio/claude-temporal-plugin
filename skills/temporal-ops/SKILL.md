@@ -1,15 +1,8 @@
 ---
 name: temporal-ops
-description: 'Administer and diagnose running Temporal Cloud or self-hosted Temporal
-  Server environments via CLI (temporal, tcld) — not SDK code. Operations: namespace
-  CRUD, Cloud capacity/APS, API-key rotation, mTLS cert rotation, workflow health,
-  batch cancel/terminate/reset, export, search attributes, Ops API, billing, audit
-  logs, Terraform, SAML/SCIM, migration. Diagnosis: bottom-up triage of stuck workflows,
-  non-determinism, worker-health, task-queue problems, HA failover, payload size limits,
-  performance bottlenecks, missed schedules. Do NOT trigger for generic TLS/gRPC errors
-  unrelated to Temporal, writing application code (temporal-developer), or worker
-  tuning/sizing (temporal-workertuning).'
-version: 0.2.1
+description: 'Administer and diagnose running Temporal Cloud or self-hosted Temporal Server environments via CLI (temporal, tcld) — not SDK code. Operations: namespace CRUD, Cloud capacity/APS, API-key rotation, mTLS cert rotation, workflow health, batch cancel/terminate/reset, export, search attributes, Ops API, billing, audit logs, Terraform, SAML/SCIM, migration. Diagnosis: bottom-up triage of stuck workflows, non-determinism, worker-health, task-queue problems, HA failover, payload size limits, performance bottlenecks, missed schedules. Do NOT trigger for generic TLS/gRPC errors unrelated to Temporal, writing application code (temporal-developer), or worker tuning/sizing (temporal-workertuning).'
+version: 0.2.2
+disable-model-invocation: true
 ---
 
 # Skill: temporal-ops

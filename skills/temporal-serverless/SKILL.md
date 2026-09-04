@@ -1,11 +1,8 @@
 ---
 name: temporal-serverless
-description: 'Deploy and operate Temporal Workers on serverless compute (AWS Lambda)
-  driven by the Worker Controller Instance (WCI). Use when the user mentions: "serverless
-  worker", "Temporal serverless", "Worker Controller Instance", "WCI", "deploy Temporal
-  worker on Lambda", "Lambda packaging", "Lambda timeout", "WCI inspection", "CloudFormation
-  Temporal".'
-version: 0.6.1
+description: 'Deploy and operate Temporal Workers on serverless compute (AWS Lambda) driven by the Worker Controller Instance (WCI). Use when the user mentions: "serverless worker", "Temporal serverless", "Worker Controller Instance", "WCI", "deploy Temporal worker on Lambda", "Lambda packaging", "Lambda timeout", "WCI inspection", "CloudFormation Temporal".'
+version: 0.6.2
+disable-model-invocation: true
 ---
 
 # Skill: temporal-serverless
