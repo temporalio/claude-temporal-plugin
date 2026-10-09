@@ -1,10 +1,7 @@
 # AWS Lambda — Versioning, updates & rollback
 
-<!-- Sources:
-  docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx
--->
 
-For the conceptual model — Temporal Worker Deployment Versions vs. Lambda function versions, and Pinned vs. Auto-Upgrade behavior — see `../concepts.md` ("Worker Versioning with Serverless Workers").
+For the provider-specific model — Temporal Worker Deployment Versions vs. Lambda function versions, and Pinned vs. Auto-Upgrade behavior — see `constraints.md` ("Worker Versioning with Serverless Workers").
 
 ## The full redeploy sequence
 
@@ -27,7 +24,6 @@ aws lambda update-function-code \
   --function-name my-temporal-worker \
   --zip-file fileb://function.zip
 ```
-<!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:348-352 -->
 
 **Wait for the update to settle before publishing.** `update-function-code` returns while `LastUpdateStatus` is still `InProgress`, and `publish-version` in that window either fails (`ResourceConflictException`) or, worse, snapshots the *previous* code. Block on the transition:
 
@@ -37,24 +33,23 @@ aws lambda wait function-updated-v2 --function-name my-temporal-worker
 
 (`function-updated` on AWS CLI v1; see `setup.md` for the polling fallback.)
 
-After updating, increment the Build ID in your Worker code and publish a new Lambda function version. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:354-355 -->
+After updating, increment the Build ID in your Worker code and publish a new Lambda function version.
 
 ## Publish a Lambda function version
 
-For production, create an immutable snapshot of your Lambda code after creating the function and after each `update-function-code`, and maintain a one-to-one mapping between each Lambda function version and each Temporal Worker Deployment Version Build ID. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:359,371 -->
+For production, create an immutable snapshot of your Lambda code after creating the function and after each `update-function-code`, and maintain a one-to-one mapping between each Lambda function version and each Temporal Worker Deployment Version Build ID.
 
 ```bash
 aws lambda publish-version \
   --function-name my-temporal-worker \
   --description "Build ID build-5"
 ```
-<!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:362-365 -->
 
-The command prints the `FunctionArn` for the new version, for example `arn:aws:lambda:us-east-1:123456789012:function:my-temporal-worker:5`. Use this qualified versioned ARN when you create the Worker Deployment Version. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:367-369 -->
+The command prints the `FunctionArn` for the new version, for example `arn:aws:lambda:us-east-1:123456789012:function:my-temporal-worker:5`. Use this qualified versioned ARN when you create the Worker Deployment Version.
 
-For development or non-critical workloads, you can skip `publish-version` and use an unqualified ARN to iterate faster. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:372 -->
+For development or non-critical workloads, you can skip `publish-version` and use an unqualified ARN to iterate faster.
 
-To roll back, revert the Temporal Current Version with `temporal worker deployment set-current-version`. The previous Worker Deployment Version still points at its original Lambda function version and is ready to receive traffic again. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:375-377 -->
+To roll back, revert the Temporal Current Version with `temporal worker deployment set-current-version`. The previous Worker Deployment Version still points at its original Lambda function version and is ready to receive traffic again.
 
 ```bash
 temporal worker deployment set-current-version \

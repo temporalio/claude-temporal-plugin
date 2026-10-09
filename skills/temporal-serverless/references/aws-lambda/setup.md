@@ -1,29 +1,24 @@
 # AWS Lambda — Setup (happy path)
 
-<!-- Sources:
-  docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx
-  docs/production-deployment/worker-deployments/serverless-workers/index.mdx
-  docs/develop/environment-configuration.mdx
--->
 
-This is the end-to-end golden path: connect, write the Worker, package and deploy, register a Worker Deployment Version, set it current, and verify. For the operator permissions and preflight, execution/invocation roles, and CloudFormation, see `iam.md`. For production build versioning (`publish-version`, qualified ARNs, rollback), see `versioning.md`. For self-hosted server enablement, see `self-hosted.md`. If it doesn't work, see `diagnostics.md`.
+This is the end-to-end golden path: connect, write the Worker, package and deploy, register a Worker Deployment Version, set it current, and verify. For the Lambda execution model and limits, see `constraints.md`. For the operator permissions and preflight, execution/invocation roles, and CloudFormation, see `iam.md`. For production build versioning (`publish-version`, qualified ARNs, rollback), see `versioning.md`. For self-hosted server enablement, see `self-hosted.md`. If it doesn't work, see `diagnostics.md`.
 
 ## Prerequisites
 
-- A Temporal Cloud account with an AWS-hosted Namespace, or a self-hosted Temporal Service v1.31.0 or later. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:37 -->
-- The Namespace's cloud provider must match the serverless compute provider. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:37-38 -->
-- For self-hosted deployments, complete the self-hosted setup before following the deployment guide. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:39-41 -->
-- Every Workflow must declare a versioning behavior, or the Worker must set a default versioning behavior. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:42-43 -->
-- An AWS account with permissions to create and invoke Lambda functions and create IAM roles. For the exact operator actions and a preflight check, see `iam.md`. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:44 -->
-- The AWS-specific steps require the `aws` CLI installed and configured with your AWS credentials. You may also use the AWS Console or the AWS SDKs. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:45-46 -->
-- The Go SDK, Python SDK, TypeScript SDK, Java SDK, or .NET SDK, depending on your language. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:48-49 -->
+- A Temporal Cloud account with an AWS-hosted Namespace, or a self-hosted Temporal Service v1.31.0 or later.
+- The Namespace's cloud provider must match the serverless compute provider.
+- For self-hosted deployments, complete the self-hosted setup before following the deployment guide.
+- Every Workflow must declare a versioning behavior, or the Worker must set a default versioning behavior.
+- An AWS account with permissions to create and invoke Lambda functions and create IAM roles. For the exact operator actions and a preflight check, see `iam.md`.
+- The AWS-specific steps require the `aws` CLI installed and configured with your AWS credentials. You may also use the AWS Console or the AWS SDKs.
+- The Go SDK, Python SDK, TypeScript SDK, Java SDK, or .NET SDK, depending on your language.
 - The `temporal` CLI, authenticated to the target Temporal Service — Steps 4–6 and the CLI troubleshooting paths use it. See "Temporal CLI and Cloud connection" below.
 
 The selected SDK reference links its maintained sample project.
 
 ## Temporal CLI and Cloud connection
 
-Steps 4–6 and the CLI troubleshooting paths use the `temporal` CLI. Install it and authenticate it to the target Temporal Service before those steps, or commands default to `localhost:7233` and fail against Temporal Cloud. The serverless `worker deployment create-version` subcommand and its `--aws-lambda-*` flags also require a recent CLI build — see "Check the CLI version" in Step 4. <!-- docs/develop/environment-configuration.mdx -->
+Steps 4–6 and the CLI troubleshooting paths use the `temporal` CLI. Install it and authenticate it to the target Temporal Service before those steps, or commands default to `localhost:7233` and fail against Temporal Cloud. The serverless `worker deployment create-version` subcommand and its `--aws-lambda-*` flags also require a recent CLI build — see "Check the CLI version" in Step 4.
 
 **Authenticate to Temporal Cloud (API key).** Export environment variables (the CLI and the serverless Worker packages both read these):
 
@@ -40,7 +35,6 @@ temporal --profile prod config set --prop address --value "<namespace_id>.<accou
 temporal --profile prod config set --prop namespace --value "<namespace_id>.<account_id>"
 temporal --profile prod config set --prop api_key --value "<your-api-key>"
 ```
-<!-- docs/develop/environment-configuration.mdx:122-131 -->
 
 or configure an environment and pass `--env prod` (or set `TEMPORAL_ENV`):
 
@@ -57,8 +51,8 @@ temporal env get --env prod          # --env mechanism
 temporal config get --prop address   # --profile mechanism
 ```
 
-- For Temporal Cloud the Namespace is the fully-qualified `<namespace_id>.<account_id>`, not the bare name. <!-- docs/develop/environment-configuration.mdx:128-129 -->
-- Supplying an API key auto-enables TLS; no cert flags are needed for API-key auth. <!-- docs/develop/environment-configuration.mdx:70 -->
+- For Temporal Cloud the Namespace is the fully-qualified `<namespace_id>.<account_id>`, not the bare name.
+- Supplying an API key auto-enables TLS; no cert flags are needed for API-key auth.
 - The `temporal ...` commands in Steps 4–6 assume this is configured. To create an API key, see `skill-temporal-ops`.
 
 **Temporal-side preflight.** Confirm the CLI can reach the Namespace before deploying — this is the Temporal side of the pre-deploy access check. It should list (empty is fine) without an auth or connection error:
@@ -113,7 +107,7 @@ Do not proceed to Steps 4–6 on the assumption auth will work — re-run this c
 
 ## Step 1: Write Worker code
 
-The Worker handles the per-invocation lifecycle: connecting to Temporal, polling for tasks, and gracefully shutting down before the invocation deadline. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:62-63 -->
+The Worker handles the per-invocation lifecycle: connecting to Temporal, polling for tasks, and gracefully shutting down before the invocation deadline.
 
 Load the reference for the selected SDK alongside this shared deployment guide:
 
@@ -183,7 +177,6 @@ aws lambda get-function --function-name my-temporal-worker \
 
 ### Common parameters (all SDKs)
 
-<!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:315-320 -->
 
 | Parameter | Description |
 |---|---|
@@ -192,7 +185,7 @@ aws lambda get-function --function-name my-temporal-worker \
 | `--timeout` | Invocation deadline in seconds. Maximum time each Lambda invocation can run before AWS terminates it. Set high enough for the Worker to start, process Tasks, and shut down gracefully. |
 | `--memory-size` | Memory in MB allocated to each invocation. |
 
-**Caution:** AWS Lambda functions default to a 3-second timeout, which is too short for the Worker to start, connect to Temporal, and register the Task Queue. If the first invocation times out before the Worker polls, the Task Queue binding is never created and the Lambda is never invoked again. Always set `--timeout` high enough for the Worker to start, process Tasks, and shut down gracefully. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:328-337 -->
+**Caution:** AWS Lambda functions default to a 3-second timeout, which is too short for the Worker to start, connect to Temporal, and register the Task Queue. If the first invocation times out before the Worker polls, the Task Queue binding is never created and the Lambda is never invoked again. Always set `--timeout` high enough for the Worker to start, process Tasks, and shut down gracefully.
 
 Set it from three constraints:
 
@@ -204,7 +197,6 @@ Lambda bills **GB-seconds** — allocated memory × billed duration, however idl
 
 ### Environment variables
 
-<!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:321-326 -->
 
 | Variable | Description |
 |---|---|
@@ -215,9 +207,9 @@ Lambda bills **GB-seconds** — allocated memory × billed duration, however idl
 | `TEMPORAL_TLS_CLIENT_KEY_PATH` | Path to the TLS client key file for mTLS authentication. |
 | `TEMPORAL_API_KEY` | API key for API key authentication. Supplying it auto-enables TLS; mTLS cert paths are not needed. |
 
-The serverless Worker packages read environment variables and configuration files automatically at startup. For the full list of supported environment variables, config file format, and profiles, see the Environment configuration docs (`/develop/environment-configuration`). <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:339-341 -->
+The serverless Worker packages read environment variables and configuration files automatically at startup. For the full list of supported environment variables, config file format, and profiles, see the Environment configuration docs (`/develop/environment-configuration`).
 
-Sensitive values like TLS keys and API keys should be encrypted at rest. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:343-344 -->
+Sensitive values like TLS keys and API keys should be encrypted at rest.
 
 For updating the function code and publishing immutable versions, see `versioning.md`.
 
@@ -227,11 +219,10 @@ Step 3 (execution role, Temporal invocation role, and CloudFormation for Tempora
 
 ## Step 4: Create Worker Deployment Version
 
-Create a Worker Deployment Version with a compute provider that points to your Lambda function. The compute configuration tells Temporal how to invoke your Worker: the provider type (`aws-lambda`), the Lambda function ARN, and the IAM role to assume. The deployment name and build ID must match the values in your Worker code. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:529-532 -->
+Create a Worker Deployment Version with a compute provider that points to your Lambda function. The compute configuration tells Temporal how to invoke your Worker: the provider type (`aws-lambda`), the Lambda function ARN, and the IAM role to assume. The deployment name and build ID must match the values in your Worker code.
 
 ### Using Temporal UI
 
-<!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:539-553 -->
 
 1. In the Temporal UI, open your Namespace.
 2. In the left pane, select **Workers**.
@@ -243,11 +234,11 @@ Create a Worker Deployment Version with a compute provider that points to your L
    - **External ID**: the same value passed to the CloudFormation template.
 6. Click **Save**.
 
-When you create a version through the UI, the version is automatically set as current. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:552 -->
+When you create a version through the UI, the version is automatically set as current.
 
 ### Using Temporal CLI
 
-Use the CLI for manual setup, shell scripts, and CI/CD pipelines. When you create a version through the CLI, you must set the version as current as a separate step. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:558-559 -->
+Use the CLI for manual setup, shell scripts, and CI/CD pipelines. When you create a version through the CLI, you must set the version as current as a separate step.
 
 **Check the CLI version before relying on these commands.** The `worker deployment create-version` subcommand and its `--aws-lambda-*` flags only exist in recent Temporal CLI builds, and a CLI old enough to lack them fails in a way that looks like a syntax mistake:
 
@@ -258,16 +249,15 @@ temporal worker deployment create-version --help
 
 If the subcommand or the flags are missing, upgrade. Observed bounds: v1.5.0 (Homebrew) lacked `create-version` entirely; v1.8.0 (standalone) had the serverless flags. The exact minimum version is unconfirmed against the CLI changelog, so treat those as bounds rather than a threshold. A current standalone build can be installed alongside a package-managed one without disturbing it — worth doing rather than upgrading a CLI the user may depend on elsewhere.
 
-First, create the Worker Deployment if it does not already exist: <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:561 -->
+First, create the Worker Deployment if it does not already exist:
 
 ```bash
 temporal worker deployment create \
   --namespace <YOUR_NAMESPACE> \
   --name my-app
 ```
-<!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:563-567 -->
 
-Then create the version with the compute provider configuration: <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:569 -->
+Then create the version with the compute provider configuration:
 
 ```bash
 temporal worker deployment create-version \
@@ -278,7 +268,6 @@ temporal worker deployment create-version \
   --aws-lambda-assume-role-arn <INVOCATION_ROLE_ARN> \
   --aws-lambda-assume-role-external-id <EXTERNAL_ID>
 ```
-<!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:571-579 -->
 
 | Flag | Description |
 |---|---|
@@ -287,11 +276,10 @@ temporal worker deployment create-version \
 | `--aws-lambda-function-arn` | Qualified versioned ARN of the Lambda function Temporal invokes for this version (for example, `function:my-worker:5`). An unqualified ARN is also accepted for development. |
 | `--aws-lambda-assume-role-arn` | IAM role Temporal assumes to invoke the function. This is the `RoleARN` output from the CloudFormation stack. This is not the Lambda execution role or your own IAM user/role. |
 | `--aws-lambda-assume-role-external-id` | External ID configured in the IAM role trust policy. |
-<!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:581-587 -->
 
 ### Validate connection
 
-Go to **Workers** > **Deployments** > select your deployment > open the **Actions** menu on the version and click **Validate Connection**. This checks that Temporal can assume the IAM role and invoke the function. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:592-594 -->
+Go to **Workers** > **Deployments** > select your deployment > open the **Actions** menu on the version and click **Validate Connection**. This checks that Temporal can assume the IAM role and invoke the function.
 
 ### Checkpoint: confirm the validation invocation actually bound the Task Queue
 
@@ -306,9 +294,9 @@ Task Queues listed = the invocation role, the Lambda package, the env vars, and 
 
 ## Step 5: Set version as current
 
-If you created the version through the Temporal UI, the version is already current — skip this step. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:598 -->
+If you created the version through the Temporal UI, the version is already current — skip this step.
 
-If you used the CLI, set the version as current. Without this step, tasks on the Task Queue will not route to the version, and Temporal will not invoke the Lambda function. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:600-601 -->
+If you used the CLI, set the version as current. Without this step, tasks on the Task Queue will not route to the version, and Temporal will not invoke the Lambda function.
 
 ```bash
 temporal worker deployment set-current-version \
@@ -316,9 +304,8 @@ temporal worker deployment set-current-version \
   --build-id build-1 \
   --yes
 ```
-<!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:603-607 -->
 
-**`set-current-version` asks for interactive confirmation.** Without `--yes` (`-y`) it prompts, and run non-interactively (scripts, CI, or an agent shell) it exits without applying the change — which reads as a silent no-op: the command appears to succeed but the version never becomes current. Pass `--yes` for any non-interactive use. `set-ramping-version` behaves the same way. Note that `delete-version` does *not* take `--yes` — its gating flag is `--skip-drainage`. <!-- docs/cli/command-reference/worker.mdx:349-391 -->
+**`set-current-version` asks for interactive confirmation.** Without `--yes` (`-y`) it prompts, and run non-interactively (scripts, CI, or an agent shell) it exits without applying the change — which reads as a silent no-op: the command appears to succeed but the version never becomes current. Pass `--yes` for any non-interactive use. `set-ramping-version` behaves the same way. Note that `delete-version` does *not* take `--yes` — its gating flag is `--skip-drainage`.
 
 Confirm it took effect before moving on:
 
@@ -328,7 +315,7 @@ temporal worker deployment describe --name my-app
 
 ## Step 6: Verify deployment
 
-Start a Workflow on the same Task Queue to confirm that Temporal invokes your Lambda Worker. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:611 -->
+Start a Workflow on the same Task Queue to confirm that Temporal invokes your Lambda Worker.
 
 ```bash
 temporal workflow start \
@@ -336,14 +323,13 @@ temporal workflow start \
   --type MyWorkflow \
   --input '"Hello, serverless!"'
 ```
-<!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:613-618 -->
 
-Verify the invocation by checking: <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:623 -->
+Verify the invocation by checking:
 
-- **Temporal UI:** The Workflow execution should show task completions in the event history. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:625 -->
-- **AWS CloudWatch Logs:** The Lambda function's log group (`/aws/lambda/my-temporal-worker`) should show invocation logs with the Worker startup, task processing, and graceful shutdown. Requires the execution role to have CloudWatch Logs permissions (included in `AWSLambdaBasicExecutionRole`). <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:626-630 -->
+- **Temporal UI:** The Workflow execution should show task completions in the event history.
+- **AWS CloudWatch Logs:** The Lambda function's log group (`/aws/lambda/my-temporal-worker`) should show invocation logs with the Worker startup, task processing, and graceful shutdown. Requires the execution role to have CloudWatch Logs permissions (included in `AWSLambdaBasicExecutionRole`).
 
-If the Workflow does not progress or the Lambda is not invoked, see `diagnostics.md`. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:632-633 -->
+If the Workflow does not progress or the Lambda is not invoked, see `diagnostics.md`.
 
 ## Teardown
 

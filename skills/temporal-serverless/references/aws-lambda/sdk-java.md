@@ -1,12 +1,11 @@
 # Java SDK on AWS Lambda
 
-<!-- Sources: io.temporal:temporal-aws-lambda:1.38.0 sources jar and samples-java@main -->
 
-Use this reference for Java SDK-specific package, entry-point, Worker configuration, tuned defaults, observability, and diagnostic details. For shared AWS Lambda deployment, observability infrastructure, and diagnostic flow, see `setup.md`, `observability.md`, and `diagnostics.md`.
+Use this reference for Java SDK-specific package, entry-point, Worker configuration, tuned defaults, observability, and diagnostic details. For shared AWS Lambda execution constraints, deployment, observability infrastructure, and diagnostic flow, see `constraints.md`, `setup.md`, `observability.md`, and `diagnostics.md`.
 
 ## Package
 
-Import: `io.temporal.aws.lambda.LambdaWorker`, `io.temporal.aws.lambda.LambdaWorkerOptions`, `io.temporal.common.WorkerDeploymentVersion` <!-- verified against io.temporal:temporal-aws-lambda:1.38.0 sources jar -->
+Import: `io.temporal.aws.lambda.LambdaWorker`, `io.temporal.aws.lambda.LambdaWorkerOptions`, `io.temporal.common.WorkerDeploymentVersion`
 
 Install: `io.temporal:temporal-aws-lambda` — a **separate Maven artifact** from `io.temporal:temporal-sdk`, but published on the **same version line** (both 1.38.0). This is a third packaging pattern: unlike Go and TypeScript it is not independently versioned, and unlike Python it does not ship inside the main SDK. Use `io.temporal:temporal-bom` in `dependencyManagement` to keep them aligned.
 
@@ -23,7 +22,7 @@ Install: `io.temporal:temporal-aws-lambda` — a **separate Maven artifact** fro
 
 `aws-lambda-java-core` (1.4.0) arrives transitively from `temporal-aws-lambda`; declare it explicitly if you compile against `RequestHandler`/`Context`.
 
-- Java: [Java Lambda Worker sample](https://github.com/temporalio/samples-java/tree/main/lambda-worker) — three Gradle subprojects (`worker/` handler + greeting Workflow/Activity, `starter/` local client, `deploy/` IAM and deploy scripts plus a CloudFormation template) <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx (line unverified) -->
+- Java: [Java Lambda Worker sample](https://github.com/temporalio/samples-java/tree/main/lambda-worker) — three Gradle subprojects (`worker/` handler + greeting Workflow/Activity, `starter/` local client, `deploy/` IAM and deploy scripts plus a CloudFormation template)
 
 List the real public API of the resolved artifact before generating code:
 
@@ -41,7 +40,7 @@ javap -cp <same jar> 'io.temporal.aws.lambda.LambdaWorkerOptions$Builder'
 
 **`LambdaWorker.define(version, configure)`** — returns a `RequestHandler<Object, Void>` that your handler class delegates to. There are four public overloads: `define` (2- and 3-arg) and `newHandler` (2- and 3-arg, taking a pre-built `LambdaWorkerOptions`).
 
-Note that Java's entry point is not "run"-shaped like the other SDKs' (`RunWorker`, `run_worker`, `runWorker`) — confirm the method name against the version you install. <!-- verified against io.temporal:temporal-aws-lambda:1.37.0 and 1.38.0, and samples-java@main -->
+Note that Java's entry point is not "run"-shaped like the other SDKs' (`RunWorker`, `run_worker`, `runWorker`) — confirm the method name against the version you install.
 
 ## Configure callback — two phases, unlike the other SDKs
 
@@ -82,7 +81,7 @@ public class MyWorkflowImpl implements MyWorkflow {
 
 ## Handler example
 
-Use the `temporal-aws-lambda` module. The handler class implements `RequestHandler<Object, Void>` and delegates to the handler returned by `LambdaWorker.define`. <!-- verified against io.temporal:temporal-aws-lambda:1.38.0 -->
+Use the `temporal-aws-lambda` module. The handler class implements `RequestHandler<Object, Void>` and delegates to the handler returned by `LambdaWorker.define`.
 
 ```java
 package com.example.temporal;
@@ -117,7 +116,6 @@ The entry point is `define` (or `newHandler` for pre-built options) — not a "r
 
 ## Lambda-tuned defaults
 
-<!-- verified in io.temporal:temporal-aws-lambda:1.38.0, LambdaWorkerOptions.java:40-53 -->
 
 | Setting | Lambda default |
 |---|---|
@@ -170,7 +168,7 @@ Resolution order (`LambdaWorkerOptions.resolveConfigFilePath`):
 
 Build an uber-jar with all dependencies bundled. A JAR is a valid zip, so it uploads directly with no extra packaging step.
 
-**Gradle** (what the official sample uses): `./gradlew shadowJar` → `build/libs/<name>-all.jar`. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx -->
+**Gradle** (what the official sample uses): `./gradlew shadowJar` → `build/libs/<name>-all.jar`.
 
 **Maven**: `maven-shade-plugin`, bound to `package` → `target/<finalName>.jar`.
 
@@ -239,13 +237,12 @@ aws lambda create-function \
   --environment file:///tmp/lambda-env.json
 ```
 
-- `--runtime`: `java17` (or another supported Java version). <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx (line unverified) -->
-- `--handler`: `fully.qualified.Class::method` — **a different format from every other SDK**, which use `module.function` / `module.export`. Point it at the method that delegates to the `LambdaWorker.define` handler. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx (line unverified) -->
+- `--runtime`: `java17` (or another supported Java version).
+- `--handler`: `fully.qualified.Class::method` — **a different format from every other SDK**, which use `module.function` / `module.export`. Point it at the method that delegates to the `LambdaWorker.define` handler.
 - `--zip-file`: the shaded jar directly; no separate zip step. Switch to `--code S3Bucket=…,S3Key=…` once the jar exceeds 50 MB, which happens early in Java (see packaging above).
 - **`HOME=/tmp` is not needed** — unlike the Go and TypeScript examples. Verified: the Java module never reads `HOME`, and a missing config file is non-fatal. → Connection configuration above.
-- `--memory-size`: the docs recommend starting at `1024` because "Java Workers typically need more memory than other runtimes," then adjusting from CloudWatch. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx (line unverified) --> A measured hello-world used **240 MB of 1024** (`Max Memory Used` in the invocation's REPORT line), so `512` is usually ample for small Workers — and since Lambda bills GB-seconds, halving memory halves the bill. Start at 1024, read the metric, then cut. <!-- measured, not documented -->
+- `--memory-size`: the docs recommend starting at `1024` because "Java Workers typically need more memory than other runtimes," then adjusting from CloudWatch.  A measured hello-world used **240 MB of 1024** (`Max Memory Used` in the invocation's REPORT line), so `512` is usually ample for small Workers — and since Lambda bills GB-seconds, halving memory halves the bill. Start at 1024, read the metric, then cut.
 
-<!-- Java create-function parameters above: docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx (line numbers unverified); --architectures, the S3 note, and the HOME finding are from a verified deployment, not the docs. -->
 
 **`--timeout` is a cost setting once it clears startup.** The per-SDK examples differ deliberately — 600 for Go, Python and TypeScript; 90 for Java — and both clear startup easily: a measured Java Worker bound its Task Queue **~10s** after `create-version`, JVM cold start included, against the 83s of polling a 90s deadline allows. Lambda's 3-second default is what fails this; 90 does not.
 
@@ -259,11 +256,10 @@ Measured cold starts are ~1s for Python and Java alike (`Init Duration` in the R
 
 ## Observability
 
-No extra dependency is required: `temporal-aws-lambda` already depends on `io.temporal:temporal-opentelemetry`, `io.opentelemetry:opentelemetry-api` (BOM 1.25.0), and `io.opentelemetry.contrib:opentelemetry-aws-xray`. The helper class ships inside the module. <!-- verified in io.temporal:temporal-aws-lambda:1.38.0 pom + jar -->
+No extra dependency is required: `temporal-aws-lambda` already depends on `io.temporal:temporal-opentelemetry`, `io.opentelemetry:opentelemetry-api` (BOM 1.25.0), and `io.opentelemetry.contrib:opentelemetry-aws-xray`. The helper class ships inside the module.
 
 Import: `io.temporal.aws.lambda.OtelLambdaWorkerConfigurationHelper`
 
-<!-- verified with javap against io.temporal:temporal-aws-lambda:1.38.0 -->
 
 - `configure(LambdaWorkerOptions.Builder)` — configures metrics and tracing with defaults.
 - `configure(LambdaWorkerOptions.Builder, Consumer<Builder>)` — same, with customization.
@@ -288,7 +284,7 @@ Defaults come from the constants `DEFAULT_OTLP_ENDPOINT` and `DEFAULT_SERVICE_NA
 
 **Flush before the deadline.** A Serverless Worker's invocation ends on a deadline rather than after a request, so telemetry buffered past that point is lost. Use `configureFlushHook` (or a report interval shorter than the invocation deadline) so metrics and spans are exported before shutdown. This matters more on Java's shorter recommended deadline (90s) than on the 600s used elsewhere.
 
-Attach the ADOT Collector layer. Because the OpenTelemetry SDK arrives as an ordinary Maven dependency of `temporal-aws-lambda`, no language-specific auto-instrumentation layer is required for the Worker's own telemetry — the same situation as Go. <!-- inferred from the artifact's dependency graph (temporal-aws-lambda:1.38.0 pom), not stated in the docs; confirm against a deployed function before relying on it -->
+Attach the ADOT Collector layer. Because the OpenTelemetry SDK arrives as an ordinary Maven dependency of `temporal-aws-lambda`, no language-specific auto-instrumentation layer is required for the Worker's own telemetry — the same situation as Go.
 
 `OPENTELEMETRY_COLLECTOR_CONFIG_URI=/var/task/otel-collector-config.yaml` — the `_URI` form, as with Go and TypeScript. The official Java sample packages `otel-collector-config.template.yaml` into the artifact root as `otel-collector-config.yaml` during `shadowJar`; with Maven, add it under `src/main/resources`.
 

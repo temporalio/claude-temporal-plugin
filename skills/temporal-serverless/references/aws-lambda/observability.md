@@ -2,7 +2,7 @@
 
 ## Overview
 
-Each SDK provides an OpenTelemetry integration package with defaults configured for the AWS Distro for OpenTelemetry (ADOT) Lambda layer. When enabled, the Worker emits SDK metrics and distributed traces for Workflow and Activity executions. The ADOT Lambda layer collects this telemetry and can forward traces to AWS X-Ray and metrics to Amazon CloudWatch. <!-- docs/develop/go/workers/serverless-workers/aws-lambda.mdx:129-131 -->
+Each SDK provides an OpenTelemetry integration package with defaults configured for the AWS Distro for OpenTelemetry (ADOT) Lambda layer. When enabled, the Worker emits SDK metrics and distributed traces for Workflow and Activity executions. The ADOT Lambda layer collects this telemetry and can forward traces to AWS X-Ray and metrics to Amazon CloudWatch.
 
 Load the selected SDK reference's **Observability** section:
 
@@ -18,9 +18,9 @@ The remaining steps in this file are shared across SDKs.
 
 ## Custom Collector configuration required
 
-The default ADOT Collector configuration does not route OpenTelemetry Protocol (OTLP) data to the traces pipeline. You must provide a custom Collector configuration that wires the OTLP receiver to both the traces and metrics pipelines. <!-- docs/develop/go/workers/serverless-workers/aws-lambda.mdx:179-180 -->
+The default ADOT Collector configuration does not route OpenTelemetry Protocol (OTLP) data to the traces pipeline. You must provide a custom Collector configuration that wires the OTLP receiver to both the traces and metrics pipelines.
 
-Example `otel-collector-config.yaml` (bundle in your Lambda deployment package): <!-- docs/develop/go/workers/serverless-workers/aws-lambda.mdx:181 -->
+Example `otel-collector-config.yaml` (bundle in your Lambda deployment package):
 
 For the Collector configuration environment variable, see the selected SDK reference.
 
@@ -59,7 +59,6 @@ service:
         metrics:
             address: localhost:8888
 ```
-<!-- docs/develop/go/workers/serverless-workers/aws-lambda.mdx:185-221 -->
 
 ## Enable X-Ray active tracing
 
@@ -68,16 +67,15 @@ aws lambda update-function-configuration \
   --function-name <your-function-name> \
   --tracing-config Mode=Active
 ```
-<!-- docs/develop/go/workers/serverless-workers/aws-lambda.mdx:230-234 -->
 
 ## Required IAM permissions
 
-The Lambda execution role must have permissions to write to X-Ray and CloudWatch: <!-- docs/develop/go/workers/serverless-workers/aws-lambda.mdx:236 -->
+The Lambda execution role must have permissions to write to X-Ray and CloudWatch:
 
-- `xray:PutTraceSegments` <!-- docs/develop/go/workers/serverless-workers/aws-lambda.mdx:237 -->
-- `xray:PutTelemetryRecords` <!-- docs/develop/go/workers/serverless-workers/aws-lambda.mdx:237 -->
-- `cloudwatch:PutMetricData` <!-- docs/develop/go/workers/serverless-workers/aws-lambda.mdx:237 -->
+- `xray:PutTraceSegments`
+- `xray:PutTelemetryRecords`
+- `cloudwatch:PutMetricData`
 
-Without these permissions, the Collector fails silently and no telemetry appears. <!-- docs/develop/go/workers/serverless-workers/aws-lambda.mdx:238 -->
+Without these permissions, the Collector fails silently and no telemetry appears.
 
 For language-specific IAM notes, see the selected SDK reference.
