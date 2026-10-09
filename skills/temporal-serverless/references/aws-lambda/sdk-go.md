@@ -1,16 +1,15 @@
 # Go SDK on AWS Lambda
 
-<!-- Source: docs/develop/go/workers/serverless-workers/aws-lambda.mdx -->
 
-Use this reference for Go SDK-specific package, entry-point, Worker configuration, tuned defaults, and observability details. For shared AWS Lambda deployment and observability infrastructure, see `setup.md` and `observability.md`.
+Use this reference for Go SDK-specific package, entry-point, Worker configuration, tuned defaults, and observability details. For shared AWS Lambda execution constraints, deployment, and observability infrastructure, see `constraints.md`, `setup.md`, and `observability.md`.
 
 ## Package
 
-Import: `lambdaworker "go.temporal.io/sdk/contrib/aws/lambdaworker"` <!-- docs/develop/go/workers/serverless-workers/aws-lambda.mdx:50 -->
+Import: `lambdaworker "go.temporal.io/sdk/contrib/aws/lambdaworker"`
 
 Install: `go get go.temporal.io/sdk/contrib/aws/lambdaworker` — **this is a separate Go module** from `go.temporal.io/sdk`, versioned independently (`v0.1.1` at the time of writing). Having the main SDK in `go.mod` does not make it importable; add it explicitly, then `go mod tidy`. Verify the installed surface with `go doc go.temporal.io/sdk/contrib/aws/lambdaworker` before generating code — the API is Public Preview and drifts.
 
-- Go: [Go Lambda Worker sample](https://github.com/temporalio/samples-go/tree/main/lambda-worker) <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:54 -->
+- Go: [Go Lambda Worker sample](https://github.com/temporalio/samples-go/tree/main/lambda-worker)
 
 List the exported API of the installed module version before generating code:
 
@@ -23,11 +22,11 @@ go doc go.temporal.io/sdk/contrib/aws/lambdaworker.Options
 
 ## Entry point
 
-`lambdaworker.RunWorker` — starts a Lambda-based Worker. Pass a `WorkerDeploymentVersion` and a callback that registers Workflows and Activities. <!-- docs/develop/go/workers/serverless-workers/aws-lambda.mdx:39-40 -->
+`lambdaworker.RunWorker` — starts a Lambda-based Worker. Pass a `WorkerDeploymentVersion` and a callback that registers Workflows and Activities.
 
 ## Configure callback
 
-The `Options` callback gives access to the same registration methods as a traditional Worker: `RegisterWorkflow`, `RegisterWorkflowWithOptions`, `RegisterActivity`, `RegisterActivityWithOptions`, and `RegisterNexusService`. <!-- docs/develop/go/workers/serverless-workers/aws-lambda.mdx:81 -->
+The `Options` callback gives access to the same registration methods as a traditional Worker: `RegisterWorkflow`, `RegisterWorkflowWithOptions`, `RegisterActivity`, `RegisterActivityWithOptions`, and `RegisterNexusService`.
 
 Go, Python and TypeScript invoke it per invocation.
 
@@ -35,14 +34,14 @@ In Go it is a direct field on the options object (`opts.TaskQueue`).
 
 ## Versioning behavior
 
-Set per-Workflow at registration time with `workflow.VersioningBehaviorPinned` or `workflow.VersioningBehaviorAutoUpgrade`. <!-- docs/develop/go/workers/serverless-workers/aws-lambda.mdx:78 -->
-Or set a Worker-level default with `DefaultVersioningBehavior` in `DeploymentOptions`. <!-- docs/develop/go/workers/serverless-workers/aws-lambda.mdx:79 -->
+Set per-Workflow at registration time with `workflow.VersioningBehaviorPinned` or `workflow.VersioningBehaviorAutoUpgrade`.
+Or set a Worker-level default with `DefaultVersioningBehavior` in `DeploymentOptions`.
 
 **Worker Versioning is always on.** The run-worker entry point enables it, so the only remaining decision is `Pinned` vs `AutoUpgrade` per Workflow (or a Worker-level default).
 
 ## Handler example
 
-Use the Go SDK's `lambdaworker` package. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:68 -->
+Use the Go SDK's `lambdaworker` package.
 
 ```go
 package main
@@ -69,11 +68,9 @@ func main() {
     })
 }
 ```
-<!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:70-94 -->
 
 ## Lambda-tuned defaults
 
-<!-- docs/develop/go/workers/serverless-workers/aws-lambda.mdx:103-115 -->
 
 | Setting | Lambda default |
 |---|---|
@@ -91,41 +88,39 @@ func main() {
 
 Note: Go sticky cache size is 100, while Python and TypeScript are 30. These values come from each SDK's own docs and are not interchangeable.
 
-These are the same `worker.Options` available to any Temporal Worker, just with lower values for Lambda's constrained environment. Except for `ShutdownDeadlineBuffer`, which is specific to the `lambdaworker` package. <!-- docs/develop/go/workers/serverless-workers/aws-lambda.mdx:101,120 -->
+These are the same `worker.Options` available to any Temporal Worker, just with lower values for Lambda's constrained environment. Except for `ShutdownDeadlineBuffer`, which is specific to the `lambdaworker` package.
 
-`DisableEagerActivities` is always true and cannot be overridden. Eager Activities require a persistent connection, which Lambda invocations don't maintain. <!-- docs/develop/go/workers/serverless-workers/aws-lambda.mdx:117-118 -->
+`DisableEagerActivities` is always true and cannot be overridden. Eager Activities require a persistent connection, which Lambda invocations don't maintain.
 
-`ShutdownDeadlineBuffer` controls how much time before the Lambda deadline the Worker begins its graceful shutdown. The default is `WorkerStopTimeout` + 2 seconds. <!-- docs/develop/go/workers/serverless-workers/aws-lambda.mdx:120-122 -->
+`ShutdownDeadlineBuffer` controls how much time before the Lambda deadline the Worker begins its graceful shutdown. The default is `WorkerStopTimeout` + 2 seconds.
 
-If your Worker handles long-running Activities, increase `WorkerStopTimeout`, `ShutdownDeadlineBuffer`, and the Lambda invocation deadline (`--timeout`) together. <!-- docs/develop/go/workers/serverless-workers/aws-lambda.mdx:124-125 -->
+If your Worker handles long-running Activities, increase `WorkerStopTimeout`, `ShutdownDeadlineBuffer`, and the Lambda invocation deadline (`--timeout`) together.
 
 ## Connection configuration
 
-The `lambdaworker` package automatically loads Temporal client configuration from a TOML config file and environment variables (see the Environment Configuration docs, `/develop/environment-configuration`). <!-- docs/develop/go/workers/serverless-workers/aws-lambda.mdx:85 -->
+The `lambdaworker` package automatically loads Temporal client configuration from a TOML config file and environment variables (see the Environment Configuration docs, `/develop/environment-configuration`).
 
-TOML config file resolution order: <!-- docs/develop/go/workers/serverless-workers/aws-lambda.mdx:87-91 -->
+TOML config file resolution order:
 
 1. `TEMPORAL_CONFIG_FILE` environment variable, if set.
 2. `temporal.toml` in `$LAMBDA_TASK_ROOT` (typically `/var/task`).
 3. `temporal.toml` in the current working directory.
 
-The file is optional. If absent, only environment variables are used. <!-- docs/develop/go/workers/serverless-workers/aws-lambda.mdx:93 -->
+The file is optional. If absent, only environment variables are used.
 
 ## Build and package
 
-Cross-compile for Lambda's Linux runtime: <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:191 -->
+Cross-compile for Lambda's Linux runtime:
 
 ```bash
 GOOS=linux GOARCH=amd64 go build -tags lambda.norpc -o bootstrap ./worker
 ```
-<!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:194 -->
 
-Package the binary into a zip file: <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:197 -->
+Package the binary into a zip file:
 
 ```bash
 zip function.zip bootstrap
 ```
-<!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:200 -->
 
 **Add `CGO_ENABLED=0`, and match the architecture you deploy.** The `provided.al2023` runtime expects a self-contained binary; building with cgo enabled links against host libraries that may not resolve inside the runtime. Set `CGO_ENABLED=0` for a statically linked binary, and keep `GOARCH` consistent with the function's `--architectures` (`amd64` ↔ `x86_64`, `arm64` ↔ `arm64`). Also adjust the trailing package path to your layout — `.` when `main` is in the repo root, `./worker` when it is in a `worker/` subdirectory. A reusable script:
 
@@ -157,10 +152,9 @@ aws lambda create-function \
   --memory-size 256 \
   --environment '{"Variables":{"HOME":"/tmp","TEMPORAL_ADDRESS":"<your-temporal-address>:7233","TEMPORAL_NAMESPACE":"<your-namespace>","TEMPORAL_API_KEY":"<your-api-key>"}}'
 ```
-<!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:250-260 -->
 
-- `--runtime`: `provided.al2023` for custom Go binaries. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:265 -->
-- `--handler`: `bootstrap` when using the `provided.al2023` custom runtime. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:266 -->
+- `--runtime`: `provided.al2023` for custom Go binaries.
+- `--handler`: `bootstrap` when using the `provided.al2023` custom runtime.
 
 | Variable | Description |
 |---|---|
@@ -168,13 +162,13 @@ aws lambda create-function \
 
 ## Observability
 
-Import: `otel "go.temporal.io/sdk/contrib/aws/lambdaworker/otel"` <!-- docs/develop/go/workers/serverless-workers/aws-lambda.mdx:145 -->
+Import: `otel "go.temporal.io/sdk/contrib/aws/lambdaworker/otel"`
 
-- `otel.ApplyDefaults` — configures both metrics and tracing. <!-- docs/develop/go/workers/serverless-workers/aws-lambda.mdx:157,172 -->
-- `otel.ApplyMetrics` — configures metrics only. <!-- docs/develop/go/workers/serverless-workers/aws-lambda.mdx:240 -->
-- `otel.ApplyTracing` — configures tracing only. <!-- docs/develop/go/workers/serverless-workers/aws-lambda.mdx:240 -->
+- `otel.ApplyDefaults` — configures both metrics and tracing.
+- `otel.ApplyMetrics` — configures metrics only.
+- `otel.ApplyTracing` — configures tracing only.
 
-Usage in the configure callback: <!-- docs/develop/go/workers/serverless-workers/aws-lambda.mdx:154-159 -->
+Usage in the configure callback:
 
 ```go
 if err := otel.ApplyDefaults(opts, &opts.ClientOptions, otel.Options{}); err != nil {
@@ -182,11 +176,11 @@ if err := otel.ApplyDefaults(opts, &opts.ClientOptions, otel.Options{}); err != 
 }
 ```
 
-By default, telemetry is sent to `localhost:4317`, which is the ADOT Lambda layer's default collector endpoint. <!-- docs/develop/go/workers/serverless-workers/aws-lambda.mdx:173 -->
+By default, telemetry is sent to `localhost:4317`, which is the ADOT Lambda layer's default collector endpoint.
 
-Attach the ADOT Collector layer to your Lambda function. <!-- docs/develop/go/workers/serverless-workers/aws-lambda.mdx:175 -->
-Go does not need a language-specific ADOT layer because the OTel SDK is compiled into the binary. <!-- docs/develop/go/workers/serverless-workers/aws-lambda.mdx:177 -->
+Attach the ADOT Collector layer to your Lambda function.
+Go does not need a language-specific ADOT layer because the OTel SDK is compiled into the binary.
 
-`OPENTELEMETRY_COLLECTOR_CONFIG_URI=/var/task/otel-collector-config.yaml` <!-- docs/develop/go/workers/serverless-workers/aws-lambda.mdx:226 -->
+`OPENTELEMETRY_COLLECTOR_CONFIG_URI=/var/task/otel-collector-config.yaml`
 
 For the shared Collector configuration, X-Ray enablement, and execution-role permissions, see `observability.md`.

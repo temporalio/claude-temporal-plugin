@@ -1,9 +1,5 @@
 # AWS Lambda — IAM & permissions
 
-<!-- Sources:
-  docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx
-  docs/production-deployment/worker-deployments/serverless-workers/self-hosted-setup.mdx
--->
 
 This file covers three distinct identities: the **operator** (whose credentials run the deploy commands), the **execution role** (grants the function permission to run), and the **Temporal invocation role** (grants Temporal permission to invoke the function). The deploy steps themselves are in `setup.md`; self-hosted server enablement is in `self-hosted.md`.
 
@@ -96,19 +92,18 @@ If the organization wraps credentials in its own tool (`aws-vault`, `granted`/`a
 
 ## Execution role
 
-The Lambda execution role grants the function permission to run. It is trusted by `lambda.amazonaws.com` and must have at least the `AWSLambdaBasicExecutionRole` managed policy attached (which includes the CloudWatch Logs permissions the Worker needs). This is separate from the Temporal invocation role below. Pass its ARN as `--role` when you create the function (`setup.md`, Step 2). <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:317 -->
+The Lambda execution role grants the function permission to run. It is trusted by `lambda.amazonaws.com` and must have at least the `AWSLambdaBasicExecutionRole` managed policy attached (which includes the CloudWatch Logs permissions the Worker needs). This is separate from the Temporal invocation role below. Pass its ARN as `--role` when you create the function (`setup.md`, Step 2).
 
 ## Step 3: Configure IAM for Temporal invocation
 
 ### Temporal Cloud
 
-This section applies to Temporal Cloud. For self-hosted, see the self-hosted section below. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:379-383 -->
+This section applies to Temporal Cloud. For self-hosted, see the self-hosted section below.
 
-Temporal needs permission to invoke your Lambda function and check its status. The Temporal server assumes an IAM role in your AWS account with a handful of Lambda permissions scoped to your Worker functions. The trust policy on the role includes an External ID condition to prevent confused deputy attacks. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:385-388 -->
+Temporal needs permission to invoke your Lambda function and check its status. The Temporal server assumes an IAM role in your AWS account with a handful of Lambda permissions scoped to your Worker functions. The trust policy on the role includes an External ID condition to prevent confused deputy attacks.
 
 #### CloudFormation template parameters
 
-<!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:394-398 -->
 
 | Parameter | Description |
 |---|---|
@@ -174,19 +169,19 @@ The `:*` form is also what makes future `publish-version` builds work without an
 
 #### Trust policy principals
 
-The Cloud template trusts five Temporal Cloud AWS account IDs with the role `wci-lambda-invoke`: <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:457-464 -->
+The Cloud template trusts five Temporal Cloud AWS account IDs with the role `wci-lambda-invoke`:
 
-- `arn:aws:iam::902542641901:role/wci-lambda-invoke` <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:459 -->
-- `arn:aws:iam::160190466495:role/wci-lambda-invoke` <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:460 -->
-- `arn:aws:iam::819232936619:role/wci-lambda-invoke` <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:461 -->
-- `arn:aws:iam::829909441867:role/wci-lambda-invoke` <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:462 -->
-- `arn:aws:iam::354116250941:role/wci-lambda-invoke` <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:463 -->
+- `arn:aws:iam::902542641901:role/wci-lambda-invoke`
+- `arn:aws:iam::160190466495:role/wci-lambda-invoke`
+- `arn:aws:iam::819232936619:role/wci-lambda-invoke`
+- `arn:aws:iam::829909441867:role/wci-lambda-invoke`
+- `arn:aws:iam::354116250941:role/wci-lambda-invoke`
 
-The IAM policy grants `lambda:InvokeFunction` and `lambda:GetFunction` on the specified Lambda function ARNs. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:481-484 -->
+The IAM policy grants `lambda:InvokeFunction` and `lambda:GetFunction` on the specified Lambda function ARNs.
 
 #### Deploy the CloudFormation stack
 
-This skill ships the complete, ready-to-deploy template at `assets/temporal-cloud-serverless-worker-role.yaml` (transcribed verbatim from the docs). Copy it into your working directory, or point `--template-body` at the skill's copy — no need to author it by hand. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:404-501 -->
+This skill ships the complete, ready-to-deploy template at `assets/temporal-cloud-serverless-worker-role.yaml` (transcribed verbatim from the docs). Copy it into your working directory, or point `--template-body` at the skill's copy — no need to author it by hand.
 
 ```bash
 aws cloudformation create-stack \
@@ -199,7 +194,6 @@ aws cloudformation create-stack \
   --capabilities CAPABILITY_NAMED_IAM \
   --region <AWS_REGION>
 ```
-<!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:509-517; RoleName and dual-ARN values per the guidance above -->
 
 Notes on the parameters above:
 
@@ -210,24 +204,23 @@ Notes on the parameters above:
   EXTERNAL_ID=$(openssl rand -hex 16)
   ```
 
-Retrieve the IAM role ARN from the stack outputs: <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:519 -->
+Retrieve the IAM role ARN from the stack outputs:
 
 ```bash
 aws cloudformation describe-stacks --stack-name <STACK_NAME> --query 'Stacks[0].Outputs[?OutputKey==`RoleARN`].OutputValue' --output text --region <AWS_REGION>
 ```
-<!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:521-522 -->
 
 ### Self-hosted invocation role
 
 For self-hosted server enablement (dynamic config, WCI, and the server's own AWS credentials), see `self-hosted.md`. The invocation role itself is below.
 
-Self-hosted Serverless Workers require Temporal Service v1.31.0 or later. <!-- docs/production-deployment/worker-deployments/serverless-workers/self-hosted-setup.mdx:28 -->
+Self-hosted Serverless Workers require Temporal Service v1.31.0 or later.
 
 #### Create the Lambda invocation role (self-hosted)
 
-Temporal invokes Lambda functions by assuming an IAM role in your AWS account. This role needs `lambda:GetFunction` and `lambda:InvokeFunction` permission on your Worker Lambda functions, and a trust policy that allows the Temporal server's identity to assume it. <!-- docs/production-deployment/worker-deployments/serverless-workers/self-hosted-setup.mdx:105-107 -->
+Temporal invokes Lambda functions by assuming an IAM role in your AWS account. This role needs `lambda:GetFunction` and `lambda:InvokeFunction` permission on your Worker Lambda functions, and a trust policy that allows the Temporal server's identity to assume it.
 
-This skill ships the complete self-hosted template at `assets/temporal-self-hosted-serverless-worker-role.yaml` (verbatim from the docs). Copy it locally or point `--template-body` at the skill's copy. <!-- docs/production-deployment/worker-deployments/serverless-workers/self-hosted-setup.mdx:136-209 -->
+This skill ships the complete self-hosted template at `assets/temporal-self-hosted-serverless-worker-role.yaml` (verbatim from the docs). Copy it locally or point `--template-body` at the skill's copy.
 
 ```bash
 aws cloudformation create-stack \
@@ -240,7 +233,6 @@ aws cloudformation create-stack \
   --capabilities CAPABILITY_NAMED_IAM \
   --region <AWS_REGION>
 ```
-<!-- docs/production-deployment/worker-deployments/serverless-workers/self-hosted-setup.mdx:113-123 -->
 
 | Parameter | Description |
 |---|---|
@@ -248,9 +240,8 @@ aws cloudformation create-stack \
 | `AssumeRoleExternalId` | A unique string to prevent confused deputy attacks. Use the same value when creating the Worker Deployment Version. |
 | `LambdaFunctionARNs` | Comma-separated list of Lambda function ARNs that Temporal may invoke. To allow any published version, use a wildcard suffix (for example, `arn:aws:lambda:...:function:my-temporal-worker:*`). |
 | `RoleName` | Base name for the created IAM role. Defaults to `Temporal-Serverless-Worker`. Provide a new role name if creating more than one stack. |
-<!-- docs/production-deployment/worker-deployments/serverless-workers/self-hosted-setup.mdx:125-130 -->
 
-Retrieve the role ARN: <!-- docs/production-deployment/worker-deployments/serverless-workers/self-hosted-setup.mdx:214 -->
+Retrieve the role ARN:
 
 ```bash
 aws cloudformation describe-stacks \
@@ -259,6 +250,5 @@ aws cloudformation describe-stacks \
   --output text \
   --region <AWS_REGION>
 ```
-<!-- docs/production-deployment/worker-deployments/serverless-workers/self-hosted-setup.mdx:216-222 -->
 
-**Key distinction:** The Lambda execution role (trusted by `lambda.amazonaws.com`) is separate from the Temporal invocation role (trusted by Temporal's `wci-lambda-invoke` principals for Cloud, or the Temporal Service's own IAM identity for self-hosted). The execution role grants the function permission to run. The invocation role grants Temporal permission to invoke the function. <!-- docs/production-deployment/worker-deployments/serverless-workers/aws-lambda.mdx:317,548,586 -->
+**Key distinction:** The Lambda execution role (trusted by `lambda.amazonaws.com`) is separate from the Temporal invocation role (trusted by Temporal's `wci-lambda-invoke` principals for Cloud, or the Temporal Service's own IAM identity for self-hosted). The execution role grants the function permission to run. The invocation role grants Temporal permission to invoke the function.
