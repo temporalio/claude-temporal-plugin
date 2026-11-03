@@ -29,6 +29,9 @@ Then run `/reload-plugins` to activate the plugin in the current session.
 ## What's Included
 
 - **temporal-developer** skill — Comprehensive guidance for developing Temporal applications: creating workflows, activities, and workers; handling signals, queries, and updates; debugging non-determinism errors; implementing saga patterns, versioning strategies, and testing approaches across Python, TypeScript, Go, and Java SDKs.
+- **temporal-ops** skill — Administering and diagnosing running Temporal Cloud or self-hosted environments with the `temporal` and `tcld` CLIs, from namespace management to triaging stuck workflows and unhealthy workers.
+- **temporal-serverless** skill — Deploying and operating Temporal Workers on serverless compute (AWS Lambda, GCP Cloud Run).
+- **temporal-cloud-setup** skill — Sets up a Temporal Cloud namespace and runs a sample app against it. Runs only when you invoke `/temporal:temporal-cloud-setup`, and asks before each step.
 
 ## Standalone Skill
 

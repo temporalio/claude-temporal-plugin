@@ -1,7 +1,7 @@
 {
   "name": "temporal",
   "version": "0.4.3",
-  "description": "Comprehensive skill for the entire Temporal lifecycle — developing applications, using the Temporal CLI, running and managing Temporal Server, and working with Temporal Cloud.",
+  "description": "Build, run, and operate Temporal applications: SDK development and debugging in Python, TypeScript, Go, Java, .NET, Ruby, and Rust; the Temporal CLI; Temporal Cloud setup and administration; and serverless Workers on AWS Lambda and Cloud Run.",
   "author": {
     "name": "Temporal",
     "url": "https://temporal.io/"
@@ -9,14 +9,27 @@
   "homepage": "https://temporal.io/",
   "repository": "https://github.com/temporalio/claude-temporal-plugin",
   "license": "MIT",
+  "icon": "./.claude-plugin/icon.png",
+  "documentationUrl": "https://docs.temporal.io/",
+  "supportUrl": "https://t.mp/slack",
+  "privacyPolicyUrl": "https://temporal.io/global-privacy-policy",
+  "termsOfServiceUrl": "https://temporal.io/terms-of-service",
   "keywords": [
     "temporal",
+    "temporal-cloud",
+    "temporal-cli",
     "workflow",
     "durable-execution",
     "python",
     "typescript",
     "go",
     "java",
+    "dotnet",
+    "ruby",
+    "rust",
+    "serverless",
+    "aws-lambda",
+    "devops",
     "microservices",
     "distributed-systems"
   ],
