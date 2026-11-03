@@ -9,6 +9,7 @@
   "homepage": "https://temporal.io/",
   "repository": "https://github.com/temporalio/claude-temporal-plugin",
   "license": "MIT",
+  "icon": "./.claude-plugin/icon.png",
   "keywords": [
     "temporal",
     "workflow",
