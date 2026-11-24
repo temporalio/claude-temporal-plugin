@@ -53,7 +53,27 @@ Only the invoker's permissions are shared across pools, so a new pool usually ne
 
 ## Rollback
 
-Set the previous version current again. Its existing pool scales up on the next Task without rebuilding or reverting an image. If you reused the same pool, setting the previous Temporal version current is not enough because both versions address mutable pool state. Restore the known-good Cloud Run revision split as described above; if that revision was deleted, redeploy the old image deliberately.
+Before rolling back, confirm the previous version still exists in the deployment:
+
+```bash
+temporal --profile <PROFILE> worker deployment describe \
+  --namespace <NS> --name my-app -o json \
+  | jq -e --arg b '<PREVIOUS_BUILD_ID>' '[.versionSummaries[]?.BuildID] | index($b) != null'
+```
+
+CLI v1.8.2 spells the field `BuildID`, and `worker deployment list` returns `versionSummaries` as `null`, so read versions from `describe`. Then confirm the version can take traffic. Take its pool, region, image digest, and Task Queue from the recorded deployment inventory or committed release inputs; Temporal does not return the pool a version targets. Run the [Task Queue binding check](diagnostics.md#start-here-did-the-expected-worker-bind), and confirm the pool still exists, its instance split contains exactly one revision, and that revision serves the recorded digest as in [audit items 2 and 3](diagnostics.md#audit-an-existing-pool). If the record is missing or any check fails or cannot be confirmed, stop before changing routing and tell the user.
+
+Set the previous version current again, then read the routing back as in [`setup.md`](setup.md#step-7-set-the-version-current) Step 7. The previous version's existing pool scales up on the next Task without rebuilding or reverting an image. If you reused the same pool, setting the previous Temporal version current is not enough because both versions address mutable pool state. Restore the known-good Cloud Run revision split as described above; if that revision was deleted, redeploy the old image deliberately.
+
+## Managing pools with Terraform
+
+Create pools with `gcloud` as in `setup.md` Step 4. Declare them in Terraform only when the user asks, and then:
+
+- **Give each build its own pool and never update it.** Pin each pool's image by digest. Any change to a pool's template, including a value shared by every pool such as an environment variable, creates a new revision and replaces that pool's running instances: the [redeploy hazard](#the-hazard-redeploying-into-a-live-pool). A release plan should only create the new build's pool; stop if it updates or replaces a pool a version still points at.
+- **Leave the instance count to Temporal.** Temporal writes only `scaling.manual_instance_count`. Create the pool with manual scaling at `0` and set `ignore_changes = [scaling[0].manual_instance_count]`.
+- **Keep pools in their own root.** The invoker module requires the Google provider `~> 4.0` (`iam.md`); use `>= 7.18.0` for `google_cloud_run_v2_worker_pool`. One root resolves one provider version.
+- **Keep registration out of Terraform.** Register versions and change routing with the `temporal` CLI as in [Rolling out a new build](#rolling-out-a-new-build).
+- **Treat the pools as shared infrastructure.** Use remote state with locking, and apply only from reviewed, committed inputs that list every build still in use.
 
 ## Cost of the discipline
 

@@ -13,7 +13,7 @@ v := workflow.GetVersion(ctx, "changeID", workflow.DefaultVersion, maxSupported)
 - `changeID`: unique string identifying the change
 - `minSupported`: oldest version still supported (`workflow.DefaultVersion` is `-1`)
 - `maxSupported`: current/newest version
-- Returns `maxSupported` for new executions; returns the recorded version on replay
+- Selects `maxSupported` by default when first recording a version. Replay uses the recorded version.
 
 ### Three-Step Lifecycle
 
@@ -69,6 +69,23 @@ _ = workflow.GetVersion(ctx, "Step1", 2, 2)
 err = workflow.ExecuteActivity(ctx, ActivityD, data).Get(ctx, &result1)
 ```
 
+### Choose the first version with a Worker provider
+
+Use the experimental `worker.Options.PreferredVersionProvider` to stage a new `workflow.GetVersion` branch while both versions are supported. The SDK calls the provider before writing the first version marker for a change ID during live execution. Replay follows history, and a recorded version stays fixed for that run.
+
+```go
+w := worker.New(c, "orders", worker.Options{
+    PreferredVersionProvider: func(input worker.PreferredVersionProviderInput) *worker.VersionPreference {
+        if input.ChangeID == "order-validation" && !enableOrderValidation {
+            return &worker.VersionPreference{Version: input.MinSupported}
+        }
+        return nil
+    },
+})
+```
+
+`enableOrderValidation` is Worker configuration. Keep the Workflow's `workflow.GetVersion(ctx, "order-validation", workflow.DefaultVersion, 1)` guard and both branches during rollout. A `nil` preference selects `MaxSupported`. Return a version within the call's supported range. An out-of-range preference fails the Workflow Task unless `ClampToSupportedRange` is set on the preference. Keep the provider fast because it runs on a Workflow goroutine.
+
 ### Using GetVersion in Loops
 
 The return value for a given `changeID` is immutable once recorded. In loops, append the iteration number to the `changeID`:
@@ -116,7 +133,7 @@ temporal workflow list --query 'WorkflowType = "MyWorkflow" AND ExecutionStatus 
 
 ## Worker Versioning
 
-Worker Versioning manages versions at the deployment level, allowing multiple Worker versions to run simultaneously.
+Worker Versioning is GA and manages versions at the deployment level, allowing multiple Worker versions to run simultaneously. See the [core guide](../core/versioning.md) for rollout and recovery tooling.
 
 ### Key Concepts
 
@@ -132,7 +149,7 @@ w := worker.New(c, "my-task-queue", worker.Options{
 		UseVersioning: true,
 		Version: worker.WorkerDeploymentVersion{
 			DeploymentName: "my-service",
-			BuildId:        "v1.0.0", // or git commit hash
+			BuildID:        "v1.0.0", // or git commit hash
 		},
 		DefaultVersioningBehavior: workflow.VersioningBehaviorPinned,
 	},
@@ -146,6 +163,14 @@ w := worker.New(c, "my-task-queue", worker.Options{
 - `DefaultVersioningBehavior`: `VersioningBehaviorPinned` or `VersioningBehaviorAutoUpgrade`
 - Build ID: typically a git commit hash, version number, or timestamp
 
+Prefer declaring behavior per Workflow Type; the Worker's default covers types without an explicit behavior:
+
+```go
+w.RegisterWorkflowWithOptions(MyWorkflow, workflow.RegisterOptions{
+	VersioningBehavior: workflow.VersioningBehaviorPinned,
+})
+```
+
 ### PINNED vs AUTO_UPGRADE Behaviors
 
 **PINNED Behavior**
@@ -155,6 +180,7 @@ Workflows stay locked to their original Worker version.
 **When to use PINNED:**
 
 - Short-running workflows (minutes to hours)
+- Long-running Workflows that upgrade on Continue-as-New, without patching within each run
 - Consistency is critical (e.g., financial transactions)
 - You want to eliminate version compatibility complexity
 - Building new applications and want simplest development experience
@@ -165,7 +191,7 @@ Workflows can move to newer versions.
 
 **When to use AUTO_UPGRADE:**
 
-- Long-running workflows (weeks or months)
+- Long-running workflows without Continue-as-New
 - Workflows need to benefit from bug fixes during execution
 - Migrating from traditional rolling deployments
 - You are already using GetVersion for version transitions
@@ -175,13 +201,13 @@ Workflows can move to newer versions.
 ### Worker Configuration with Default Behavior
 
 ```go
-// For short-running workflows, prefer PINNED
+// PINNED for short runs or upgrade on Continue-as-New
 w := worker.New(c, "orders-task-queue", worker.Options{
 	DeploymentOptions: worker.DeploymentOptions{
 		UseVersioning: true,
 		Version: worker.WorkerDeploymentVersion{
 			DeploymentName: "order-service",
-			BuildId:        os.Getenv("BUILD_ID"),
+			BuildID:        os.Getenv("BUILD_ID"),
 		},
 		DefaultVersioningBehavior: workflow.VersioningBehaviorPinned,
 	},

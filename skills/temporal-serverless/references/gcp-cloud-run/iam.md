@@ -78,6 +78,8 @@ output "invoker_email" {
 
 The `output` block is required: a module's outputs are not visible from the root module unless it re-exports them, and Step 6 needs `invoker_email`.
 
+Keep Worker Pools out of this root; see [`versioning.md`](versioning.md#managing-pools-with-terraform).
+
 | Variable | Required | Description |
 |---|---|---|
 | `project_id` | Yes | Project hosting the pool and the invoker. |
@@ -87,7 +89,7 @@ The `output` block is required: a module's outputs are not visible from the root
 | `invoker_display_name` | No | Defaults to `Temporal Serverless Worker Pool Invoker`. |
 | `deploy_roles` | No | Project-level Cloud Run roles for the invoker. Defaults to `roles/run.developer`. A substitute must include `run.workerPools.get` and `run.workerPools.update`. |
 
-Keep the root module in its own directory, `<TF_DIR>`, **outside the app directory**, so `gcloud builds submit` does not upload its state and provider binaries to Cloud Build. Pass `-chdir` instead of changing directory. Plan first, check the plan against the approved resource list, then apply exactly that plan:
+Keep the root module in its own directory, `<TF_DIR>`, **outside the app directory**, so `gcloud builds submit` does not upload its state and provider binaries to Cloud Build. When the invoker is shared, kept in a repository, or applied by more than one person, keep this root's state in a remote backend with locking too; local state belongs to one checkout. Pass `-chdir` instead of changing directory. Plan first, check the plan against the approved resource list, then apply exactly that plan:
 
 ```bash
 terraform -chdir=<TF_DIR> init

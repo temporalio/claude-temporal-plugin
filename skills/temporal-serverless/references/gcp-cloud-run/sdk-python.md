@@ -1,7 +1,7 @@
 # Python SDK on GCP Cloud Run
 
 
-Use this reference for Python-specific Worker construction, versioning behavior, connection configuration, image packaging, and scale-in safety. For shared Cloud Run execution constraints, deployment lifecycle, permissions, versioning, observability, and diagnostics, see `constraints.md`, `setup.md`, `iam.md`, `versioning.md`, `observability.md`, and `diagnostics.md`. Scoping (Namespace, GCP project, region), the API-key hand-off, IAM, registration, and verification are the same for every SDK and are defined once in `SKILL.md` and `setup.md`; do not vary them per SDK. This guide's sample is one Workflow that takes a string and returns `Hello, <name>!`, which is what `setup.md` Step 8 verifies.
+Use this reference for Python-specific Worker construction, versioning behavior, connection configuration, image packaging, and scale-in safety. For shared Cloud Run execution constraints, deployment lifecycle, permissions, versioning, observability, and diagnostics, see `constraints.md`, `setup.md`, `iam.md`, `versioning.md`, `observability.md`, and `diagnostics.md`. Scoping (Namespace, GCP project, region), the API-key hand-offs, IAM, registration, and verification are the same for every SDK and are defined once in `SKILL.md` and `setup.md`; do not vary them per SDK. This guide's sample is one Workflow that takes a string and returns `Hello, <name>!`, which is what `setup.md` Step 8 verifies.
 
 ## Install and scaffold
 
@@ -275,3 +275,9 @@ traces_flushed = await asyncio.to_thread(
 ```
 
 The helper defaults to the local OTLP/gRPC Collector endpoint. Use the multi-container topology, IAM, and shutdown order in `observability.md`; do not add the plugin unless that Collector path is enabled.
+
+- Do not install both this plugin and the generic `temporalio.contrib.opentelemetry.OpenTelemetryPlugin` on the same client.
+- Metrics export every 60 seconds by default. Change it with `metric_periodicity`.
+- The service name falls back to `service_name=`, `OTEL_SERVICE_NAME`, `CLOUD_RUN_WORKER_POOL`, `K_SERVICE`, then `temporal-worker`.
+- To use your own `Runtime`, pass it as `OpenTelemetryPlugin(runtime=rt)` and set the export period on that Runtime. Passing both `runtime` and `metric_periodicity` raises `ValueError`.
+- Pass the same Runtime to `Client.connect`, or none. A different Runtime raises `ValueError`.

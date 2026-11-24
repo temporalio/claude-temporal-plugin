@@ -1,7 +1,7 @@
 # Java SDK on GCP Cloud Run
 
 
-Use this reference for Java-specific Worker construction, versioning behavior, connection configuration, image packaging, and scale-in safety. For shared Cloud Run execution constraints, deployment lifecycle, permissions, versioning, observability, and diagnostics, see `constraints.md`, `setup.md`, `iam.md`, `versioning.md`, `observability.md`, and `diagnostics.md`. Scoping (Namespace, GCP project, region), the API-key hand-off, IAM, registration, and verification are the same for every SDK and are defined once in `SKILL.md` and `setup.md`; do not vary them per SDK. This guide's sample is one Workflow that takes a string and returns `Hello, <name>!`, which is what `setup.md` Step 8 verifies.
+Use this reference for Java-specific Worker construction, versioning behavior, connection configuration, image packaging, and scale-in safety. For shared Cloud Run execution constraints, deployment lifecycle, permissions, versioning, observability, and diagnostics, see `constraints.md`, `setup.md`, `iam.md`, `versioning.md`, `observability.md`, and `diagnostics.md`. Scoping (Namespace, GCP project, region), the API-key hand-offs, IAM, registration, and verification are the same for every SDK and are defined once in `SKILL.md` and `setup.md`; do not vary them per SDK. This guide's sample is one Workflow that takes a string and returns `Hello, <name>!`, which is what `setup.md` Step 8 verifies.
 
 ## Install and scaffold
 
@@ -173,7 +173,7 @@ Every Workflow needs `VersioningBehavior.PINNED` or `AUTO_UPGRADE`. `Main` sets 
 
 ## Connection configuration
 
-`addApiKey` takes a **supplier**, called on every request, so a key can be rotated by returning a new value instead of restarting the Worker — worth using on a long-lived pool instance, where a restart is not free.
+`addApiKey` takes a **supplier**, called on every request. The sample's supplier returns `TEMPORAL_API_KEY`, which Cloud Run fixes when the instance starts, so it cannot pick up a rotated key; a running instance keeps its starting key until it stops. Rotate as in [`setup.md`](setup.md#rotate-the-temporal-api-keys).
 
 Java uses gRPC/Netty and the JVM truststore, so it is unaffected by the `NativeCertsNotFound` failure the Rust-core SDKs hit.
 

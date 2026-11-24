@@ -31,8 +31,8 @@ Collect data and submit to Temporal via support ticket:
 
 **Cluster configuration** (run per cluster):
 ```
-temporal operator cluster describe --address <frontend:7233> --output json   # server > 1.28.1
-tctl --address <frontend:7233> admin cluster describe                        # server <= 1.28.1
+temporal operator cluster describe --address <frontend:7233> --output json                              # server >= 1.29
+grpcurl -v -plaintext <frontend:7233> temporal.server.api.adminservice.v1.AdminService.DescribeCluster  # server < 1.29
 ```
 
 **Custom search attributes** (must be Cloud-compatible):

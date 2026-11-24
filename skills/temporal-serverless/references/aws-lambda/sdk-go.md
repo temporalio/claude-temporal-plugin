@@ -178,6 +178,9 @@ if err := otel.ApplyDefaults(opts, &opts.ClientOptions, otel.Options{}); err != 
 
 By default, telemetry is sent to `localhost:4317`, which is the ADOT Lambda layer's default collector endpoint.
 
+- The service name falls back to `Options.ServiceName`, `OTEL_SERVICE_NAME`, `AWS_LAMBDA_FUNCTION_NAME`, then `temporal-lambda-worker`.
+- `Options.MetricExportInterval` defaults to 10 seconds.
+
 Attach the ADOT Collector layer to your Lambda function.
 Go does not need a language-specific ADOT layer because the OTel SDK is compiled into the binary.
 

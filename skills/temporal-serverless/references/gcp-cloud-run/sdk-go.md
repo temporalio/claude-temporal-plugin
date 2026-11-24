@@ -1,7 +1,7 @@
 # Go SDK on GCP Cloud Run
 
 
-Use this reference for Go-specific Worker construction, versioning behavior, connection configuration, image packaging, and scale-in safety. For shared Cloud Run execution constraints, deployment lifecycle, permissions, versioning, observability, and diagnostics, see `constraints.md`, `setup.md`, `iam.md`, `versioning.md`, `observability.md`, and `diagnostics.md`. Scoping (Namespace, GCP project, region), the API-key hand-off, IAM, registration, and verification are the same for every SDK and are defined once in `SKILL.md` and `setup.md`; do not vary them per SDK. This guide's sample is one Workflow that takes a string and returns `Hello, <name>!`, which is what `setup.md` Step 8 verifies.
+Use this reference for Go-specific Worker construction, versioning behavior, connection configuration, image packaging, and scale-in safety. For shared Cloud Run execution constraints, deployment lifecycle, permissions, versioning, observability, and diagnostics, see `constraints.md`, `setup.md`, `iam.md`, `versioning.md`, `observability.md`, and `diagnostics.md`. Scoping (Namespace, GCP project, region), the API-key hand-offs, IAM, registration, and verification are the same for every SDK and are defined once in `SKILL.md` and `setup.md`; do not vary them per SDK. This guide's sample is one Workflow that takes a string and returns `Hello, <name>!`, which is what `setup.md` Step 8 verifies.
 
 ## Install and scaffold
 
@@ -250,4 +250,9 @@ if runErr != nil {
 }
 ```
 
-Add `context` and import `go.temporal.io/sdk/contrib/gcp/cloudrun/otel`. The helper defaults to the local OTLP/gRPC Collector endpoint. Use the multi-container topology, IAM, and shutdown order in `observability.md`; do not add the plugin unless that Collector path is enabled. The [samples-go Cloud Run sample](https://github.com/temporalio/samples-go/tree/main/gcp/cloudrun) shows the plugin wiring and the Collector configuration; it runs an unversioned Worker, so take versioning and the shutdown budget from this guide.
+Add `context` and import `go.temporal.io/sdk/contrib/gcp/cloudrun/otel`. The helper defaults to the local OTLP/gRPC Collector endpoint.
+
+- Metrics export every 60 seconds by default. Change it with `PluginOptions.MetricExportInterval`.
+- The service name falls back to `PluginOptions.ServiceName`, `OTEL_SERVICE_NAME`, `CLOUD_RUN_WORKER_POOL`, `K_SERVICE`, then `temporal-worker`.
+
+Use the multi-container topology, IAM, and shutdown order in `observability.md`; do not add the plugin unless that Collector path is enabled. The [samples-go Cloud Run sample](https://github.com/temporalio/samples-go/tree/main/gcp/cloudrun) shows the plugin wiring and the Collector configuration; it runs an unversioned Worker, so take versioning and the shutdown budget from this guide.

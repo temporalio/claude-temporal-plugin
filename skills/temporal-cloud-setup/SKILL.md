@@ -1,6 +1,6 @@
 ---
 name: temporal-cloud-setup
-description: Set up Temporal Cloud and run a sample Workflow on it for the user, doing the work end to end. Use when the user wants to set up Temporal Cloud, get started on Temporal Cloud, install the unified Temporal CLI (prerelease cloud-cli), create a Cloud namespace or API key, clone a money-transfer sample app, write the client config TOML, or connect a local Worker to Temporal Cloud and run a sample Workflow. This is the Cloud setup path, not the local learning path (see temporal-getting-started). Covers Python, TypeScript, Go, Java, .NET, and Ruby SDKs.
+description: Set up Temporal Cloud and run a sample Workflow on it for the user, doing the work end to end. Use when the user wants to set up Temporal Cloud, get started on Temporal Cloud, install the unified Temporal CLI (prerelease cloud-cli), create a Cloud namespace or API key, clone a money-transfer sample app, write the client config TOML, or connect a local Worker to Temporal Cloud and run a sample Workflow. This is the Cloud setup path, not the local learning path (see temporal-getting-started). Covers Python, TypeScript, Go, Java, .NET, Ruby, and Rust SDKs.
 disable-model-invocation: true
 ---
 
@@ -79,7 +79,7 @@ The whole run in order. Tier legend (full mechanics in the output contract above
 | 11 | 2 | Create key + save config | DISCLOSE | `create-key --handle --address` | `key_id` (token never printed) | `key-empty`,`key-limit-reached`,`no-json-parser`,`manual-key-needed` |
 | 12 | 2 | Verify config | DISCLOSE | `verify-config` | — | `profile-missing` |
 | 13 | 3 | Await auth | DISCLOSE | `await-auth` | `auth_ready` | `auth-timeout`,`key-expired` |
-| 14 | 3 | Run the Workflow | **GO-AHEAD** | `run-workflow --sdk --dir` | `workflow_status`,`workflow_id`,`run_id` | `worker-unauthorized`,`worker-not-polling`,`worker-start-failed`,`workflow-failed`,`workflow-not-submitted`,`workflow-timeout`,`precompile-failed` |
+| 14 | 3 | Run the Workflow | **GO-AHEAD** | `run-workflow --sdk --dir` | `workflow_status`,`workflow_id`,`run_id` | `worker-unauthorized`,`worker-not-polling`,`worker-start-failed`,`workflow-failed`,`workflow-not-submitted`,`workflow-timeout`,`precompile-failed`,`missing-protoc` |
 | 15 | 4 | Inject failure + recover | **GO-AHEAD** | `run-workflow … --demo-failure transient` | same as 14 | same as 14 |
 
 Phase bodies below add only the human nuance the table can't (region-pick guardrails, KeyId-vs-secret labeling, the result links). The exact command of any step comes from its gate — render it from the `‹sub›` template in §Gate templates (slots filled), don't hand-write it.
@@ -139,7 +139,7 @@ This setup runs real commands that **create billable Cloud resources and install
 
 ```bash
 # install the prerelease Temporal CLI via Homebrew (adds software to your machine)
-brew install temporalio/prerelease/temporal-cloud
+brew install temporalio/brew/temporal-cloud
 ```
 ````
 
@@ -226,6 +226,7 @@ Source of truth = `scripts/provision.sh`. Keyed by `‹sdk›` (and `‹manager�
 | java | https://github.com/temporalio/money-transfer-project-java | java | MONEY_TRANSFER_TASK_QUEUE |
 | dotnet | https://github.com/temporalio/money-transfer-project-template-dotnet | dotnet | MONEY_TRANSFER_TASK_QUEUE |
 | ruby | https://github.com/temporalio/money-transfer-project-template-ruby | ruby | money-transfer |
+| rust | https://github.com/temporalio/money-transfer-project-rust | rustc | TRANSFER_MONEY_TASK_QUEUE |
 
 `‹clone-dir›` default (repo basename) = the trailing path segment of `‹repo-url›` (e.g. python → `money-transfer-project-template-python`, java → `money-transfer-project-java`).
 
@@ -239,8 +240,9 @@ Source of truth = `scripts/provision.sh`. Keyed by `‹sdk›` (and `‹manager�
 | java | maven | mvn |
 | dotnet | dotnet | dotnet |
 | ruby | bundler | bundle |
+| rust | cargo | cargo protoc |
 
-(manager → its probe binary: pip→python3, uv→uv, npm→npm, pnpm→pnpm, yarn→yarn, go→go, maven→mvn, dotnet→dotnet, bundler→bundle. `‹probe-bins›` for an SDK is the space-joined probe binaries of all its managers, in the order above.)
+(manager → its probe binary: pip→python3, uv→uv, npm→npm, pnpm→pnpm, yarn→yarn, go→go, maven→mvn, dotnet→dotnet, bundler→bundle, cargo→cargo. `‹probe-bins›` for an SDK is the space-joined probe binaries of all its managers, in the order above, followed by any build-time prerequisites — Rust adds `protoc`, which its SDK needs to compile.)
 
 **`‹install-cmd›`** (keyed by `‹sdk›`/`‹manager›`):
 
@@ -255,6 +257,7 @@ Source of truth = `scripts/provision.sh`. Keyed by `‹sdk›` (and `‹manager�
 | java/maven | `mvn -q -DskipTests dependency:resolve` |
 | dotnet/dotnet | `dotnet restore` |
 | ruby/bundler | `bundle install` |
+| rust/cargo | `cargo fetch` |
 
 **`‹worker-cmd›` / `‹starter-cmd›`** (keyed by `‹sdk›`):
 
@@ -266,8 +269,9 @@ Source of truth = `scripts/provision.sh`. Keyed by `‹sdk›` (and `‹manager�
 | java | `mvn -q compile exec:java -Dexec.mainClass=moneytransferapp.MoneyTransferWorker -Dorg.slf4j.simpleLogger.defaultLogLevel=warn` | `mvn -q compile exec:java -Dexec.mainClass=moneytransferapp.TransferApp -Dorg.slf4j.simpleLogger.defaultLogLevel=warn` |
 | dotnet | `dotnet run --project MoneyTransferWorker` | `dotnet run --project MoneyTransferClient` |
 | ruby | `ruby worker.rb` | `ruby starter.rb` |
+| rust | `cargo run -q --bin worker` | `cargo run -q --bin starter` |
 
-The scaffold install-comment also varies by where deps land — keep the comment exactly as the template shows for that `‹sdk›`/`‹manager›` (python/ts say "inside the repo"; go/java/dotnet/ruby say "GLOBAL, outside the repo …"). The worked example and templates below carry the right wording per SDK; for non-python SDKs use the install comment from `scripts/provision.sh preview scaffold --sdk ‹sdk›` if you ever need to re-verify it (maintenance only).
+The scaffold install-comment also varies by where deps land — keep the comment exactly as the template shows for that `‹sdk›`/`‹manager›` (python/ts say "inside the repo"; go/java/dotnet/ruby/rust say "GLOBAL, outside the repo …"). The worked example and templates below carry the right wording per SDK; for non-python SDKs use the install comment from `scripts/provision.sh preview scaffold --sdk ‹sdk›` if you ever need to re-verify it (maintenance only).
 
 ### Templates
 
@@ -309,7 +313,7 @@ command -v ‹probe-bins›
 
 ```bash
 # install the Temporal CLI via Homebrew (adds software)
-brew install temporalio/prerelease/temporal-cloud
+brew install temporalio/brew/temporal-cloud
 ```
 ````
 
@@ -320,11 +324,11 @@ brew install temporalio/prerelease/temporal-cloud
 
 ```bash
 # BETA: the prerelease CLI has no real versions yet, so always pull the latest (adds/updates software)
-brew upgrade temporalio/prerelease/temporal-cloud
+brew upgrade temporalio/brew/temporal-cloud
 ```
 ````
 
-**Phase 1 — `install-cli` (already installed, non-macOS — render this variant when the CLI is present and you're not on macOS; there's no prerelease tap to upgrade from):**
+**Phase 1 — `install-cli` (already installed, non-macOS — render this variant when the CLI is present and you're not on macOS; there's no Homebrew tap to upgrade from):**
 
 ````
 **Updating the Temporal CLI to the latest**
@@ -395,7 +399,7 @@ git clone --branch money-transfer-project-cloud-setup --single-branch ‹repo-ur
 ```
 ````
 
-`‹install-location-note›` per SDK (keep verbatim): python = `into a local venv (env/) inside the repo` · ts = `into node_modules inside the repo` · go = `into the shared Go module cache - GLOBAL, outside the repo (~/go/pkg/mod)` · java = `into the shared Maven cache - GLOBAL, outside the repo (~/.m2)` · dotnet = `into the global NuGet cache - GLOBAL, outside the repo (~/.nuget/packages)` · ruby = `into globally-installed gems - GLOBAL, outside the repo`.
+`‹install-location-note›` per SDK (keep verbatim): python = `into a local venv (env/) inside the repo` · ts = `into node_modules inside the repo` · go = `into the shared Go module cache - GLOBAL, outside the repo (~/go/pkg/mod)` · java = `into the shared Maven cache - GLOBAL, outside the repo (~/.m2)` · dotnet = `into the global NuGet cache - GLOBAL, outside the repo (~/.nuget/packages)` · ruby = `into globally-installed gems - GLOBAL, outside the repo` · rust = `into the shared Cargo registry - GLOBAL, outside the repo (~/.cargo/registry)`.
 
 **Phase 2 — `await-namespace`** (static):
 
@@ -567,22 +571,23 @@ Phase 4 — See Durable Execution: inject a failure · watch Temporal retry & re
 
 Step checklist: `SDK chosen` · `Tools detected` · `CLI installed` · `Signed in` · `Region chosen`.
 
-**Step — Choose your SDK** (genuine input, not a checkpoint): present the six as a **numbered list** (numbered list, runtime-agnostic) — Python, Go, TypeScript, Java, .NET, Ruby — and take a typed name/number. This selects which repo is cloned and the language of the local app. Echo the resolved profile line (`Setting up for: macOS · Python SDK`) once answered.
+**Step — Choose your SDK** (genuine input, not a checkpoint): present the seven as a **numbered list** (numbered list, runtime-agnostic) — Python, Go, TypeScript, Java, .NET, Ruby, Rust — and take a typed name/number. This selects which repo is cloned and the language of the local app. Echo the resolved profile line (`Setting up for: macOS · Python SDK`) once answered.
 
 Right after the SDK pick, the **preflight** check (DISCLOSE — render, then run): render its gate from the `preflight` template (§Gate templates), then run `scripts/provision.sh preflight --sdk <sdk>`. Note its `cli_installed` flag — it drives whether the Install-CLI step below installs (absent) or updates the existing CLI (present). If its `stray_env` lists any `TEMPORAL_*` vars, tell the user they override the saved profile and ask them to unset them before continuing; surface other `warnings` (e.g. `brew-missing`, `no-json-parser`) only if they block a later step.
 
 **Step — Detect local tools + choose your package manager** (DISCLOSE — render, then run). Render its gate from the `detect-tools` template (§Gate templates), then run `scripts/provision.sh detect-tools --sdk <sdk>` and read its RESULT. This adapts the setup to the user's machine, and it surfaces tooling problems **early** (here in Phase 1) instead of deep in Phase 2/3.
 
-- **Package manager (Python & TypeScript only).** `managers` is the set of package managers **this sample supports** for the chosen SDK. When it lists more than one, ask **which of the sample-supported managers to use** — frame it that way ("the sample supports these — which should we use?"), **not** as "here's what's installed on your machine." Present them as a **numbered list** (runtime-agnostic) with the `default` marked — e.g. Python `1. pip (default)` / `2. uv`; TypeScript `1. npm (default)` / `2. pnpm` / `3. yarn`. The user confirms the default or overrides; carry the choice into Phase 2 as `scaffold --manager <m>`. **This is a question — ask it alone and wait for the answer; do not disclose install-cli or sign-in in the same message** (see "One step at a time"). For **Go / Java / .NET / Ruby** the sample has a single toolchain — state it (`Using: maven`) and **skip the prompt**.
+- **Package manager (Python & TypeScript only).** `managers` is the set of package managers **this sample supports** for the chosen SDK. When it lists more than one, ask **which of the sample-supported managers to use** — frame it that way ("the sample supports these — which should we use?"), **not** as "here's what's installed on your machine." Present them as a **numbered list** (runtime-agnostic) with the `default` marked — e.g. Python `1. pip (default)` / `2. uv`; TypeScript `1. npm (default)` / `2. pnpm` / `3. yarn`. The user confirms the default or overrides; carry the choice into Phase 2 as `scaffold --manager <m>`. **This is a question — ask it alone and wait for the answer; do not disclose install-cli or sign-in in the same message** (see "One step at a time"). For **Go / Java / .NET / Ruby / Rust** the sample has a single toolchain — state it (`Using: maven`) and **skip the prompt**.
 - **Surface `discrepancies` HERE (fail-early), plain language:**
   - `version-too-old:<tool>@<have>(min<min>)` — an **advisory** warning with remediation (e.g. *"Node 16 detected; 18+ recommended — consider upgrading, but I can proceed"*). Not a hard stop.
   - `tool-missing:<runtime>` / `manager-not-found:<m>` — the runtime or chosen manager isn't installed. Offer another **sample-supported** manager from `managers`, or ask the user to install the tool, then re-run `detect-tools`.
+  - `tool-missing:protoc` (Rust only) — the Rust SDK compiles protobufs at build time, so the run would fail late without it. Ask the user to install it (macOS `brew install protobuf`; Debian/Ubuntu `sudo apt-get install protobuf-compiler`), then re-run `detect-tools` — **before** any namespace or key is created.
 - The default proposal is **deterministic** — the same machine yields the same default every run; nothing is persisted (no state file).
 
 **Step — Install or update the unified Temporal CLI** (DISCLOSE — render, then run). It ships the `temporal cloud` command group (binary `temporal-cloud`). **Branch on preflight's `cli_installed`** (it used the same `temporal cloud` probe the installer does, so it's authoritative — don't re-check by calling `install-cli` just to confirm):
 
-- **`cli_installed=true` → update it to the latest.** Render its gate from the `install-cli` (already-installed) template (§Gate templates), then run `scripts/provision.sh install-cli`. **BETA stopgap:** the prerelease CLI has no meaningful version numbers yet, so instead of a real "is it out of date?" check we always try to pull the latest from the `temporalio/prerelease` Homebrew tap; `install-cli` returns `status=ok` with `update`=`updated`/`up-to-date`. When it can't update — Homebrew missing, or a non-macOS host — it emits `update=skipped` and proceeds with the working CLI rather than failing (never yank a working install). Once the CLI ships real versions this becomes a genuine version check; we no longer skip a present CLI.
-- **`cli_installed=false` → install it.** Render its gate from the `install-cli` (not-installed) template (§Gate templates), then run `scripts/provision.sh install-cli`. It installs via the `temporalio/prerelease` Homebrew tap on macOS, and returns `error_code=brew-missing` / `manual-install` with the fallback URL if it can't — do not auto-install Homebrew; relay the message and wait. (`install-cli` self-checks presence, so if it's actually already there it updates instead of installing.)
+- **`cli_installed=true` → update it to the latest.** Render its gate from the `install-cli` (already-installed) template (§Gate templates), then run `scripts/provision.sh install-cli`. **BETA stopgap:** the prerelease CLI has no meaningful version numbers yet, so instead of a real "is it out of date?" check we always try to pull the latest from the `temporalio/brew` Homebrew tap; `install-cli` returns `status=ok` with `update`=`updated`/`up-to-date`. When it can't update — Homebrew missing, or a non-macOS host — it emits `update=skipped` and proceeds with the working CLI rather than failing (never yank a working install). Once the CLI ships real versions this becomes a genuine version check; we no longer skip a present CLI.
+- **`cli_installed=false` → install it.** Render its gate from the `install-cli` (not-installed) template (§Gate templates), then run `scripts/provision.sh install-cli`. It installs via the `temporalio/brew` Homebrew tap on macOS, and returns `error_code=brew-missing` / `manual-install` with the fallback URL if it can't — do not auto-install Homebrew; relay the message and wait. (`install-cli` self-checks presence, so if it's actually already there it updates instead of installing.)
 - (No prerelease disclaimer here — the ⚠️ notice at the top of the run already covers that.)
 
 This CLI is separate from any local `temporal server start-dev`. The Cloud path does not start a local server.
@@ -645,8 +650,9 @@ For reference, the per-SDK repo mapping (the script selects the right one):
 | Java       | `https://github.com/temporalio/money-transfer-project-java` |
 | .NET       | `https://github.com/temporalio/money-transfer-project-template-dotnet` |
 | Ruby       | `https://github.com/temporalio/money-transfer-project-template-ruby` |
+| Rust       | `https://github.com/temporalio/money-transfer-project-rust` |
 
-**How it connects (no edit needed):** all six SDKs load the **`cloud-setup`** profile from `temporal.toml` (env-config). The key step below writes it; nothing else is needed at run time.
+**How it connects (no edit needed):** all seven SDKs load the **`cloud-setup`** profile from `temporal.toml` (env-config). The key step below writes it; nothing else is needed at run time.
 
 **After `await-namespace` returns, go straight to the `create-key` step — no *phase checkpoint* between them, and don't re-print the checklist or tracker. But `create-key` still gets its own gate — its command is disclosed, then run (the user's permission prompt approves it, like every step); it mints your key *and* writes/replaces the `cloud-setup` profile in `temporal.toml`. The next checklist render is the completed one at the end of the phase.**
 
@@ -735,7 +741,7 @@ Step checklist: `Failure injected` · `Recovered & completed`.
 
 On `1`, run the inject step below; on `2`, answer the question and re-present. This is a genuine engagement point (genuine input, not a checkpoint), not a checkpoint.
 
-> The `DEMO_FAILURE` toggle is shipped on the `money-transfer-project-cloud-setup` branches (the deposit activity reads it), verified end-to-end on real Cloud for all six supported SDKs.
+> The `DEMO_FAILURE` toggle is shipped on the `money-transfer-project-cloud-setup` branches (the deposit activity reads it), verified end-to-end on real Cloud for all seven supported SDKs.
 
 **Step — Inject the failure.** The `1. Inject the failure` choice above is this step's go-ahead — so disclose, then run (don't add a second go-ahead prompt):
 
@@ -750,7 +756,7 @@ On `1`, run the inject step below; on `2`, answer the question and re-present. T
 
 - **Run it by hand, not through `run-workflow`** — `run-workflow` expects `COMPLETED` and would report a non-zero starter as `workflow-failed`.
 - **Terminal state differs by SDK** — narrate what the history actually shows, don't assert one outcome:
-  - Python / Go / TypeScript / .NET → **`FAILED`** (the original error propagates after the refund).
+  - Python / Go / TypeScript / .NET / Rust → **`FAILED`** (the original error propagates after the refund).
   - Java / Ruby → **`COMPLETED`** (their saga returns after compensating).
 
 There is **no checkpoint after Phase 4** — go straight to the Ending, whose Cloud-UI link is the recovered run's timeline page (`money-transfer-demo-recovery`).

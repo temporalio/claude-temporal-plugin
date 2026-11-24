@@ -18,13 +18,13 @@ Surface this to the user before installing, quoted verbatim:
 
 ## Install
 
-macOS (Homebrew, prerelease tap) — **confirm Homebrew is installed first** (`command -v brew`); if it is absent, do not auto-install it, point the user to https://brew.sh or use the download fallback below:
+macOS (Homebrew, `temporalio/brew` tap) — **confirm Homebrew is installed first** (`command -v brew`); if it is absent, do not auto-install it, point the user to https://brew.sh or use the download fallback below:
 
 ```bash
-command -v brew && brew install temporalio/prerelease/temporal-cloud
+command -v brew && brew install temporalio/brew/temporal-cloud
 ```
 
-The tap is `temporalio/prerelease`, but the formula/binary is named `temporal-cloud` (not `cloud-cli`). If `brew install temporalio/prerelease/cloud-cli` fails with a formula-not-found error, use `temporal-cloud` as shown above.
+The tap is `temporalio/brew` and the formula/binary is named `temporal-cloud` (not `cloud-cli`). It moved there from `temporalio/prerelease` on 2026-09-01; the old tap now only carries a `tap_migrations.json` redirect, and the fully qualified `temporalio/prerelease/temporal-cloud` no longer resolves (`No available formula or cask`).
 
 Other platforms: download the latest archive from
 https://github.com/temporalio/cloud-cli/releases/latest , extract, and put the

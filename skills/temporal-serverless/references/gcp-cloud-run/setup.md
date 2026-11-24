@@ -12,10 +12,10 @@ End-to-end: write a standard Worker, containerize it, push the image, create a W
 - `gcloud` CLI and `jq` installed; authenticate `gcloud` before the preflight. The Google Cloud console or Terraform also work.
 - **Terraform** installed — Temporal ships the IAM setup as a Terraform module.
 - A Temporal SDK supported by this skill: Go, Python, TypeScript, Java, or .NET.
-- A Temporal Cloud API key that can access the target Namespace. **The user creates it**, either in the Temporal Cloud UI under **Settings → API Keys** or by running `tcld apikey create --name <NAME> --duration <DURATION>` in their own terminal. Never run `tcld apikey create` from the agent's shell: it prints the new key. The command creates a key for the current user; add `--service-account-id <ID>` to create it for an existing service account instead. Prefer a service-account-owned key for shared or long-lived Workers and a short-lived user key for a personal test. The key is needed twice, in the operator's Temporal CLI profile and in the Worker's Secret Manager runtime secret; the [API-key hand-off](#hand-off-the-temporal-api-key) sets both from one read.
+- Two Temporal Cloud API keys that can access the target Namespace, one for each consumer. The **Worker's key** lives only in the Secret Manager runtime secret. The **operator's key** lives only in the operator's Temporal CLI profile. Both need the Namespace's Write permission, because polling Task Queues and changing Worker Deployment routing are both Write operations. Separate keys therefore do not reduce privilege; they let each key be rotated or revoked without breaking the other. **The user creates both keys**, either in the Temporal Cloud UI under **Settings → API Keys** or by running `tcld apikey create --name <NAME> --duration <DURATION>` in their own terminal. Never run `tcld apikey create` from the agent's shell: it prints the new key. The command creates a key for the current user; add `--service-account-id <ID>` to create it for an existing service account instead. For a shared or long-lived Worker, give the Worker's key to a service account scoped to this Namespace, which an account administrator creates with `tcld service-account create-scoped --name <NAME> --namespace-permission "<NAMESPACE>=Write"`, and let the operator use their own key. For a personal test, the user may enter one short-lived user key in both [hand-offs](#hand-off-the-temporal-api-keys); say that rotating or revoking it then breaks both.
 
 
-The `temporal` CLI commands in Steps 6–8 authenticate through a named CLI profile that the user creates during the [API-key hand-off](#hand-off-the-temporal-api-key). An exported variable in the user's terminal does not reach the agent's shell, so do not rely on `TEMPORAL_API_KEY` there. Never append `--api-key <value>` or put the key in an inline assignment. On macOS the default profile file is `~/Library/Application Support/temporalio/temporal.toml`. The examples below pass `--profile <PROFILE>` explicitly; omit it only when using a different already-configured authentication mechanism, including self-hosted mTLS.
+The `temporal` CLI commands in Steps 6–8 authenticate through a named CLI profile that holds the operator's key, written by the [operator hand-off](#hand-off-the-temporal-api-keys) or reused from an earlier deployment. An exported variable in the user's terminal does not reach the agent's shell, so do not rely on `TEMPORAL_API_KEY` there. Never append `--api-key <value>` or put the key in an inline assignment. On macOS the default profile file is `~/Library/Application Support/temporalio/temporal.toml`. The examples below pass `--profile <PROFILE>` explicitly; omit it only when using a different already-configured authentication mechanism, including self-hosted mTLS.
 
 **Use the endpoint Temporal Cloud shows for the Namespace.** Copy the gRPC endpoint from the Namespace page in the Cloud UI, or from `tcld namespace get --namespace <NAMESPACE>` when `tcld` is signed in: `.uri.grpc` is the Namespace endpoint and `.uri.regionalGrpc` the regional API endpoint. Both accept API-key authentication; prefer `.uri.grpc` unless the user already uses the regional one. Do not construct it from the Namespace name or region. Use the same value, written `<ENDPOINT>` below, for the CLI profile and for the pool's `TEMPORAL_ADDRESS`.
 
@@ -53,7 +53,7 @@ gcloud iam service-accounts create <RUNNER_SERVICE_ACCOUNT_ID> \
   --project <YOUR_GCP_PROJECT>
 ```
 
-Create the Secret Manager secret before deploying the pool. This creates only the secret; the key itself is added during the hand-off below:
+Create the Secret Manager secret before deploying the pool. This creates only the secret; the Worker's key is added during the hand-off below:
 
 ```bash
 gcloud secrets create <SECRET_NAME> \
@@ -61,16 +61,43 @@ gcloud secrets create <SECRET_NAME> \
   --project <YOUR_GCP_PROJECT>
 ```
 
-### Hand off the Temporal API key
+### Hand off the Temporal API keys
 
-The user runs this once, after the resource list is approved and the secret exists, **in their own interactive terminal**. It reads the key once, then writes both the CLI profile and the secret version. Do not run it through the agent's shell or a `!`-prefixed command: `read -s` needs a terminal, and the key would pass through the agent's session. Steps 1–3 and Step 5's Terraform need no key and can continue meanwhile. **Step 4 must wait:** the pool deploy fails until the secret has an `ENABLED` version.
+There are two hand-offs, and each reads one key. The **Worker hand-off** adds the Worker's key to the secret. The **operator hand-off** writes the operator's key to the CLI profile. Skip the operator hand-off when the operator already has a profile that authenticates to this Namespace; see [Reuse what already works](#reuse-what-already-works).
+
+The user runs each script after the resource list is approved and the secret exists, **in their own interactive terminal**. Do not run either through the agent's shell or a `!`-prefixed command: `read -s` needs a terminal, and the key would pass through the agent's session. Steps 1–3 and Step 5's Terraform need no key and can continue meanwhile. **Step 4 waits for the Worker hand-off:** the pool deploy fails until the secret has an `ENABLED` version. **Step 6 waits for the operator's profile.**
+
+Worker hand-off:
 
 ```bash
 (
   if [ ! -t 0 ]; then
     printf 'Run this in an interactive terminal; nothing was changed\n' >&2; exit 1
   fi
-  printf 'Temporal API key: ' >&2
+  printf 'Worker API key: ' >&2
+  IFS= read -r -s key
+  printf '\nlen=%s\n' "${#key}" >&2
+  dots=${key//[^.]/}
+  if [ "${#dots}" -ne 2 ]; then
+    printf 'Expected a JWT-shaped key with two dots; nothing was changed\n' >&2; exit 1
+  fi
+  printf %s "$key" | gcloud secrets versions add <SECRET_NAME> \
+    --data-file=- --project <YOUR_GCP_PROJECT>
+)
+```
+
+Operator hand-off:
+
+Before preparing the script, run `temporal config list` and record whether `<PROFILE>` already exists. For a new setup or shared-key migration, choose an unused name. Update an existing profile only when the user is intentionally rotating that profile's key; record it as modified so teardown preserves it.
+
+The script below creates a new profile. When preparing a script to rotate an existing profile's key, omit the two `config set` commands for `address` and `namespace`; retain its connection settings and write only `api_key`.
+
+```bash
+(
+  if [ ! -t 0 ]; then
+    printf 'Run this in an interactive terminal; nothing was changed\n' >&2; exit 1
+  fi
+  printf 'Operator API key: ' >&2
   IFS= read -r -s key
   printf '\nlen=%s\n' "${#key}" >&2
   dots=${key//[^.]/}
@@ -79,23 +106,21 @@ The user runs this once, after the resource list is approved and the secret exis
   fi
   temporal --profile <PROFILE> config set --prop address --value "<ENDPOINT>" &&
   temporal --profile <PROFILE> config set --prop namespace --value "<NAMESPACE>" &&
-  temporal --profile <PROFILE> config set --prop api_key --value "$key" &&
-  printf %s "$key" | gcloud secrets versions add <SECRET_NAME> \
-    --data-file=- --project <YOUR_GCP_PROJECT>
+  temporal --profile <PROFILE> config set --prop api_key --value "$key"
 )
 ```
 
-The parentheses run the script in a subshell, so the key does not stay in the user's shell afterwards. The key is piped with `printf %s` because `gcloud` stores standard input byte for byte: pasting it, pressing Enter, and sending EOF would store a trailing newline and corrupt the credential. `temporal config set` has no standard-input option, so the key is briefly visible in the process list while that command runs; on a shared machine, say so before the user runs it.
+The parentheses run each script in a subshell, so the key does not stay in the user's shell afterwards. The Worker's key is piped with `printf %s` because `gcloud` stores standard input byte for byte: pasting it, pressing Enter, and sending EOF would store a trailing newline and corrupt the credential. `temporal config set` has no standard-input option, so the operator's key is briefly visible in the process list while that command runs; on a shared machine, say so before the user runs it.
 
-**Make the hand-off impossible to miss; it is the same for every SDK.** Write the script above to a file outside the app directory, with every placeholder filled in, such as `<WORK_DIR>/<PREFIX>-handoff.sh`. It contains no key. Then end your turn with the user's action first:
+**Make the hand-offs impossible to miss; they are the same for every SDK.** Write each script to its own file outside the app directory and outside any repository, with every placeholder filled in, such as `<WORK_DIR>/<PREFIX>-worker-key.sh` and `<WORK_DIR>/<PREFIX>-operator-profile.sh`. Neither contains a key. Then end your turn with the user's action first:
 
 1. One line saying the run is waiting on them.
-2. The file's absolute path as plain text, and the one command to run it in their own terminal: `bash <ABSOLUTE_PATH>`.
-3. What to reply when it finishes.
+2. Each file's absolute path as plain text, Worker hand-off first, and the one command to run it in their own terminal: `bash <ABSOLUTE_PATH>`. Say which key each one asks for.
+3. What to reply when they finish.
 
-Put status, checklists, and notes after that. Never point back to "the script above": whenever the run is still blocked on the hand-off, repeat these steps in full. When the user replies, verify with the commands below rather than trusting the reply.
+Put status, checklists, and notes after that. Never point back to "the script above": whenever the run is still blocked on a hand-off, repeat these steps in full. When the user replies, verify with the commands below rather than trusting the reply.
 
-Then verify without reading the key back. The agent may run these:
+Then verify without reading either key back. The agent may run these:
 
 ```bash
 temporal --profile <PROFILE> config get --prop address
@@ -105,9 +130,9 @@ gcloud secrets versions list <SECRET_NAME> --project <YOUR_GCP_PROJECT> \
   --format='table(name,state,createTime)'
 ```
 
-Never read back `api_key` with `temporal config get`, and never run `gcloud secrets versions access`. The `worker deployment list` call proves the profile authenticates to the Namespace. Expect exactly one `ENABLED` secret version. If the hand-off ran more than once, keep the newest version, confirm the pool uses `latest`, and disable the older ones with `gcloud secrets versions disable <VERSION> --secret <SECRET_NAME> --project <YOUR_GCP_PROJECT>`. Secret versions are immutable: replace a bad one by adding a correct version, never by editing it.
+Never read back `api_key` with `temporal config get`, and never run `gcloud secrets versions access`. The `worker deployment list` call proves the profile authenticates to the Namespace. Expect the newest secret version to be `ENABLED`. Secret versions are immutable: replace a bad one by adding a correct version, never by editing it.
 
-**Check the Temporal-side names now.** The CLI profile did not exist at approval time, so this is the first point at which the deployment name can be checked:
+**Check the Temporal-side names now.** If the profile is new, it did not exist at approval time, so this is the first chance to check the deployment name:
 
 ```bash
 temporal --profile <PROFILE> worker deployment describe --namespace <NAMESPACE> --name <DEPLOYMENT_NAME>
@@ -115,7 +140,13 @@ temporal --profile <PROFILE> worker deployment describe --namespace <NAMESPACE> 
 
 It should report that the deployment does not exist. If it exists, stop and agree a new name with the user before Step 6.
 
-**If the user already has a CLI profile and a secret**, for example from an earlier deployment, reuse them instead of running the hand-off. Confirm the profile with the read-back commands above, always passing `--namespace`: a profile's stored Namespace can differ from the target. Confirm the secret has an `ENABLED` version with `gcloud secrets versions list`, then ask the user to confirm that it holds the same key as the profile; you must not read either value. Record a reused secret as shared, so teardown keeps it.
+#### Reuse what already works
+
+**An existing CLI profile.** If the operator already has a profile for this Namespace, for example from an earlier deployment, skip the operator hand-off, but only after the user confirms that the profile's key is not also stored in a secret. A profile written together with a secret from a single key shares that key with every pool that mounts the secret, so rotating or revoking it breaks them. If the user cannot confirm, run the operator hand-off with a new key; you must not read either value to compare them. Confirm the profile with the read-back commands above, always passing `--namespace`: a profile's stored Namespace can differ from the target.
+
+**A profile and a secret written from one key.** Give the operator a key of their own: run the operator hand-off with a new key, then confirm `temporal --profile <PROFILE> worker deployment list --namespace <NAMESPACE>` works. Keep the old key enabled, because the Workers still use it, and retire it only by [rotating the Worker's key](#rotate-the-temporal-api-keys).
+
+**An existing secret.** Reuse a secret only when the user confirms that it holds a key meant for Workers; you must not read it. Do not reuse a secret that holds the operator's own key; run the Worker hand-off into a new secret instead. Confirm a reused secret has an `ENABLED` version with `gcloud secrets versions list`, and record it as shared, so teardown keeps it.
 
 Grant only the runner access to that secret. First check whether it already has access, and record the answer in the inventory: teardown removes only a binding this deployment added. This prints the member and exits `0` when the binding already exists:
 
@@ -239,7 +270,7 @@ Require the `Ready` condition to be true and the revision digest to match the re
 
 Cloud Run has no invocation grant. Temporal **impersonates an invoker service account** and drives the Cloud Run admin API. Create it with Temporal's Terraform module — the Cloud UI supplies a filled-in template under **Workers → Create Worker Deployment → Access**. → `iam.md` for the module, its variables, and the two-service-account distinction.
 
-Terraform's `invoker_email` output is what Step 6 needs.
+Terraform's `invoker_email` output is what Step 6 needs. The module covers the invoker's IAM only; create pools with `gcloud` as in Step 4 unless the user asks to manage them in Terraform → [`versioning.md`](versioning.md#managing-pools-with-terraform).
 
 **Wait for IAM propagation before Step 6.** The module's `serviceAccountTokenCreator` grants take time to reach Temporal's impersonation path. A `create-version` issued before they propagate is rejected with a 403 on `iam.serviceAccounts.getAccessToken`. Rely on the read-back in Step 6 rather than on the clock; on that rejection, wait a few minutes, then retry once. → `iam.md`.
 
@@ -308,7 +339,7 @@ gcloud run worker-pools describe my-temporal-worker-pool-build-1 \
   --region <REGION> --project <YOUR_GCP_PROJECT> --format=yaml
 ```
 
-In the pool's `metadata.annotations`, `serving.knative.dev/lastModifier` should show the invoker service account after the WCI updates the pool. That proves only that Temporal wrote the requested pool size; it does not prove that the intended image started or that the Worker bound the Task Queue. Confirm the pool's deployed digest and a Worker startup log that announces the expected deployment name, build ID, and Task Queue. → `diagnostics.md`.
+At first registration, the pool's `metadata.annotations` `serving.knative.dev/lastModifier` should show the invoker service account after the WCI updates the pool. That proves only that Temporal wrote the requested pool size; it does not prove that the intended image started or that the Worker bound the Task Queue. Confirm the pool's deployed digest and a Worker startup log that announces the expected deployment name, build ID, and Task Queue. The startup log and `lastModifier` are first-registration evidence: logs age out, and any later update replaces `lastModifier`, which is informational from then on. For an existing version, use the binding check, the deployed digest, and the audit. → `diagnostics.md`.
 
 ## Step 7: Set the version current
 
@@ -326,7 +357,7 @@ temporal --profile <PROFILE> worker deployment describe \
            and .routingConfig.currentVersionBuildID == "build-1"'
 ```
 
-CLI v1.8.2 reports the current version under these field names.
+CLI v1.8.2 reports the current version under these field names. A ramping version appears in the same object as `rampingVersionDeploymentName`, `rampingVersionBuildID`, and `rampingVersionPercentage`, which are empty strings and `0` when no version is ramping.
 
 ## Step 8: Verify
 
@@ -350,9 +381,29 @@ Confirm from two independent signals:
 - **Temporal** — Task completions in the Workflow's event history.
 - **Cloud Run** — pool logs showing Worker startup and Task processing, read with the [pool log query](diagnostics.md#read-the-pool-logs). **A scaled-to-zero pool emits no new logs.**
 
+## Rotate the Temporal API keys
+
+Rotate each key on its own schedule, by overlap: the user creates the new key, its consumer switches to it, you confirm the consumer works, and only then is the old key disabled, with the user's approval, and later deleted. Never revoke the old key first. For a key shared by the operator and Workers, follow the [shared-key migration](#reuse-what-already-works) and verify both consumers before disabling it. <!-- https://docs.temporal.io/cloud/api-keys -->
+
+- **The operator's key.** Run the [operator hand-off](#hand-off-the-temporal-api-keys) with the new key, then confirm with `temporal --profile <PROFILE> worker deployment list --namespace <NAMESPACE>`.
+- **The Worker's key.** Run the [Worker hand-off](#hand-off-the-temporal-api-keys), which adds a new secret version. Cloud Run reads the secret when an instance starts, so running instances keep the old key. Before the old key is disabled: <!-- https://docs.cloud.google.com/run/docs/configuring/workerpools/secrets -->
+  - List every pool that mounts the secret, in every region the project uses, with the command below. Record the new secret version's `createTime` from the secret-version listing above.
+  - Confirm from each pool's logs, with the [pool log query](diagnostics.md#read-the-pool-logs), that every instance started before that `createTime` has shut down, including idle pools. Extend the query's time range to include those instances' startup lines, and increase or remove its result limit. Match startup and shutdown evidence for each instance; a missing startup or shutdown line is unconfirmed, not proof that no old instance exists. A requested instance count of `0` does not show they stopped.
+  - Only after confirming the old instances have stopped, test the new key. Confirm each pool references `:latest` or the new secret version. Start a Workflow on this deployment's Task Queue and confirm it completes. Correlate its Task history with per-instance pool logs to verify execution by a Worker started after `createTime`; Worker identity alone does not establish that mapping. The absence of authentication errors does not prove the new key works. For other listed pools, confirm successful Task processing by a new Worker with that deployment's owner, including access to its Namespace (`TEMPORAL_NAMESPACE`).
+
+  If any of these cannot be confirmed, keep the old key enabled and report the rotation as incomplete. Disabling a secret version only stops new reads of it; revoking the key in Temporal Cloud is what ends its use. Never disable the newest secret version.
+
+  ```bash
+  gcloud run worker-pools list --region <REGION> --project <YOUR_GCP_PROJECT> --format=json \
+    | jq -r --arg s '<SECRET_NAME>' '.[]
+        | select([.. | objects | .secretKeyRef? // empty | (.name // .secret // "")]
+                 | any(. == $s or endswith("/secrets/" + $s)))
+        | .metadata.name // .name'
+  ```
+
 ## Teardown
 
-Record what you create as you go: project and region; the Artifact Registry repository, image tag and digest; the pool name; the runner and invoker service accounts, and whether this run created each; whether this run added the runner's secret-access binding; the Terraform state directory; the secret and its versions, and whether it is shared; the deployment name, build ID, and Task Queue; the local CLI profile name; and who created the Temporal API key.
+Record what you create as you go: project and region; the Artifact Registry repository, image tag and digest; the pool name; the runner and invoker service accounts, and whether this run created each; whether this run added the runner's secret-access binding; the Terraform state directory; the secret and its versions, and whether it is shared; the deployment name, build ID, and Task Queue; the local CLI profile name, and whether this run created it or modified an existing one; and, for each Temporal API key, who created it, which user or service account owns it, and whether it is the Worker's, the operator's, or both.
 
 Scale the pool to zero before deleting the version so its pollers stop without destroying the pool prematurely.
 
@@ -404,6 +455,6 @@ Scale the pool to zero before deleting the version so its pollers stop without d
      ```
 
    Keep any binding or runner the inventory does not attribute to this run.
-7. Delete the container image from Artifact Registry, and any Secret Manager secret this run created that no other deployment uses; keep a reused or shared secret. Delete the Artifact Registry repository too if this run created it. Ask before revoking a Temporal Cloud API key: it is account-scoped, not deployment-scoped. Once nothing else uses the local CLI profile, remove it with `temporal config delete-profile --profile <PROFILE>`.
+7. Delete the container image from Artifact Registry, and any Secret Manager secret this run created that no other deployment uses; keep a reused or shared secret. Delete the Artifact Registry repository too if this run created it. Ask before revoking either Temporal Cloud API key: a key is account-scoped, not deployment-scoped, and the Worker's key may also be mounted by another pool. List those pools as in [Rotate the Temporal API keys](#rotate-the-temporal-api-keys) first. Once nothing else uses the local CLI profile, and only if this run created it, remove it with `temporal config delete-profile --profile <PROFILE>`; keep a profile this run only modified.
 
 Confirm each deletion with a list command rather than `describe`: a recently deleted service account can return `PERMISSION_DENIED` from `describe` instead of `NOT_FOUND`. For example, `gcloud iam service-accounts list --project <YOUR_GCP_PROJECT> --filter='email:<EMAIL>' --format='value(email)'` prints nothing once the account is gone.

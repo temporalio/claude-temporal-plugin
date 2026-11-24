@@ -1,5 +1,22 @@
 # .NET SDK Advanced Features
 
+## DNS Load Balancing
+
+Set `DnsLoadBalancing` on your Temporal connection options to distribute RPCs across the addresses for your server hostname. When enabled, Core refreshes the addresses every 30 seconds by default.
+
+```csharp
+using Temporalio.Client;
+
+var client = await TemporalClient.ConnectAsync(new TemporalClientConnectOptions
+{
+    TargetHost = "temporal.internal:7233",
+    Namespace = "default",
+    DnsLoadBalancing = new DnsLoadBalancingOptions(),
+});
+```
+
+Set `DnsLoadBalancingOptions.ResolutionInterval` to a `TimeSpan` to change the refresh interval. Setting `HttpConnectProxy` disables DNS load balancing.
+
 ## Schedules
 
 Create recurring workflow executions.
@@ -29,6 +46,22 @@ await handle.UnpauseAsync();
 await handle.TriggerAsync(); // Run immediately
 await handle.DeleteAsync();
 ```
+
+## Record Local Activity arguments in Event History
+
+Set `LocalActivityOptions.IncludeArgumentsInMarker` when calling `Workflow.ExecuteLocalActivityAsync` to record the serialized inputs alongside the Local Activity outcome.
+
+```csharp
+var greeting = await Workflow.ExecuteLocalActivityAsync(
+    (GreetingActivities a) => a.Greet(name),
+    new LocalActivityOptions
+    {
+        StartToCloseTimeout = TimeSpan.FromSeconds(5),
+        IncludeArgumentsInMarker = true,
+    });
+```
+
+In the Workflow Event History, inspect the `input` entry under the Local Activity's `MarkerRecorded` event details. The option defaults to `false`. Enabling it increases history size and makes the serialized inputs available to anyone who can read the history.
 
 ## Async Activity Completion
 
@@ -201,3 +234,7 @@ public class MyActivities
 ```
 
 **Note:** Dependency injection is NOT available in workflows — workflows must be self-contained for determinism.
+
+## Experimental Workflow Streams and Event Groups
+
+SDK 1.20+ provides `Temporalio.Extensions.WorkflowStreams` for durable batched publish/subscribe streams hosted by Workflows. SDK 1.21+ adds Event Groups through `Workflow.CreateEventGroup` and `Workflow.WithEventGroups` to associate related history events. Both are Experimental; inform the user before using them and consult the [1.20 release](https://github.com/temporalio/sdk-dotnet/releases/tag/1.20.0) and [1.21 release](https://github.com/temporalio/sdk-dotnet/releases/tag/1.21.0) for setup and compatibility.

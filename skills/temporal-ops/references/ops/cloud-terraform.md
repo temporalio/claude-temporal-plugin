@@ -54,6 +54,7 @@ Prefer the [registry resources list](https://registry.terraform.io/providers/tem
 
 - `temporalcloud_namespace`
 - `temporalcloud_nexus_endpoint`
+- `temporalcloud_caller_rate_limit`
 - `temporalcloud_user`
 - `temporalcloud_service_account`
 - `temporalcloud_apikey`
@@ -153,6 +154,69 @@ Address must be `TYPE.NAME` matching your resource block:
 
 ```bash
 terraform import temporalcloud_nexus_endpoint.nexus_endpoint <your-nexus-endpoint-ID>
+```
+
+---
+
+## Caller rate limit management
+
+Resource: `temporalcloud_caller_rate_limit`
+
+A caller rate limit caps the requests per second that other (calling) Namespaces can send to a target Namespace.
+
+Each resource is one rule. Set exactly one of these blocks:
+
+- `namespace_default`: applies to calling Namespaces that have no `namespace_limit` rule. A target can have at most one.
+- `namespace_limit`: applies to one calling Namespace, named by its `namespace_id`. A target can have at most one per calling Namespace.
+
+To set a default plus specific callers, declare one resource per rule.
+
+`rps` is the maximum requests per second from the callers the rule covers. **`rps = 0` blocks all traffic from those callers.** When you use 0, tell the user that it blocks the callers, not just slows them.
+
+All Namespace IDs use the form `<namespace>.<account_id>`.
+
+### Create
+
+```hcl
+# Callers without a specific rule: 100 RPS.
+resource "temporalcloud_caller_rate_limit" "default" {
+  namespace_id = temporalcloud_namespace.target.id
+
+  namespace_default = {
+    rps = 100
+  }
+}
+
+# One calling Namespace: blocked.
+resource "temporalcloud_caller_rate_limit" "blocked_caller" {
+  namespace_id = temporalcloud_namespace.target.id
+
+  namespace_limit = {
+    namespace_id = temporalcloud_namespace.caller.id
+    rps          = 0
+  }
+}
+```
+
+### Update
+
+Changing `rps` updates the rule in place. These changes replace the resource:
+
+- the target `namespace_id`
+- the calling `namespace_limit.namespace_id`
+- switching between `namespace_default` and `namespace_limit`
+
+### Import
+
+The import ID is `<namespace_id>/<caller_rate_limit_id>`. Find the rule ID with the Temporal Cloud CLI:
+
+```bash
+temporal cloud namespace caller-rate-limit list --namespace <ns>.<acct>
+# Narrow to one rule:
+#   --caller-namespace-default
+#   --caller-namespace <caller-ns>.<acct>
+
+terraform import temporalcloud_caller_rate_limit.<name> <ns>.<acct>/<caller_rate_limit_id>
 ```
 
 ---

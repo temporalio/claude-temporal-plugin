@@ -4,7 +4,7 @@ For the chosen SDK: clone the **`money-transfer-project-cloud-setup`** branch, i
 
 > **Note:** the clone + deps install are done by `scripts/provision.sh provision-and-scaffold`, and the Worker + starter run is done by `scripts/provision.sh run-workflow --sdk <sdk> --dir <repo_path>` — a single synchronous call that starts the Worker, waits until it's polling (Temporal API, not `ps`/`pgrep`), runs the starter, and stops the Worker. The per-SDK repo, task queue, and run commands below are the **source of truth the script encodes** — they are reference, not commands you run by hand.
 
-How each branch connects: **all six SDKs load the named `cloud-setup` profile from `temporal.toml`** (env-config), so the key stays in the locked `0600` file — never in source, argv, or shell history. Step 6 writes that profile; nothing else is needed at run time. *(Verify the SDK's env-config symbol against current docs before relying on it.)*
+How each branch connects: **all seven SDKs load the named `cloud-setup` profile from `temporal.toml`** (env-config), so the key stays in the locked `0600` file — never in source, argv, or shell history. Step 6 writes that profile; nothing else is needed at run time. *(Verify the SDK's env-config symbol against current docs before relying on it.)*
 
 All connection values come from the **`cloud-setup` profile** in the TOML written in Step 6 (never `default`):
 - `address`  = the **namespace endpoint** = the handle + `.tmprl.cloud:7233`, e.g. `<namespace-handle>.tmprl.cloud:7233` (region-agnostic, works with API keys — **not** the regional `<region>.<provider>.api.temporal.io:7233`)
@@ -23,6 +23,7 @@ TLS is required for Temporal Cloud (the `cloud-setup` profile / env-config carri
 | Java | `money-transfer-project-java` | `MONEY_TRANSFER_TASK_QUEUE` | `cloud-setup` profile (env-config) |
 | .NET | `money-transfer-project-template-dotnet` | `MONEY_TRANSFER_TASK_QUEUE` | `cloud-setup` profile (env-config) |
 | Ruby | `money-transfer-project-template-ruby` | `money-transfer` | `cloud-setup` profile (env-config) |
+| Rust | `money-transfer-project-rust` | `TRANSFER_MONEY_TASK_QUEUE` | `cloud-setup` profile (env-config) |
 
 The per-SDK sections below give **install + run** commands. The connection code they show is **reference only** — the cloud branch already contains it; you do not edit it.
 
@@ -88,6 +89,18 @@ Run: `ruby worker.rb` then `ruby starter.rb`.
 
 ---
 
+## Rust
+
+Prerequisites: Rust **1.92+** (the sample's `rust-version`; `rustup update`) and **`protoc`** on PATH — the SDK generates its protobuf bindings at build time (macOS `brew install protobuf`; Debian/Ubuntu `sudo apt-get install protobuf-compiler`). `detect-tools` flags a missing `protoc` as `tool-missing:protoc`.
+
+Install: `cargo fetch` (into the shared Cargo registry, `~/.cargo/registry`). `run-workflow` pre-compiles with `cargo build -q --bins`; the first build compiles the Temporal SDK and can take a few minutes.
+
+Connects via the `cloud-setup` profile (already in the branch — no edit): `ClientOptions::load_from_config(...)` with the `cloud-setup` profile, in `src/bin/worker.rs` and `src/bin/starter.rs`.
+
+Run: `cargo run -q --bin worker` then `cargo run -q --bin starter`.
+
+---
+
 ## Package managers & minimum versions
 
 `scripts/provision.sh detect-tools --sdk <sdk>` reports which managers are **supported by the sample
@@ -98,7 +111,7 @@ manager leads when one is committed), and flags version discrepancies. `install_
 **Only Python and TypeScript ship a real manager choice.** This was confirmed by auditing the
 `money-transfer-project-cloud-setup` branch of each sample repo (Step 0): the Python sample ships
 **no** dependency manifest (`pip install temporalio` only — so `poetry` is not offered), and the
-TypeScript sample commits `package-lock.json` (so `npm` leads). The other four SDKs are single-toolchain.
+TypeScript sample commits `package-lock.json` (so `npm` leads). The other five SDKs are single-toolchain.
 
 | SDK | Managers (default first) | Install command (per manager) |
 |-----|--------------------------|-------------------------------|
@@ -108,6 +121,7 @@ TypeScript sample commits `package-lock.json` (so `npm` leads). The other four S
 | java | maven | `mvn -q -DskipTests dependency:resolve` (the run targets also compile on demand) |
 | dotnet | dotnet | `dotnet restore` |
 | ruby | bundler | `bundle install` |
+| rust | cargo | `cargo fetch` (the run step pre-compiles with `cargo build`) |
 
 **Minimum versions (advisory — a shortfall is a `version-too-old` warning + remediation, never a hard block):**
 
@@ -119,6 +133,7 @@ TypeScript sample commits `package-lock.json` (so `npm` leads). The other four S
 | java (JDK) | 8 | yarn | 1.22 |
 | dotnet | 6.0 | maven | 3.6 |
 | ruby | 3.0 | bundler | 2.0 |
+| rustc | 1.92 | | |
 
 Java reports its version with the legacy `1.8.x` scheme for JDK 8; `detect-tools` maps `1.N` to `N`
 so JDK 8 is treated as 8 (not flagged below the JDK-11 line some tools assume — the Temporal Java
