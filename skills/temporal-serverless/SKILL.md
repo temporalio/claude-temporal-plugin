@@ -1,6 +1,6 @@
 ---
 name: temporal-serverless
-description: 'Deploy and operate Temporal Workers on serverless compute (AWS Lambda, GCP Cloud Run) driven by the Worker Controller Instance (WCI). Use when the user mentions: "serverless worker", "Temporal serverless", "Worker Controller Instance", "WCI", "deploy Temporal worker on Lambda", "Lambda packaging", "Lambda timeout", "WCI inspection", "CloudFormation Temporal", "Cloud Run worker", "deploy Temporal worker on Cloud Run".'
+description: 'Deploy and operate Temporal Workers on serverless compute (AWS Lambda, GCP Cloud Run) driven by the Worker Controller Instance (WCI). Use when the user mentions: "serverless worker", "Temporal serverless", "Worker Controller Instance", "WCI", "deploy Temporal worker on Lambda", "Lambda packaging", "Lambda timeout", "WCI inspection", "CloudFormation Temporal", "Cloud Run worker", "deploy Temporal worker on Cloud Run", "serverless Worker OpenTelemetry", "ADOT Lambda layer", "Cloud Run Collector sidecar". Not for SDK telemetry outside the Lambda and Cloud Run packages, such as exporters, tracing plugins, or Worker heartbeats (temporal-developer), or for metric queries, dashboards, and alerts (temporal-observability).'
 disable-model-invocation: true
 ---
 
@@ -9,6 +9,15 @@ disable-model-invocation: true
 ## Overview
 
 This skill helps users deploy and operate Temporal Workers on serverless compute. On AWS Lambda, Temporal invokes the Worker on demand through the Worker Controller Instance (WCI); the Worker processes available Tasks and shuts down, scaling to zero when idle. On GCP Cloud Run, the WCI instead resizes a Worker Pool whose instances run ordinary long-lived Workers. The skill produces Worker code, deployment configuration, connection configs, and packaging steps for the chosen SDK, and walks users through troubleshooting when serverless Workers aren't picking up Tasks.
+
+## Observability scope
+
+For observability, this skill covers only the serverless Worker packages `temporalio.contrib.aws.lambda_worker`, `temporalio.contrib.gcp.cloud_run`, `go.temporal.io/sdk/contrib/aws/lambdaworker`, and `go.temporal.io/sdk/contrib/gcp/cloudrun`: the ADOT layer, the Cloud Run OpenTelemetry plugin, the Collector sidecar, and flushing telemetry before shutdown.
+
+Not covered here:
+
+- Telemetry in Worker or Client code outside those packages, including SDK exporters, custom-metric APIs, tracing plugins such as `contrib/opentelemetry`, logging options, and Worker heartbeat contents or settings: use [temporal-developer](https://github.com/temporalio/skill-temporal-developer).
+- Collecting, querying, dashboarding, or alerting on Temporal telemetry, including the Temporal Cloud metrics endpoint and self-hosted monitoring documentation: use [temporal-observability](https://github.com/temporalio/skill-temporal-observability).
 
 ## Supported compute providers
 
@@ -101,7 +110,7 @@ Where the harness has a todo list, use it *in addition to* the printed checklist
 
 **A step is complete when its verification passed — not when its command exited zero.** Several commands in this workflow exit clean having done nothing: the traffic-shifting and key-revocation commands no-op when their confirmation prompt goes unanswered, and providers return from create and update calls while the resource is still settling. Check an item off against state you read back, not against an exit code. When a step's verification fails, say which step you are on and what it is blocked on rather than moving down the list.
 
-1. **Scope the task.** Identify the SDK language (Go, Python, TypeScript, Java, or .NET), the deployment target (Temporal Cloud or self-hosted — self-hosted has its own server prerequisites), the compute provider, and whether this is a new setup, a configuration change, or troubleshooting. Confirm the deployment target is compatible with the chosen provider — see "A Namespace on the target cloud provider is required" under Provider-neutral principles. Ensure a Temporal client/CLI is available. For Lambda, it must also be authenticated to the target at this point. For Cloud Run, check only that the `temporal` CLI is installed: its authenticated profile is created during the API-key hand-off after approval (`references/gcp-cloud-run/setup.md`). Each changes the specifics. Read `references/concepts.md` for shared concepts, `references/<provider>/constraints.md` for the selected provider's lifecycle rules, and `references/<provider>/setup.md` for compatibility and client-setup details.
+1. **Scope the task.** Identify the SDK language (Go, Python, TypeScript, Java, or .NET), the deployment target (Temporal Cloud or self-hosted — self-hosted has its own server prerequisites), the compute provider, and whether this is a new setup, a configuration change, or troubleshooting. Confirm the deployment target is compatible with the chosen provider — see "A Namespace on the target cloud provider is required" under Provider-neutral principles. Ensure a Temporal client/CLI is available. For Lambda, it must also be authenticated to the target at this point. For Cloud Run, check only that the `temporal` CLI is installed: its authenticated profile is created by the operator hand-off after approval, unless the operator reuses a working one (`references/gcp-cloud-run/setup.md`). Each changes the specifics. Read `references/concepts.md` for shared concepts, `references/<provider>/constraints.md` for the selected provider's lifecycle rules, and `references/<provider>/setup.md` for compatibility and client-setup details.
 
    **Derive the compute provider from the Namespace's cloud provider.** An AWS-hosted Namespace uses AWS Lambda; a GCP-hosted Namespace uses GCP Cloud Run. State the derived provider with the Namespace choice, and if the request names a provider, check that it matches. When `tcld` cannot be used, the Namespace's region settles it: `aws-us-east-1` is AWS, `gcp-us-central1` is GCP. Ask the provider as a structured question only for a self-hosted Temporal Service, where either is possible; carry each option's status from the support table in its description, and note that Activity duration can decide it, because Lambda caps an invocation at 15 minutes and Cloud Run does not.
 
@@ -164,7 +173,7 @@ Where the harness has a todo list, use it *in addition to* the printed checklist
 
    #### GCP Cloud Run
 
-   List the project and region; any APIs that still need enabling, and the Cloud Build submission; the Artifact Registry repository, if new, and the image; the Worker Pool; the runner service account and the dedicated invoker, with its Terraform state directory; the secret; the local CLI profile; the deployment name, build ID, and Task Queue; and logs. Say that the user creates the Temporal API key and enters it during the hand-off, and that they may also need to run `terraform apply` or the secret IAM grant in their own terminal if the agent's environment blocks them. Note that the Temporal deployment name is checked right after the hand-off, because the CLI profile does not exist before approval.
+   List the project and region; any APIs that still need enabling, and the Cloud Build submission; the Artifact Registry repository, if new, and the image; the Worker Pool; the runner service account and the dedicated invoker, with its Terraform state directory; the secret for the Worker's key; the operator's CLI profile, new or reused; the deployment name, build ID, and Task Queue; and logs. Say that the user creates the Temporal API keys, one for the Worker and one for the operator unless the operator reuses a working profile, and enters each in its own hand-off, and that they may also need to run `terraform apply` or the secret IAM grant in their own terminal if the agent's environment blocks them. Note that the Temporal deployment name is checked right after the hand-offs, because a new CLI profile does not exist before approval.
 
 ### AWS Lambda: steps 3–8
 
@@ -184,7 +193,7 @@ Where the harness has a todo list, use it *in addition to* the printed checklist
 
 ### GCP Cloud Run: steps 3–8
 
-Steps 3 and 5 need no API key: write and build the image, and apply Step 5's Terraform, while the user runs the key hand-off. Step 4 waits for the hand-off, so the checklist may mark Step 5 done first. Deliver the hand-off as `references/gcp-cloud-run/setup.md` describes: end the turn with the user's action first, and repeat it in full while the run is blocked on it.
+Steps 3 and 5 need no API key: write and build the image, and apply Step 5's Terraform, while the user runs the key hand-offs. Step 4 waits for the Worker's key and Step 6 for the operator's profile, so the checklist may mark Step 5 done first. Deliver the hand-offs as `references/gcp-cloud-run/setup.md` describes: end the turn with the user's action first, and repeat it in full while the run is blocked on it.
 
 3. **Author the Worker.** Write an ordinary long-lived Worker that starts polling when the container starts. There is no Cloud Run serverless Worker package or per-invocation handler. Set the required Worker Versioning behavior and make the deployment name and build ID match the version to be registered. → the selected `references/gcp-cloud-run/sdk-<language>.md`.
 
@@ -196,7 +205,7 @@ Steps 3 and 5 need no API key: write and build the image, and apply Step 5's Ter
 
 7. **Verify.** Start a Workflow, confirm its history progresses, and confirm the Worker Pool logs show startup, polling, and Task execution. If it does not progress, start with the version's expected Task Queue bindings, then follow the WDV/WCI/provider decision table. → `references/gcp-cloud-run/diagnostics.md`.
 
-8. **Hand back the inventory first; offer teardown as the closing note.** Include the project and region; the Artifact Registry repository, image tag, and digest; the Worker Pool; the runner and invoker service accounts, and whether this run created the invoker; the Terraform state directory; the secret and its versions; the deployment name, build ID, and Task Queue; the local CLI profile; and who created the Temporal API key. Follow the same inventory-before-teardown and approval rules as the Lambda path. → `references/gcp-cloud-run/setup.md`.
+8. **Hand back the inventory first; offer teardown as the closing note.** Include the project and region; the Artifact Registry repository, image tag, and digest; the Worker Pool; the runner and invoker service accounts, and whether this run created the invoker; the Terraform state directory; the secret and its versions; the deployment name, build ID, and Task Queue; the local CLI profile; and, for each Temporal API key, who created it, who owns it, and whether it is the Worker's, the operator's, or both. Follow the same inventory-before-teardown and approval rules as the Lambda path. → `references/gcp-cloud-run/setup.md`.
 
 ## Working practices
 
@@ -322,9 +331,11 @@ Most questions need 2–3 reference files.
 |---|---|
 | Execution model, Activity duration, autoscaling, scale-in, graceful shutdown, or mixed fleets. | `references/gcp-cloud-run/constraints.md` + the selected SDK reference |
 | Deploy, register, verify, or tear down a Worker Pool. | `references/gcp-cloud-run/setup.md` + the selected SDK reference |
+| Hand off, reuse, or rotate the Worker's or the operator's Temporal API key. | `references/gcp-cloud-run/setup.md` |
 | Permissions, runner vs invoker identity, or Terraform IAM setup. | `references/gcp-cloud-run/iam.md` |
-| Update, publish a new build, or roll back. | `references/gcp-cloud-run/versioning.md` |
+| Update, publish a new build, roll back, or manage Worker Pools in Terraform when the user asks. | `references/gcp-cloud-run/versioning.md` |
 | Worker Pool not scaling, Worker not polling, or Workflows not progressing. | `references/gcp-cloud-run/diagnostics.md` |
+| Check whether an existing Worker Pool is configured correctly. | `references/gcp-cloud-run/diagnostics.md` |
 | Metrics, tracing, logs, or scaling signals. | `references/gcp-cloud-run/observability.md` + the selected SDK reference |
 | Self-hosted Temporal Service prerequisites. | `references/gcp-cloud-run/self-hosted.md` + `references/gcp-cloud-run/iam.md` |
 
@@ -334,3 +345,5 @@ Most questions need 2–3 reference files.
 - **Traditional Worker tuning** (slot suppliers, tuners, poller autoscaling, resource-based tuning): see `skill-temporal-workertuning`.
 - **Temporal Cloud administration** (Namespaces, users, certificates, billing): see `skill-temporal-ops`.
 - **CLI command reference** (beyond the serverless-specific flags): see `skill-temporal-cli`.
+- **Observability tasks other than serverless Worker OpenTelemetry**: see [Observability scope](#observability-scope).
+

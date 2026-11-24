@@ -1,6 +1,6 @@
 # Temporal Cloud Capacity Modes
 
-Quick-reference for Temporal Cloud capacity configuration: On-Demand vs Provisioned modes, APS/RPS/OPS definitions, TRUs, CLI commands, default limits, throttling, and APS management best practices.
+Quick-reference for Temporal Cloud capacity configuration: On-Demand vs Provisioned modes, APS/RPS/OPS definitions, TRUs, the TRU count metric, TRU hourly minimum Actions, CLI commands, default limits, throttling, and APS management best practices.
 
 ---
 
@@ -92,6 +92,23 @@ TRUs can be adjusted hourly.
 When TRUs are requested, Temporal aims to provision the additional capacity within two minutes.
 
 For requests in excess of 4 TRUs in regions outside of the US, submit a support ticket to ensure capacity availability.
+
+### TRU count metric
+
+`temporal_cloud_v1_provisioned_capacity_tru_count` is an OpenMetrics metric that reports the TRUs configured on each Namespace. A value of `0` means the Namespace uses On-Demand Capacity.
+
+### Hourly minimum Actions
+
+The first TRU has no hourly minimum. Each TRU after the first has an hourly minimum of 360,000 Actions. Billing uses the highest TRU count configured during the hour. If workload Actions fall below the hourly minimum, Temporal bills the shortfall as additional Actions.
+
+To estimate the extra billed Actions, work one calendar hour at a time:
+
+1. **TRU count**: take the maximum `temporal_cloud_v1_provisioned_capacity_tru_count` value observed during the hour.
+2. **Hourly minimum Actions** = (maximum TRU count − 1) × 360,000.
+3. **Workload Actions**: use only `temporal_cloud_v1_total_action_count` with `is_background=false`. Leave out `is_background=true` series; background Actions do not reduce the shortfall. The metric is a per-second rate, so for each one-minute interval sum the Namespace's series, multiply by 60, then add up the minutes in the hour.
+4. **Additional billed Actions** = `max(0, hourly minimum Actions − workload Actions)`.
+
+To estimate over a longer period, add up the hourly shortfalls.
 
 ### When to use Provisioned Capacity
 
@@ -237,6 +254,9 @@ When your Action rate exceeds your APS (or RPS/OPS) limit, Temporal Cloud thrott
 | RPS per TRU | 1,500 |
 | OPS per TRU | 4,000 |
 | Valid TRU counts | 2, 3, 4, 6, 8, 10, 12 |
+| TRU count metric | `temporal_cloud_v1_provisioned_capacity_tru_count` (`0` = On-Demand Capacity) |
+| Hourly minimum Actions | (max TRU count in the hour − 1) × 360,000 |
+| Workload Actions for the minimum | `temporal_cloud_v1_total_action_count` with `is_background=false` only |
 | TRU provisioning time | Within 2 minutes |
 | On-Demand scaling window | Past 7 days |
 | On-Demand formula | lesser of 4 x APS Mean or 2 x APS P90 |

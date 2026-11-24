@@ -27,7 +27,7 @@ temporal --profile <PROFILE> worker deployment describe-version \
          ($types | index("activity")) != null)'
 ```
 
-The decisive registration signal is `taskQueuesInfos` containing the expected Task Queue with lowercase `workflow` and `activity` types. The field is absent until a Worker identifying as this deployment and build ID polls. If the Worker intentionally polls only one type, adjust the predicate to require only that type. Provider writes, requested capacity, and a Running WCI support the diagnosis but do not replace this check.
+The decisive registration signal is `taskQueuesInfos` containing the expected Task Queue with lowercase `workflow` and `activity` types. The field is absent or `null` until a Worker identifying as this deployment and build ID polls; `[]?` in the predicate handles both, so parse it the same way in any other language. If the Worker intentionally polls only one type, adjust the predicate to require only that type. Provider writes, requested capacity, and a Running WCI support the diagnosis but do not replace this check.
 
 First registration can take several minutes because Cloud Run must provision and start the pool's first instance before the Worker can poll. Treat this as operational guidance, not a timeout or service guarantee.
 
@@ -113,7 +113,7 @@ temporal --profile <PROFILE> worker deployment describe-version \
   --report-task-queue-stats -o json
 ```
 
-The server creates the binding when a Worker running that version connects and polls. **An absent `taskQueuesInfos` field means no Worker has polled successfully under this version.** Use the decision table above rather than interpreting a provider write as registration success.
+The server creates the binding when a Worker running that version connects and polls. **An absent or `null` `taskQueuesInfos` field means no Worker has polled successfully under this version.** Use the decision table above rather than interpreting a provider write as registration success.
 
 Registration performs this bootstrap: the WCI reads the pool, updates its manual instance count to at least one, and Cloud Run starts an instance. An absent binding means that sequence failed or the instance started but did not connect under the expected deployment name and build ID. Inspect the WCI's `ValidateSpec`/registration Activity failure, the pool's `lastModifier` and instance count, and then the pool logs. Do not wait for a first Workflow to repair registration.
 
@@ -210,6 +210,25 @@ This appears as a running pool with healthy-looking logs but no Workflow progres
 Activities failing partway and retrying from the beginning, correlated with the pool shrinking, means **scale-in is stopping instances that are still working.** The WCI does not track whether the instance Cloud Run stops is mid-Activity.
 
 This is expected behavior, not a misconfiguration. Confirm the Worker handles `SIGTERM` and has a non-zero graceful-shutdown timeout below Cloud Run's ten-second termination window; this lets short work drain. Long-running work still needs **Activity Heartbeats** so a retry resumes from its last recorded progress. → `constraints.md`.
+
+## Audit an existing pool
+
+When asked whether an existing pool is configured correctly, read its state and report each check below as passing, failing or unverified, with the rule it comes from. Read the pool with:
+
+```bash
+gcloud run worker-pools describe <POOL_NAME> \
+  --region <REGION> --project <YOUR_GCP_PROJECT> --format=json
+```
+
+1. **Does a Worker Deployment Version point at the pool?** List the deployment's versions with `temporal --profile <PROFILE> worker deployment describe --namespace <NS> --name <DEPLOYMENT> -o json`; CLI v1.8.2 lists them as `versionSummaries[].BuildID`, and reports `no Worker Deployment found` when the deployment does not exist. `describe-version` does not return the pool a version targets, so ask the user which version points at this pool and report the answer as unverified; a build ID in the pool name is only a hint. If none does, Temporal is not scaling it: the pool is a fixed fleet sized by hand. Report that first, because the remaining checks then describe what has to change before it becomes a serverless Worker, not defects in how it runs today.
+2. **Is the image pinned by digest?** The container image should end in `@sha256:`. The pool's output does not include the deployed digest; read it from the revision named in `status.latestReadyRevisionName` with `gcloud run worker-pools revisions describe <REVISION> --region <REGION> --project <YOUR_GCP_PROJECT> --format='value(status.imageDigest)'`, and check it matches the recorded artifact, as in [`setup.md`](setup.md#step-4-create-the-worker-pool) Step 4. A tag can move under a live version.
+3. **Does the pool currently allocate instances to exactly one revision?** Check that `status.instanceSplits` lists one revision. The pool name should carry the build ID, and `TEMPORAL_BUILD_ID` and `TEMPORAL_DEPLOYMENT_NAME` should match the version. Whether the pool was ever reused across builds, and which build each revision ran, cannot be read from Cloud Run; report it as unverified unless trusted evidence such as the team's Terraform or release history shows it. → [one pool per build](versioning.md#one-worker-pool-per-build-id).
+4. **Are the identities separate?** The pool runs as the runner, never the invoker, and the API key comes from a Secret Manager reference, not a plain environment-variable value. → `iam.md`.
+5. **Does Temporal own the count?** Pass or fail on `scalingMode` being `manual`. Report `lastModifier` as information, never as a failure: any later update by a person replaces it on a healthy pool. → [Read the pool's annotations](#read-the-pools-annotations).
+6. **Is the Task Queue the pool's own?** Long-lived Workers on the same Task Queue make the pool scale for work they already handle. → `constraints.md`.
+7. **Does the Worker code meet the version's requirements?** A versioning behavior on every Workflow, deployment name and build ID read from the environment, and a graceful-shutdown timeout below Cloud Run's ten-second window. → the selected `sdk-<language>.md` and `constraints.md`.
+
+Mark a check unverified when it needs state you could not read, such as the Worker source.
 
 ## Rule out a GCP-side cause
 

@@ -181,7 +181,7 @@ temporal operator namespace update \
 
 | Flag | Required | Type | Description |
 |------|----------|------|-------------|
-| `--active-cluster` | No | **string** | Active Cluster (Service) name. |
+| `--active-cluster` | No | **string** | Active Cluster (Service) name. Must be used alone; see below. |
 | `--cluster` | No | **string[]** | Cluster (Service) names. |
 | `--data` | No | **string[]** | Namespace data as `KEY=VALUE` pairs. |
 | `--description` | No | **string** | Namespace description. |
@@ -193,6 +193,36 @@ temporal operator namespace update \
 | `--retention` | No | **duration** | Time to preserve closed Workflows before deletion. |
 | `--visibility-archival-state` | No | **string-enum** | Accepted values: `disabled`, `enabled`. |
 | `--visibility-uri` | No | **string** | Archive visibility URI. Once enabled, can't be changed. |
+
+#### Changing the active cluster
+
+When `--active-cluster` is set, the CLI checks the other flags locally, before it
+connects to the server. If the check fails, the command exits with an error and
+changes nothing. It rejects:
+
+- An empty value (`--active-cluster ""`): `--active-cluster must not be empty`.
+- `--promote-global`: `both --promote-global and --active-cluster flags cannot be set together`.
+- Any of `--cluster`, `--data`, `--description`, `--email`,
+  `--history-archival-state`, `--history-uri`, `--replication-state`,
+  `--retention`, `--visibility-archival-state`, `--visibility-uri`:
+  `--active-cluster cannot be combined with <flags>; update namespace configuration before changing the active cluster`.
+
+Older CLIs did not reject these. They sent only the active cluster and dropped the
+other flags. Split the change into two commands: update the configuration first,
+then change the active cluster.
+
+```bash
+# 1. Configuration, including the replication cluster list
+temporal operator namespace update \
+    --namespace YourNamespaceName \
+    --retention 168h \
+    --cluster ClusterA --cluster ClusterB
+
+# 2. Active cluster on its own
+temporal operator namespace update \
+    --namespace YourNamespaceName \
+    --active-cluster ClusterB
+```
 
 ---
 

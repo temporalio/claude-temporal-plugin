@@ -12,17 +12,19 @@ Maven:
 <dependency>
     <groupId>io.temporal</groupId>
     <artifactId>temporal-spring-boot-starter</artifactId>
-    <version>[1.0,)</version>
+    <version>1.40.0</version>
 </dependency>
 ```
 
 Gradle:
 
 ```groovy
-implementation 'io.temporal:temporal-spring-boot-starter:1.+'
+implementation 'io.temporal:temporal-spring-boot-starter:1.40.0'
 ```
 
 The starter transitively includes `temporal-sdk` and the autoconfigure module. You can declare both `temporal-sdk` and `temporal-spring-boot-starter` explicitly, but the starter alone is sufficient.
+
+Spring Boot 3 and Spring Boot 4 are supported; Boot 4 / Jackson 3 support requires Java SDK 1.34+. Keep Temporal dependencies aligned. Spring AI integrations have separate Boot 3 / AI 1 and Boot 4 / AI 2 coordinates; see [Spring AI](spring-ai.md).
 
 ## Minimal Configuration
 
@@ -31,7 +33,8 @@ The starter transitively includes `temporal-sdk` and the autoconfigure module. Y
 ```properties
 spring.temporal.connection.target=local
 spring.temporal.start-workers=true
-spring.temporal.workersAutoDiscovery.packages=greetingapp
+spring.temporal.workers-auto-discovery.enabled=true
+spring.temporal.workers-auto-discovery.workflow-packages=greetingapp
 ```
 
 `application.yml` equivalent:
@@ -42,8 +45,9 @@ spring:
     connection:
       target: local  # shorthand for localhost:7233
     start-workers: true
-    workersAutoDiscovery:
-      packages:
+    workers-auto-discovery:
+      enabled: true
+      workflow-packages:
         - greetingapp
     workers:
       - task-queue: greeting-queue
@@ -152,23 +156,19 @@ public class GreetActivitiesImpl implements GreetActivities {
 
 ## Auto-Discovery
 
-Auto-discovery is how the autoconfigure finds and registers implementations without explicit configuration. It requires **both** of the following:
+Set `spring.temporal.workers-auto-discovery.enabled=true` to register Spring beans annotated with `@ActivityImpl`, `@NexusServiceImpl`, or `@WorkflowImpl`. For Workflow classes such as the example above that live outside the Spring context, also set `spring.temporal.workers-auto-discovery.workflow-packages` to their package names.
 
-1. `@WorkflowImpl(taskQueues = "...")` or `@ActivityImpl(taskQueues = "...")` on the implementation class
-2. `spring.temporal.workersAutoDiscovery.packages` pointing to a package that contains those classes
+Use `taskQueues = "greeting-queue"` to register an implementation by Task Queue. Auto-discovery creates a Worker with default options if the Task Queue has no configured Worker. Use `workers = "greeting-worker"` to register by name when the Worker is already configured. An unknown Worker name causes startup to fail.
 
-Missing either one results in silent non-registration — no error, nothing polls the task queue.
-
-The `taskQueues` attribute routes implementations to the right worker when multiple task queues exist. A worker configured with task queue `"greeting-queue"` only picks up implementations annotated with `taskQueues = "greeting-queue"`.
-
-**Important:** `@ActivityImpl(taskQueues = "greeting-queue")` only registers the activity bean with that worker. It does not route individual activity task executions. Inside the workflow, `ActivityOptions.setTaskQueue("greeting-queue")` must also be set on the activity stub to route activity tasks to the correct queue.
+**Important:** `@ActivityImpl(taskQueues = "greeting-queue")` only registers the activity bean with that worker. It does not route individual activity task executions. Activity stubs default to the Task Queue the Workflow was started on. Set `ActivityOptions.setTaskQueue(...)` only to route Activities to a different queue.
 
 ### Comparison: Auto-Discovery vs Explicit YAML Registration
 
 Auto-discovery via annotations:
 
 ```properties
-spring.temporal.workersAutoDiscovery.packages=greetingapp
+spring.temporal.workers-auto-discovery.enabled=true
+spring.temporal.workers-auto-discovery.workflow-packages=greetingapp
 ```
 
 ```java
@@ -192,6 +192,33 @@ spring:
 ```
 
 Use auto-discovery when implementations are colocated in a single package tree (most apps). Use explicit YAML when you need fine-grained control, want to exclude specific classes, or are registering beans defined elsewhere.
+
+### Migrating legacy configuration
+
+If your configuration uses `spring.temporal.workers-auto-discovery.packages`, remove it before setting `enabled` or `workflow-packages`. The starter rejects configurations that combine the legacy property with either setting.
+
+## Customize Worker Options
+
+Register a Spring bean implementing `WorkerOptionsCustomizer` when an option depends on the Worker name or Task Queue. Spring calls it after applying the properties for each Worker. Return the builder with any overrides.
+
+```java
+import io.temporal.spring.boot.WorkerOptionsCustomizer;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+class TemporalWorkerConfiguration {
+    @Bean
+    WorkerOptionsCustomizer workerOptions() {
+        return (builder, workerName, taskQueue) -> {
+            if ("greeting-queue".equals(taskQueue)) {
+                builder.setMaxConcurrentActivityExecutionSize(16);
+            }
+            return builder;
+        };
+    }
+}
+```
 
 ## WorkflowClient Injection
 
@@ -293,11 +320,11 @@ Temporal creates a new workflow instance per execution via `beanFactory.createBe
 **Activity beans are Spring singletons**
 Temporal may invoke activity methods concurrently across many workflow executions. Keep activity implementations stateless — no mutable instance fields. Use injected services (which are themselves stateless or thread-safe) for all state.
 
-**`@WorkflowImpl` / `@ActivityImpl` without `workersAutoDiscovery.packages` → silently ignored**
-This is the most common setup mistake. If auto-discovery packages are not configured, the annotations are never scanned and nothing registers with the worker. Verify with the Temporal UI that the worker is registering the expected workflow/activity types.
+**The Worker starts without an expected implementation**
+Check that the implementation has the matching Spring annotation and Task Queue or Worker name. For non-bean Workflow implementations, check that `workflow-packages` includes their package.
 
-**`ActivityOptions.setTaskQueue(...)` is required on activity stubs**
-`@ActivityImpl(taskQueues = "greeting-queue")` registers the activity bean with the worker — it does not set the default task queue for activity execution. Inside workflow code, always set `.setTaskQueue(...)` in `ActivityOptions` to explicitly route activity tasks to the correct worker.
+**Activity stubs inherit the Workflow Task Queue**
+`@ActivityImpl(taskQueues = "greeting-queue")` registers the activity bean with the worker — it does not set the default task queue for activity execution. An Activity stub defaults to the Task Queue the Workflow was started on; set `.setTaskQueue(...)` when the Activity Worker polls a different queue.
 
 **Multiple `DataConverter` beans**
 If you define more than one `DataConverter` bean (e.g., a custom JSON converter and a default), the autoconfigure fails with an ambiguity error. Name one of them `mainDataConverter` to designate it as the primary.

@@ -1,6 +1,6 @@
 {
   "name": "temporal",
-  "version": "0.4.3",
+  "version": "0.5.0",
   "description": "Build, run, and operate Temporal applications: SDK development and debugging in Python, TypeScript, Go, Java, .NET, Ruby, and Rust; the Temporal CLI; Temporal Cloud setup and administration; and serverless Workers on AWS Lambda and Cloud Run.",
   "author": {
     "name": "Temporal",

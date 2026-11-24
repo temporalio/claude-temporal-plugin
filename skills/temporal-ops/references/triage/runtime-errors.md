@@ -80,7 +80,7 @@ Treating either error as a single-layer failure is the most common triage mistak
 
 ## Workflow lock contention (BusyWorkflow)
 
-**Error shape:** every operation that mutates a single Workflow Execution — starting it, sending a Signal, and so on — is serialized under a per-Workflow lock. When operations reach one Execution faster than that lock can be acquired, the Service rejects the excess with a `ResourceExhausted` error (`RESOURCE_EXHAUSTED`). In Service logs it appears as `Workflow is busy.` The Cloud docs name the condition **Workflow lock contention (BusyWorkflow)**; use that term when explaining it, and treat a caller's "workflow is busy" report as pointing at it.
+**Error shape:** every operation that mutates a single Workflow Execution — starting it, sending a Signal, and so on — is serialized under a per-Workflow lock. A request waits for that lock. If the wait times out, the Service returns a retryable `ResourceExhausted` error (`RESOURCE_EXHAUSTED`) with cause `BUSY_WORKFLOW`. In Service logs it appears as `Workflow is busy.` The Cloud docs name the condition **Workflow lock contention (BusyWorkflow)**; use that term when explaining it, and treat a caller's "workflow is busy" report as pointing at it.
 
 The Cloud metric is `temporal_cloud_v1_resource_exhausted_error_count`, which increments when "a single resource (a Namespace, Task Queue, or Workflow ID) receives a burst of operations larger than that resource can absorb in the moment." Lock contention is the most common cause of resource exhaustion.
 
@@ -106,12 +106,12 @@ Mapped from the Cloud service-health table.
 
 | `operation` | What it indicates | What to do |
 |---|---|---|
-| `StartWorkflowExecution`, `SignalWithStartWorkflowExecution` | The same Workflow ID was started again inside the de-duplication window (about one second). The first start succeeded; the duplicate was rejected. | Usually safe to ignore. Don't retry aggressively. Look for a client path firing the duplicate start. |
-| `SignalWorkflowExecution` | Signal rate to one Execution is too high. | Batch or coalesce Signals (one per N events), shard work across more Executions, or buffer Signals and drain them in the main Workflow loop. |
+| `StartWorkflowExecution` | The same Workflow ID was started again too quickly, or the request timed out waiting for the Execution's lock. | Check for a client path firing duplicate starts, and see the Cloud limits page's ID reuse rate limits. Retry with backoff and reduce concurrent requests to that Workflow ID. |
+| `SignalWorkflowExecution`, `SignalWithStartWorkflowExecution` | Signal rate to one Execution is too high. Signal-With-Start can also hit ID reuse rate limits when it starts a new Execution. | Batch or coalesce Signals (for example, one Signal per N events), or shard work across more Executions. For repeated starts, see the ID reuse rate limits. |
 | `UpdateWorkflowExecution` | More than the per-execution in-flight Update limit (10) are outstanding. | Cap concurrent in-flight Updates client-side, then back off and retry. |
 | `RecordActivityTaskHeartbeat` | Too many Activities heartbeating into the same Execution. | Raise the heartbeat timeout and interval; reduce how many Activities heartbeat into one Execution concurrently. |
 | `RespondWorkflowTaskCompleted` | One Workflow schedules a large batch of Activities or Child Workflows in parallel, each taking the lock. | Keep concurrent operations at 500 or fewer per Execution. Process the batch in smaller groups (sliding-window or plain batching) instead of scheduling everything at once. |
-| `QueryWorkflow` | Too many concurrent Queries against one Execution, or fallout from repeated Workflow Task retries. | Reduce concurrent Queries to that Execution. If it correlates with Workflow Task failures or timeouts, resolve those first. |
+| `QueryWorkflow` | Too many concurrent Queries against one Execution, or a side effect of repeated Workflow Task retries. | Reduce concurrent Queries to that Execution. If it correlates with Workflow Task failures or timeouts, resolve those first. |
 
 The per-execution ceilings referenced above are in the Cloud limits page: 10 in-flight Updates per Execution, and 2,000 incomplete Activities / Signals / Child Workflows / external-cancellation requests, with 500 or fewer recommended for optimal performance.
 

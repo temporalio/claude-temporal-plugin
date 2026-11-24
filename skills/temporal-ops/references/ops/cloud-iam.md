@@ -74,12 +74,14 @@ tcld apikey delete --id <apikey_id>
 | `--resource-version` | `-v` | No | ETag; uses latest if not set |
 | `--request-id` | `-r` | No | Server assigns if not set |
 
-Deleting a key immediately breaks every Worker, script, and CI job still
-presenting it, and the key cannot be restored. Identify what is using the key
-before proposing the delete, and confirm with the user rather than deleting
-autonomously. During a rotation, prefer `disable` — it produces the same
-`UNAUTHENTICATED` failure for callers but can be reversed with `enable` if you
-disabled the wrong key. Delete only once the replacement is verified in use.
+Once the Namespace endpoint applies the deletion (see
+[Key changes take effect asynchronously](#key-changes-take-effect-asynchronously)),
+every Worker, script, and CI job still presenting the key fails, and the key
+cannot be restored. Identify what is using the key before proposing the delete,
+and confirm with the user rather than deleting autonomously. During a rotation,
+prefer `disable` — it produces the same `UNAUTHENTICATED` failure for callers
+but can be reversed with `enable` if you disabled the wrong key. Delete only
+once the replacement is verified in use.
 
 ### Disable
 
@@ -105,12 +107,35 @@ tcld apikey enable --id <apikey_id>
 | `--resource-version` | `-v` | No | ETag; uses latest if not set |
 | `--request-id` | `-r` | No | Server assigns if not set |
 
+### Key changes take effect asynchronously
+
+After you create, enable, disable, or delete an API key, Temporal Cloud
+distributes the change asynchronously to the infrastructure that authenticates
+Namespace requests. A Cloud Ops API operation in `STATE_FULFILLED`, or a
+`temporal cloud` command that exits after waiting, means only that Temporal
+Cloud finished recording the change. The Namespace endpoint applies it
+afterward. Until then:
+
+- A new or re-enabled key can receive `Request unauthorized`.
+- A disabled or deleted key can still be accepted.
+
+The change usually takes effect within a minute.
+
+After a create or enable:
+
+1. Save the secret before testing the key. The create response returns it once, and it cannot be retrieved later.
+2. Call the Namespace with the key and retry with backoff. Listing Workflows is a sufficient check (see [API Key Connectivity Setup](#api-key-connectivity-setup)). `Request unauthorized` while you retry usually means the Namespace endpoint has not loaded the key yet. If retries keep failing after a few minutes, check the key, the caller's permissions, and the target Namespace.
+3. Start or restart Workers only after a Namespace request with the new key succeeds.
+
+After a disable or delete, confirm that the Namespace endpoint rejects the key
+before you rely on the revocation.
+
 ### Key Rotation Procedure
 
-1. Create a new key (you may reuse key names).
-2. Verify both original and new key function properly.
+1. Create a new key (you may reuse key names) and save its secret.
+2. Run the Namespace check above with the new key until it succeeds. Leave the old key in place until then.
 3. Switch clients to load the new key.
-4. Delete the old key after it is no longer in use.
+4. Delete the old key after it is no longer in use, then confirm the Namespace endpoint rejects it.
 
 ### API Key Limits
 

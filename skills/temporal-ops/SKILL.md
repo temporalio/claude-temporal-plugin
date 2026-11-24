@@ -126,6 +126,7 @@ Find the row that matches the user's intent. The reference file contains the com
 | Check current APS / capacity mode | Cloud capacity | [cloud-capacity.md](references/ops/cloud-capacity.md) |
 | Switch On-Demand ↔ Provisioned, set TRUs | Cloud capacity | [cloud-capacity.md](references/ops/cloud-capacity.md) |
 | Understand APS / RPS / OPS limits and throttling | Cloud capacity | [cloud-capacity.md](references/ops/cloud-capacity.md) |
+| TRU count metric (`temporal_cloud_v1_provisioned_capacity_tru_count`), TRU hourly minimum Actions, extra billed Actions from a shortfall | Cloud capacity | [cloud-capacity.md#hourly-minimum-actions](references/ops/cloud-capacity.md#hourly-minimum-actions) |
 | Create, disable, enable, delete an API key | Cloud IAM | [cloud-iam.md](references/ops/cloud-iam.md) |
 | Invite, list, remove users; set roles/permissions | Cloud IAM | [cloud-iam.md](references/ops/cloud-iam.md) |
 | Manage user groups and service accounts | Cloud IAM | [cloud-iam.md](references/ops/cloud-iam.md) |
@@ -134,6 +135,7 @@ Find the row that matches the user's intent. The reference file contains the com
 | Set up Workflow History Export (S3 / GCS) | Cloud namespace admin | [cloud-namespace-admin.md](references/ops/cloud-namespace-admin.md) |
 | Set up PrivateLink / PSC, manage connectivity rules | Cloud connectivity | [cloud-connectivity.md](references/ops/cloud-connectivity.md) |
 | Self-hosted cluster health, describe, namespace CRUD | Self-hosted admin | [self-hosted-admin.md](references/ops/self-hosted-admin.md) |
+| Self-hosted `temporal operator namespace update`, including changing the active cluster (`--active-cluster` must be used alone) | Self-hosted admin | [self-hosted-admin.md#changing-the-active-cluster](references/ops/self-hosted-admin.md#changing-the-active-cluster) |
 | Self-hosted search attributes, Nexus endpoints | Self-hosted admin | [self-hosted-admin.md](references/ops/self-hosted-admin.md) |
 | Check or manage a Cloud Nexus Endpoint's caller-Namespace allowlist; the 1,000-caller default | Cloud namespace admin | [cloud-namespace-admin.md#tcld-nexus-endpoint-allowed-namespace](references/ops/cloud-namespace-admin.md#tcld-nexus-endpoint-allowed-namespace) |
 | Find stuck/hung/unhealthy workflows via list queries | Workflow health | [workflow-health.md](references/ops/workflow-health.md) |
@@ -146,6 +148,7 @@ Find the row that matches the user's intent. The reference file contains the com
 | View billing, generate billing report, cost attribution | Cloud billing | [cloud-billing.md](references/ops/cloud-billing.md) |
 | Audit Logs: view, query via API, configure sink (AWS/GCP) | Cloud audit logs | [cloud-audit-logs.md](references/ops/cloud-audit-logs.md) |
 | Terraform provider: Namespace/User/SA/API Key/Nexus CRUD | Cloud Terraform | [cloud-terraform.md](references/ops/cloud-terraform.md) |
+| Limit or block requests from calling Namespaces to a target Namespace (`temporalcloud_caller_rate_limit`) | Cloud Terraform | [cloud-terraform.md#caller-rate-limit-management](references/ops/cloud-terraform.md#caller-rate-limit-management) |
 | Expiry alerts (cert, API key, credit), status page | Cloud notifications | [cloud-notifications.md](references/ops/cloud-notifications.md) |
 | SAML SSO, SCIM provisioning, IdP integration | Cloud SAML/SCIM | [cloud-saml-scim.md](references/ops/cloud-saml-scim.md) |
 | Migrate self-hosted to Cloud (automated or manual), migrate between Cloud regions | Cloud migration | [cloud-migration.md](references/ops/cloud-migration.md) |
@@ -206,6 +209,8 @@ After a mutating operation (create, update, delete, rotate), confirm the new sta
 - Confirm the output matches the user's intent
 - Report the result
 
+For an API key create, enable, disable, or delete, a finished operation means only that Temporal Cloud recorded the change. Also confirm the Namespace endpoint has applied it — see [cloud-iam.md → Key changes take effect asynchronously](references/ops/cloud-iam.md#key-changes-take-effect-asynchronously).
+
 ### Diagnosis path
 
 #### Step 1: Identify the symptom
@@ -221,7 +226,7 @@ Confirm three things before continuing:
 
 The context the investigation needs depends on the category. At minimum:
 
-- **For any Cloud auth / connectivity issue:** auth method (API key vs mTLS), exact address, exact namespace, SDK + version. The endpoint family differs by auth method — see [connectivity.md#endpoint-formats](references/triage/connectivity.md#endpoint-formats). For private connectivity (PrivateLink / PSC), TLS server name overrides also vary by auth method — see [cloud-connectivity.md](references/ops/cloud-connectivity.md).
+- **For any Cloud auth / connectivity issue:** auth method (API key vs mTLS), exact address, exact namespace, SDK + version. The endpoint family differs by auth method — see [connectivity.md#endpoint-formats](references/triage/connectivity.md#endpoint-formats). For private connectivity (PrivateLink / PSC), TLS server name overrides also vary by auth method — see [cloud-connectivity.md](references/ops/cloud-connectivity.md). The TLS version does not vary: Temporal Cloud accepts TLS 1.2 or higher and prefers TLS 1.3 for both API key and mTLS connections.
 - **For a stuck workflow:** namespace, workflow ID, run ID, and the output of `temporal workflow describe --workflow-id <id>` (pending-operation state lives here, not in the Event History alone). Event History via `temporal workflow show` is the companion view.
 - **For a worker health issue:** worker logs (registration errors, auth errors, panics), the output of `temporal task-queue describe --task-queue <q>`, and `temporal worker describe --task-queue <q>` for per-worker details.
 - **For a non-determinism error:** the worker log line containing the error, the workflow type name, and access to the history JSON for replay.
@@ -258,18 +263,18 @@ If the layer above the fix is still failing, return to step 4 and continue walki
 ### Operations
 
 - [cloud-namespace-admin.md](references/ops/cloud-namespace-admin.md) — Cloud namespace lifecycle via `tcld`: create, get, list, delete, failover, add-region, retention, tags, codec-server, HA config, connectivity rules, search attributes, accepted-client-ca, certificate filters, export, and the `tcld nexus endpoint allowed-namespace` caller allowlist (1,000-caller Access Policy ceiling).
-- [cloud-capacity.md](references/ops/cloud-capacity.md) — Capacity modes (On-Demand / Provisioned), APS/RPS/OPS definitions, TRUs, `tcld namespace capacity update`, default limits, throttling, APS management best practices.
-- [cloud-iam.md](references/ops/cloud-iam.md) — API key lifecycle (`tcld apikey`), users (`tcld user`), user groups (`tcld user-group`), service accounts, account operations (`tcld account`), roles, namespace permissions.
+- [cloud-capacity.md](references/ops/cloud-capacity.md) — Capacity modes (On-Demand / Provisioned), APS/RPS/OPS definitions, TRUs, the `temporal_cloud_v1_provisioned_capacity_tru_count` metric, TRU hourly minimum Actions and the extra-billed-Actions calculation, `tcld namespace capacity update`, default limits, throttling, APS management best practices.
+- [cloud-iam.md](references/ops/cloud-iam.md) — API key lifecycle (`tcld apikey`), when key changes reach the Namespace endpoint, users (`tcld user`), user groups (`tcld user-group`), service accounts, account operations (`tcld account`), roles, namespace permissions.
 - [cloud-certs.md](references/ops/cloud-certs.md) — mTLS cert management: generating certs with `tcld generate-certificates`, uploading CAs, certificate filters, cert rotation, switching mTLS ↔ API keys.
 - [cloud-connectivity.md](references/ops/cloud-connectivity.md) — Private connectivity (AWS PrivateLink / GCP PSC), connectivity rules: setup, rule parameters, tcld commands, attaching rules to namespaces.
 - [cloud-migration.md](references/ops/cloud-migration.md) — Migration paths: automated self-hosted→Cloud (S2S proxy, `tcld migration` commands, 5 phases), manual self-hosted→Cloud (client changes, workflow strategies), within-Cloud region-to-region (HA add-region/failover).
 - [cloud-ops-api.md](references/ops/cloud-ops-api.md) — Cloud Ops API: HTTP and gRPC endpoints (`saas-api.tmprl.cloud`), Go SDK, protobuf compilation, rate limits (160 RPS account, 40 user, 80 SA, 10 concurrent async), API version header, use cases.
 - [cloud-billing.md](references/ops/cloud-billing.md) — Cloud billing: Billing Center (invoices, credits, plans, cost by namespace), Usage Dashboards, Billing API: async CSV report generation, FOCUS-friendly format, 27-column report schema, date range constraints.
 - [cloud-audit-logs.md](references/ops/cloud-audit-logs.md) — Cloud Audit Logs: supported control plane events (Account, API Keys, Connectivity Rules, Namespace, Export, Nexus, Service Accounts, User, User Groups), JSON format, API access (30-day retention), AWS Kinesis and GCP Pub/Sub sink configuration.
-- [cloud-terraform.md](references/ops/cloud-terraform.md) — Terraform provider: setup (`TEMPORAL_CLOUD_API_KEY`), `temporalcloud_namespace`/`temporalcloud_user`/`temporalcloud_service_account`/`temporalcloud_apikey`/`temporalcloud_nexus_endpoint` CRUD, import, data sources (regions, namespaces), limitations (API keys not importable, cannot manage Account Owner).
+- [cloud-terraform.md](references/ops/cloud-terraform.md) — Terraform provider: setup (`TEMPORAL_CLOUD_API_KEY`), `temporalcloud_namespace`/`temporalcloud_user`/`temporalcloud_service_account`/`temporalcloud_apikey`/`temporalcloud_nexus_endpoint` CRUD, `temporalcloud_caller_rate_limit` (default vs. per-caller rules, `rps = 0` blocks, replacement triggers, import ID lookup), import, data sources (regions, namespaces), limitations (API keys not importable, cannot manage Account Owner).
 - [cloud-notifications.md](references/ops/cloud-notifications.md) — Cloud notifications: certificate expiry (15/10/5 days), API key expiry (30/20/10 days), credit consumption/expiry alerts, plan changes, failover events, recipient roles, `noreply@temporal.io` sender.
 - [cloud-saml-scim.md](references/ops/cloud-saml-scim.md) — SAML SSO (Entra ID, Okta): entity identifier (`urn:auth0:prod-tmprl:ACCOUNT_ID-saml`), callback URL (`login.tmprl.cloud`), IdP configuration steps, support ticket workflow. SCIM: supported vendors, prerequisites (SAML first), 10-minute sync window, group-to-role mapping.
-- [self-hosted-admin.md](references/ops/self-hosted-admin.md) — Self-hosted control plane via `temporal operator`: cluster health/describe, namespace CRUD, search-attribute create/list/remove, Nexus endpoint CRUD.
+- [self-hosted-admin.md](references/ops/self-hosted-admin.md) — Self-hosted control plane via `temporal operator`: cluster health/describe, namespace CRUD, `namespace update` flag rules (`--active-cluster` must be used alone), search-attribute create/list/remove, Nexus endpoint CRUD.
 - [workflow-health.md](references/ops/workflow-health.md) — Data-plane health queries: `temporal workflow list` with List Filters, `temporal workflow describe`/`show`/`count`, `temporal task-queue describe` for poller status.
 - [cli-conventions.md](references/ops/cli-conventions.md) — Cross-command `temporal` CLI conventions: connection/identity (`TEMPORAL_*` env vars ↔ `--address`/`--namespace`/`--api-key`, `--identity`), output/formatting (`--output`, `--time-format`, payload shorthand), the `--query` ⇒ batch-job bridge (with `temporal batch describe/list/terminate`), and schedule time-spec forms. Ends with an operation→command index that routes each data-plane operation to its owner file. Delegates exhaustive flags to `temporal <cmd> --help`.
 - [ops/recipes.md](references/ops/recipes.md) — End-to-end ops playbooks: set up new namespace, check APS, switch capacity mode, find hung workflows, rotate API key, audit access, rotate mTLS certs, check self-hosted health, view billing / generate billing report, configure audit log sink, provision resources with Terraform, set up SAML SSO.

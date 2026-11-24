@@ -79,6 +79,7 @@ If an API key fails on the Namespace Endpoint, try Regional before assuming the 
 
 Per the Cloud troubleshooting note: "Invalid API key errors: Check that you copied the key correctly and that it hasn't been revoked or expired."
 
+- **Key change not yet applied.** A key that was just created or re-enabled can receive `Request unauthorized` until the Namespace endpoint loads it, even after the create or enable finished. Retry with backoff before blaming the key. See [cloud-iam.md → Key changes take effect asynchronously](../ops/cloud-iam.md#key-changes-take-effect-asynchronously).
 - **Key not delivered to the process.** Inside the failing environment (pod/container/host), confirm `TEMPORAL_API_KEY` is set: `env | grep -i TEMPORAL_API_KEY`. A shell-level export on the developer's laptop is not inherited by a container.
 - **Key typo or truncation.** Leading/trailing whitespace, a trailing newline from a copy-paste, or a shell that split the key on whitespace will all produce `UNAUTHENTICATED`.
 - **Key disabled.** A disabled key cannot authenticate — per the Cloud docs: "When disabled, an API key cannot authenticate with Temporal Cloud." Check with `tcld apikey list` or `tcld apikey get --id <apikey_id>`.
@@ -122,7 +123,7 @@ tcld apikey delete --id <apikey_id>
 
 ### Rotating without downtime
 
-The Cloud docs prescribe this sequence: create a new key; verify both keys work; switch clients to the new key; delete the old key.
+Create a new key and save its secret. Leave the existing key in place until a Namespace request with the new key succeeds. Then switch clients to the new key and delete the old key. Key changes reach the Namespace endpoint asynchronously, so retry the new-key check with backoff and confirm the endpoint rejects the old key before relying on the revocation — see [cloud-iam.md → Key changes take effect asynchronously](../ops/cloud-iam.md#key-changes-take-effect-asynchronously).
 
 Key behavioral note: "Deleting or disabling a key removes its ability to authenticate into Temporal Cloud. If you delete or disable an API key being used by Workers to run a Workflow, those Workers will be unable to connect to Temporal until a new API key secret is created and configured." That is why the rotation order is "deploy new, verify, then delete old" and not the reverse.
 

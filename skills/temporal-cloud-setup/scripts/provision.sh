@@ -133,6 +133,7 @@ repo_url_for_sdk() {
     java)       printf 'https://github.com/temporalio/money-transfer-project-java' ;;
     dotnet|.net|net) printf 'https://github.com/temporalio/money-transfer-project-template-dotnet' ;;
     ruby)       printf 'https://github.com/temporalio/money-transfer-project-template-ruby' ;;
+    rust)       printf 'https://github.com/temporalio/money-transfer-project-rust' ;;
     *)          printf '' ;;
   esac
 }
@@ -149,6 +150,7 @@ worker_cmd_for() {
     java)            printf 'mvn -q compile exec:java -Dexec.mainClass=moneytransferapp.MoneyTransferWorker -Dorg.slf4j.simpleLogger.defaultLogLevel=warn' ;;
     dotnet|.net|net) printf 'dotnet run --project MoneyTransferWorker' ;;
     ruby)            printf 'ruby worker.rb' ;;
+    rust)            printf 'cargo run -q --bin worker' ;;
     *)               printf '' ;;
   esac
 }
@@ -160,13 +162,14 @@ starter_cmd_for() {
     java)            printf 'mvn -q compile exec:java -Dexec.mainClass=moneytransferapp.TransferApp -Dorg.slf4j.simpleLogger.defaultLogLevel=warn' ;;
     dotnet|.net|net) printf 'dotnet run --project MoneyTransferClient' ;;
     ruby)            printf 'ruby starter.rb' ;;
+    rust)            printf 'cargo run -q --bin starter' ;;
     *)               printf '' ;;
   esac
 }
 # task-queue name the worker polls — the readiness probe checks for a poller here.
 task_queue_for() {
   case "$1" in
-    python|go)          printf 'TRANSFER_MONEY_TASK_QUEUE' ;;
+    python|go|rust)     printf 'TRANSFER_MONEY_TASK_QUEUE' ;;
     java|dotnet|.net|net) printf 'MONEY_TRANSFER_TASK_QUEUE' ;;
     ts|typescript|ruby) printf 'money-transfer' ;;
     *)                  printf '' ;;
@@ -191,6 +194,7 @@ managers_for() {
     java)            printf 'maven' ;;         # pom.xml only; no mvnw/gradlew/build.gradle
     dotnet|.net|net) printf 'dotnet' ;;
     ruby)            printf 'bundler' ;;
+    rust)            printf 'cargo' ;;
     *)               printf '' ;;
   esac
 }
@@ -204,7 +208,18 @@ runtime_for() {
     java)            printf 'java' ;;
     dotnet|.net|net) printf 'dotnet' ;;
     ruby)            printf 'ruby' ;;
+    rust)            printf 'rustc' ;;
     *)               printf '' ;;
+  esac
+}
+
+# extra_tools_for <sdk> -> space-separated build-time prerequisites beyond the runtime
+# and manager (presence-only, no version check). Rust's SDK generates its protobuf
+# bindings at build time, so `cargo build` fails late without protoc on PATH.
+extra_tools_for() {
+  case "$1" in
+    rust) printf 'protoc' ;;
+    *)    printf '' ;;
   esac
 }
 
@@ -220,6 +235,7 @@ manager_bin() {
     maven)   printf 'mvn' ;;
     dotnet)  printf 'dotnet' ;;
     bundler) printf 'bundle' ;;
+    cargo)   printf 'cargo' ;;
     *)       printf '' ;;
   esac
 }
@@ -240,6 +256,7 @@ min_version_for() {
     yarn)    printf '1.22' ;;
     maven)   printf '3.6' ;;       # mvn
     bundler) printf '2.0' ;;       # bundle
+    rustc)   printf '1.92' ;;      # sample's Cargo.toml rust-version (cargo ships with rustc; checked once)
     *)       printf '' ;;
   esac
 }
@@ -267,13 +284,14 @@ install_cmd_for() {
     java)            [ "$mgr" = maven ]   && printf 'mvn -q -DskipTests dependency:resolve' ;;
     dotnet|.net|net) [ "$mgr" = dotnet ]  && printf 'dotnet restore' ;;
     ruby)            [ "$mgr" = bundler ] && printf 'bundle install' ;;
+    rust)            [ "$mgr" = cargo ]   && printf 'cargo fetch' ;;
     *)               printf '' ;;
   esac
 }
 
 # install_location_note <sdk> -> short phrase stating WHERE the install writes, so the
 # disclosure is explicit when deps land in a shared GLOBAL cache outside the repo
-# (Go/Java/.NET/Ruby) vs. a location local to the clone (Python venv, TS node_modules).
+# (Go/Java/.NET/Ruby/Rust) vs. a location local to the clone (Python venv, TS node_modules).
 install_location_note() {
   case "$1" in
     python)          printf 'into a local venv (env/) inside the repo' ;;
@@ -282,6 +300,7 @@ install_location_note() {
     java)            printf 'into the shared Maven cache - GLOBAL, outside the repo (~/.m2)' ;;
     dotnet|.net|net) printf 'into the global NuGet cache - GLOBAL, outside the repo (~/.nuget/packages)' ;;
     ruby)            printf 'into globally-installed gems - GLOBAL, outside the repo' ;;
+    rust)            printf 'into the shared Cargo registry - GLOBAL, outside the repo (~/.cargo/registry)' ;;
     *)               printf 'into the repo' ;;
   esac
 }
@@ -485,6 +504,12 @@ cmd_detect_tools() {
     disc="${disc:+$disc,}manager-not-found:${candidates%% *}"
   fi
 
+  # Build-time prerequisites (e.g. protoc for Rust): presence only.
+  local x
+  for x in $(extra_tools_for "$sdk"); do
+    require_cmd "$x" || disc="${disc:+$disc,}tool-missing:$x"
+  done
+
   result_open ok
   result_kv sdk "$sdk"
   result_kv runtime "${rt_ver:+$runtime@$rt_ver}"
@@ -515,7 +540,7 @@ cmd_install_cli() {
   if cloud_cli_present; then
     # BETA stopgap (PE-79): the prerelease temporal-cloud CLI has no meaningful
     # version numbers yet, so we can't do a real "is it out of date?" check. For the
-    # beta period we ALWAYS try to pull the latest from the prerelease tap instead of
+    # beta period we ALWAYS try to pull the latest from the temporalio/brew tap instead of
     # skipping. Never yank a working install: if we can't update (Homebrew missing,
     # non-macOS host, or brew errors) we warn and proceed with the CLI that's there.
     # Replace this with a real version comparison once the CLI ships versions.
@@ -524,7 +549,7 @@ cmd_install_cli() {
       Darwin)
         if require_cmd brew; then
           log "Temporal CLI present — updating to the latest prerelease..."
-          up_out="$(brew upgrade temporalio/prerelease/temporal-cloud 2>&1)"; up_rc=$?
+          up_out="$(brew upgrade temporalio/brew/temporal-cloud 2>&1)"; up_rc=$?
           result_open ok
           # The updated/up-to-date label is best-effort (matched against brew's
           # unstructured output) and NON-load-bearing: every branch here emits
@@ -548,7 +573,7 @@ cmd_install_cli() {
         result_kv version "$(cli_version)"
         result_close; return ;;
       *)
-        log "Temporal CLI present on a non-macOS host — no prerelease tap to update from; proceeding with the installed CLI. Update temporal-cloud manually from https://github.com/temporalio/cloud-cli/releases/latest."
+        log "Temporal CLI present on a non-macOS host — no Homebrew tap to update from; proceeding with the installed CLI. Update temporal-cloud manually from https://github.com/temporalio/cloud-cli/releases/latest."
         result_open ok
         result_kv update skipped
         result_kv reason unsupported-os
@@ -560,7 +585,7 @@ cmd_install_cli() {
     Darwin)
       if require_cmd brew; then
         log "Installing temporal-cloud via Homebrew..."
-        if brew install temporalio/prerelease/temporal-cloud >&2; then
+        if brew install temporalio/brew/temporal-cloud >&2; then
           # (b) Verify the install actually took, rather than trusting brew's exit.
           if ! cloud_cli_present; then
             die install-verify-failed "brew reported success but 'temporal cloud --help' still fails — check PATH / shell rehash, then re-run."
@@ -570,7 +595,7 @@ cmd_install_cli() {
           result_kv version "$(cli_version)"
           result_close; return
         fi
-        die install-failed "brew install temporalio/prerelease/temporal-cloud failed; see output above"
+        die install-failed "brew install temporalio/brew/temporal-cloud failed; see output above"
       fi
       die brew-missing "Homebrew not found. Install from https://brew.sh, or download temporal-cloud from https://github.com/temporalio/cloud-cli/releases/latest and put it on PATH."
       ;;
@@ -710,14 +735,18 @@ namespace_active_info() {
   # Pull all four fields in ONE pass (jq, or python3 fallback), pipe-delimited. Use '|'
   # (not tab) as the delimiter so IFS-splitting preserves EMPTY fields — none of the
   # values (handle, numeric state, host:port endpoints) ever contains a '|'.
+  # Endpoint keys are read in both spellings: older CLI builds emit snake_case
+  # (mtls_grpc_address), current ones camelCase (mtlsGrpcAddress).
   if require_cmd jq; then
-    fields="$(printf '%s' "$raw" | jq -r 'if (.Namespaces|length)>0 then (.Namespaces[0] | [(.namespace//""),((.state // "")|tostring),(.endpoints.mtls_grpc_address//""),(.endpoints.grpc_address//"")] | join("|")) else "" end' 2>/dev/null)"
+    fields="$(printf '%s' "$raw" | jq -r 'if (.Namespaces|length)>0 then (.Namespaces[0] | [(.namespace//""),((.state // "")|tostring),(.endpoints.mtls_grpc_address//.endpoints.mtlsGrpcAddress//""),(.endpoints.grpc_address//.endpoints.grpcAddress//"")] | join("|")) else "" end' 2>/dev/null)"
   elif require_cmd python3; then
     fields="$(printf '%s' "$raw" | python3 -c 'import json,sys
 try:
     a=json.load(sys.stdin).get("Namespaces",[]); x=a[0] if a else {}
     e=x.get("endpoints",{}) or {}
-    print("|".join([str(x.get("namespace","")), str(x.get("state","")), str(e.get("mtls_grpc_address","")), str(e.get("grpc_address",""))]) if a else "")
+    m=e.get("mtls_grpc_address") or e.get("mtlsGrpcAddress") or ""
+    g=e.get("grpc_address") or e.get("grpcAddress") or ""
+    print("|".join([str(x.get("namespace","")), str(x.get("state","")), str(m), str(g)]) if a else "")
 except Exception:
     print("")')"
   else
@@ -727,7 +756,12 @@ except Exception:
 $fields
 EOF
   [ -n "$handle" ] || return 1                          # absent — not in the list
-  [ "$state" = "3" ] || return 3                        # exists but ACTIVATING (state 1), not ACTIVE yet
+  # ACTIVE is the number 3 on older CLI builds and the enum string RESOURCE_STATE_ACTIVE on
+  # current ones. Anything else (1 / RESOURCE_STATE_ACTIVATING, ...) is still provisioning.
+  case "$state" in
+    3|RESOURCE_STATE_ACTIVE) ;;
+    *) return 3 ;;
+  esac
   # Copy the endpoint from the API: mtls primary, regional grpc fallback. Only as an
   # absolute last resort (both fields absent — not seen on an ACTIVE namespace) do we
   # construct, so a missing field can't strand the run.
@@ -1278,6 +1312,11 @@ cmd_run_workflow() {
       log "  -> pre-compiling .NET sample app (dotnet build)..."
       ( cd "$dir" || exit 127; dotnet build -v q ) || die precompile-failed "dotnet build failed; check output above. Ensure the .NET SDK is installed."
       ;;
+    rust)
+      require_cmd protoc || die missing-protoc "protoc (the Protocol Buffers compiler) is not on PATH; the Rust SDK needs it at build time. Install it (macOS: brew install protobuf; Debian/Ubuntu: sudo apt-get install protobuf-compiler), then re-run run-workflow."
+      log "  -> pre-compiling Rust sample app (cargo build; the first build compiles the SDK and can take a few minutes)..."
+      ( cd "$dir" || exit 127; cargo build -q --bins ) || die precompile-failed "cargo build failed; check output above. Ensure protoc is on PATH and Rust is 1.92+ (rustup update)."
+      ;;
   esac
 
   local job wlog slog wpid="" sp="" src waited swaited
@@ -1489,7 +1528,7 @@ deps_already_present() {
     python)        [ -d env ] ;;
     ts|typescript) [ -d node_modules ] ;;
     ruby)          bundle check >/dev/null 2>&1 ;;
-    *)             return 1 ;;   # go/java/dotnet: install is cheap / handled at compile
+    *)             return 1 ;;   # go/java/dotnet/rust: install is cheap / handled at compile
   esac
 }
 
@@ -1899,7 +1938,7 @@ cmd_preview() {
       if cloud_cli_present; then
         local uc_cmd uc_note
         case "$(uname -s)" in
-          Darwin) uc_cmd="brew upgrade temporalio/prerelease/temporal-cloud"; uc_note="update the Temporal CLI to the latest prerelease via Homebrew (adds/updates software)" ;;
+          Darwin) uc_cmd="brew upgrade temporalio/brew/temporal-cloud"; uc_note="update the Temporal CLI to the latest prerelease via Homebrew (adds/updates software)" ;;
           *)      uc_cmd="# already installed; update temporal-cloud manually from https://github.com/temporalio/cloud-cli/releases/latest"; uc_note="the Temporal CLI is already installed; on this OS, update temporal-cloud manually from the releases page" ;;
         esac
         result_open ok
@@ -1911,7 +1950,7 @@ cmd_preview() {
       else
         local ic_cmd ic_note
         case "$(uname -s)" in
-          Darwin) ic_cmd="brew install temporalio/prerelease/temporal-cloud"; ic_note="install the Temporal CLI via Homebrew (adds software)" ;;
+          Darwin) ic_cmd="brew install temporalio/brew/temporal-cloud"; ic_note="install the Temporal CLI via Homebrew (adds software)" ;;
           *)      ic_cmd="# download temporal-cloud from https://github.com/temporalio/cloud-cli/releases/latest and put it on PATH"; ic_note="install the Temporal CLI (download the binary, put it on PATH)" ;;
         esac
         result_open ok
@@ -1966,6 +2005,7 @@ cmd_preview() {
       candidates="$(managers_for "$sdk")"; [ -n "$candidates" ] || die unknown-sdk "no package-manager mapping for SDK '$sdk'"
       local dt_bins="" dt_m dt_b
       for dt_m in $candidates; do dt_b="$(manager_bin "$dt_m")"; dt_bins="${dt_bins:+$dt_bins }$dt_b"; done
+      for dt_b in $(extra_tools_for "$sdk"); do dt_bins="$dt_bins $dt_b"; done
       result_open ok
       result_kv preview detect-tools
       result_close

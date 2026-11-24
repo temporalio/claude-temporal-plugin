@@ -7,9 +7,9 @@ Standalone Activities are conceptually the same across all SDKs. Read the [cross
 ## Prerequisites
 
 - Ruby 3.3 or higher.
-- Temporal Ruby SDK (`temporalio` gem) v1.5.0 or higher.
-- Temporal CLI v1.7.0 or higher — see [Temporal CLI install instructions](../core/install_cli.md) if needed. Dev server includes Standalone Activities support.
-- For production, Temporal Server v1.31.0 or higher (or Temporal Cloud).
+- Temporal Ruby SDK (`temporalio` gem) v1.9.0 or higher.
+- Temporal CLI v1.9.1 or higher — see [Temporal CLI install instructions](../core/install_cli.md) if needed. Dev server includes Standalone Activities support.
+- For production, Temporal Server v1.32.0 or higher (or Temporal Cloud).
 
 ## Hosting Activities on a Worker
 
@@ -129,7 +129,7 @@ handle = client.activity_handle('send-welcome-email:user-42')
 The handle also exposes `describe`, `cancel`, and `terminate`:
 
 ```ruby
-handle.describe    # status, timestamps, attempt, last failure, etc.
+handle.describe    # status, timestamps, attempt, and other execution metadata
 handle.cancel      # request cooperative cancellation
 handle.terminate   # force-close the activity
 ```
@@ -141,6 +141,24 @@ result = handle.result
 ```
 
 Calling `execute_activity` is equivalent to `start_activity` followed by `handle.result`.
+
+### Inspect execution details
+
+`handle.describe` returns payloads only when requested and available. Set the corresponding keyword to `true`:
+
+| Keyword | Accessor on the description |
+| --- | --- |
+| `include_input:` | `input` for the original arguments |
+| `include_outcome:` | `result` after success or `failure` after a terminal failure |
+| `include_heartbeat_details:` | `heartbeat_details` for the latest recorded checkpoint |
+| `include_last_failure:` | `last_failure` for the most recent failed attempt, even during retries |
+
+```ruby
+description = handle.describe(include_heartbeat_details: true)
+checkpoint = description.heartbeat_details if description.has_heartbeat_details?
+```
+
+The accessors decode with the Client's Data Converter. Use the same Payload Codec configuration as the producing application when it encodes or encrypts payloads. To wait for an unfinished Activity, call `handle.result`.
 
 ### List Standalone Activities
 
